@@ -1,0 +1,288 @@
+중첩클래스(내부클래스) - 클래스 내부에 정의된 클래스.
+[ 일반적인 형태는 아님. ] [ 코딩할 때 사용할 경우는 거의 없음 ]
+- 클래스와 밀접한 관계가 있을 때.
+- 내부 클래스에서 외부 클래스의 private 멤버에 접근 가능하다는 장점이 있음.
+
+컴파일하면 외부클래스 클래스파일과 별개로 '외부클래스$내부클래스'의 클래스 파일이 생성됨.
+[ ★ 내부 클래스 전용의 실행파일이 따로 만들어짐 ★ ] 
+[ 내부 클래스의 개수만큼 실행 파일이 생성된다. ]
+
+멤버 내부 클래스
+
+class Outer { // 외부 클래스
+  private int x; // 감춰진 변수
+  private static int y; // 감춰진 정적 변수
+
+  public void test1() {
+    
+  }
+  private void test2() { // 감춰진 메서드
+   
+  }
+  public static void test3() {
+ 
+  }
+}
+
+class MemberInner { // Outer안에 있는 Inner 클래스라고 생각하자.
+   
+   public void test() {
+      s.o.p(x);
+      s.o.p(Outer.y);
+      test1();
+      test2();
+      Outer.test3();
+   }
+}
+
+멤버내부클래스의 메소드에서는 외부클래스의 모든 변수, 모든 메소드를 사용할 수 있다.
+멤버 내부클래스 : 외부클래스의 객체가 생성되면 사용할 수 있는 내부 클래스
+
+class Outer {
+  private String name;
+  private int kor;
+  private int eng;
+  private int math;
+
+  // 멤버 내부 클래스
+class Inner {
+  public int getTotal() {
+  // 외부 클래스의 멤버변수를 바로 사용할 수 있다.
+  int total = kor + eng + math;
+  return total;
+  }
+  public int getAverage() {
+     int average = total/3;
+     return average;
+  }
+}
+
+멤버 내부클래스의 사용목적
+- 멤버 내부클래스에 특정 기능을 위임해서 모듈화할 수 있다. ( 유지보수가 쉬워진다. )
+- 멤버 내부클래스는 외부 클래스의 모든 변수, 모든 메소드를 바로 사용할 수 있다.
+
+멤버 내부클래스의 특징
+- 외부 클래스로 객체 생성한 이후에 멤버 내부클래스는 사용가능하다.
+- 멤버 내부클래스는 외부 클래스의 모든 변수, 모든 메소드를 사용할수 있다.
+- 멤버 내부클래스에는 정적 변수, 정적 메소드를 선언할 수 없다. ( 단, 상수는 가능하다. )
+
+정적 내부 클래스
+- 정적 내부클래스는 외부 클래스의 멤버변수, 멤버메소드를 사용할 수 없다.
+ [ 정적 변수, 정적 메서드는 사용 가능 ]
+- 정적 내부 클래스는 외부 클래스의 객체 생성 여부와 상관없이 사용 가능한 내부클래스다.
+- 정적 내부클래스는 static이 정의되어 있지만 메모리에 오직 하나만 생성되지는 않는다.
+
+public class Sample {
+    // 멤버변수, 인스턴스 변수
+    // 객체 생성 후 사용가능하다.
+    int x;
+
+    // 정적변수, 클래스변수
+    // 객체 생성과 상관없이 사용가능하다.
+    static int y;
+ 
+    public void test() {
+    // 지역변수, 로컬변수
+    // 메소드가 실행되는 동안만 사용가능하다.
+    int z = 10;
+    }
+}
+
+public class Outer {
+    class Inner1 { // 멤버 내부 클래스, 외부객체 생성 후 사용가능하다.
+   
+    }
+    static class Inner2 { // 정적 내부 클래스, 외부객체 생성 여부와 상관없이 사용가능하다.
+   
+    } 
+    public void test() { 
+      class Inner3 { // 지역 내부 클래스. 메소드가 실행되는 동안만 사용가능하다.
+      
+       }
+     }
+ } 
+
+멤버 내부 클래스와 정적 내부 클래스 비교
+
+public class Outer {
+    class Inner1 { // 멤버 내부 클래스, 외부객체 생성 후 사용가능하다.
+   
+    }
+    static class Inner2 { // 정적 내부 클래스, 외부객체 생성 여부와 상관없이 사용가능하다.
+   
+    }
+}
+
+// 정적 내부 클래스는 외부 클래스와 상관없이 사용 가능하다. 
+// 정적 내부클래스의 객체 생성 ---> new 외부클래스명.정적내부클래스명();
+Outer.Inner2 inner = new Outer.Inner2();
+
+// 멤버내부클래스는 외부 클래스로 객체를 생성한 다음에만 사용 가능하다.
+Outer outer1 = new Outer();
+// 멤버내부클래스로 객체 생성할 때 외부 객체를 참조하는 참조변수가 사용된다.
+// 멤버내부클래스의 객체 생성 ---> 외부객체참조변수.new 멤버내부클래스명();
+Outer.Inner1  inner = outer1.new Inner1();
+
+* 정적내부클래스나 멤버내부클래스 모두 객체를 생성할 때마다 항상 새로운 객체가 생성된다.
+* 정적내부클래스라 하더라도 메모리에 객체가 오직 하나만 생성되는 것은 아니다.
+* 즉, 정적내부클래스와 멤버내부클래스는 객체를 이용하는 방법에만 차이가 있을 뿐
+매번 새로운 객체가 생성된다는 점은 동일하다.
+
+* 지역 내부 클래스
+- 메소드 내부에 정의된 내부클래스다.
+- 메소드 내부에 정의되어 있기 때문에 메소드 외부에서는 사용할 수 없다.
+- 메소드 내부에 정의되어 있기 때문에 접근제한, static 키워드를 사용할 수 없다.
+- 메소드가 실행되는 동안 잠깐 사용하고 버리는 용도로 사용된다.
+- 지역 클래스가 정의된 메소드의 내부 변수 중에서 final 키워드가 붙어 있거나, 
+  final처럼 동작하는 변수만 사용할 수 있다.
+  즉, 변수가 생성된 다음에 값이 변경되는 변수는 지역 내부 클래스에서 접근할 수 없다.
+
+class Outer {
+  private int x = 1;
+  private static int y = 2;
+  
+  public void test() {
+   int a = 10;
+   int b = 5;
+  
+   class Inner {
+     public void test1() {
+         s.o.p(x); // 외부 클래스의 멤버변수
+         s.o.p(Outer.y); // 외부 클래스의 정적 변수
+         s.o.p(a); // 메소드의 값이 변하는 변수
+         s.o.p(b); // 메소드의 값이 변하지 않는 변수
+     }
+   }
+   a = 3;
+ 
+   Inner inner = new Inner(); // 지역 클래스가 정의된 메소드내에서 객체 생성하고 사용한다.
+   inner.test1(); 
+  }
+}
+
+지역내부 클래스는 외부클래스의 모든 변수, 모든 메소드를 사용할 수 있다.
+외부 메소드의 모든 지역변수를 사용할 수 있다. ( 단, 값이 변하는 지역변수를 사용할 수 없다. )
+
+익명 클래스 ( Anonymous Class ) 
+- 내부 클래스의 한 종류다. 
+- 이름이 없는 클래스다.
+
+이름 있는 클래스 정의하기
+  public class Sample { // 특정 클래스를 상속받지 않는 이름있는 클래스 정의하기.
+     pulbic void test1() {
+        ...
+    }
+  }
+
+  public class Parent { 
+     public void test2() {
+        ...
+     }
+   }
+
+  public class Child extends Parent { // 특정 클래스를 상속받는 이름있는 자식 클래스 정의하기.
+     public void test2() {
+        재정의
+     }
+     public void test3() { 
+          ...     
+     }
+  }
+
+  public interface Reader {
+    int read();
+    int[] read(byte[] buf);
+  }
+
+  public class FileReader implements Reader { // 특정 인터페이스를 구현한 이름있는 구현클래스
+     public int read() { 재정의 }
+     public int[] read(byte[] buf) { 재정의 }
+  }
+
+★ 이름있는 클래스 : 재사용이 가능한 설계도다.
+[ 이름있는 클래스는 설계도를 이용해서 객체를 여러 번 생성할 수 있다. ]
+
+이름 없는 클래스 정의하기
+public abstract class Parent { 
+   public abstract void test();
+}
+class Child extends Parent { // Parent를 구현한 이름있는 클래스
+   public void test() {} 
+  }
+
+Parent p1 = new Parent() { // Parent를 구현한 이름없는 클래스를 즉석에서 정의하고 객체 생성하기 
+   public void test() {
+       수행문;
+   }
+}
+
+익명 클래스
+- 이름이 없는 클래스다.
+- 클래스 정의와 동시에 객체를 생성한다.
+- 익명 클래스의 정의를 위해서는 반드시 부모 ( 클래스, 추상클래스, 인터페이스 )가 필요하다.
+- 오직 한 곳에서만 사용되는 기능이 구현된 객체를 생성할 때 이용된다. ( 주로 GUI 프로그램에서
+ 메뉴를 클릭했을 때마다 실행되는 기능이 구현된 객체를 익명클래스로 정의한다. )
+
+class Practice {
+	
+	Parent p = new Parent() {
+		public void test() {}
+	};
+	
+}
+
+abstract class Parent {
+	public abstract void test();
+}
+
+* Parent 클래스가 추상클래스이기 때문에 new Parent()를 실행해서 객체 생성할 수 없다.
+* 하지만, new Parent() { } 블록안에서 test() 메서드를 즉석에서 구현했기 때문에 객체 생성이 가능하다.
+* 객체를 여러 번 생성할 수 없다는 치명적인 단점이...
+
+이름없는 객체를 만드는 경우 - 딱 1군데서만 사용할 수 있는 객체를 만들 때.
+[ 1회용 100개 만들어야 하면 그냥 익명클래스를 만든다. ]
+[ 재사용성 떨어지는 애들은 익명클래스로 만든다. ]
+[ 예 ) GUI 이벤트 처리, 이벤트 주도 개발.... ] [ 걍 그런 게 있다 정도만 알아두기 ] 
+
+사용자가 하는 모든 행위에 대해 이벤트를 발생시킴
+
+java.awt 패키지
+java.swing 패키지
+javafx 패키지
+
+위의 3개는 윈도용 프로그램을 개발하는 데 사용되는 패키지다. [ 몰라도 됨 ]
+
+람다식 
+★ (매개변수) -> 수행문 ★
+
+public interface Sample {
+    void test(int x, int y);
+}
+
+Sample s1 = new Sample() {
+   public void test(int x, int y) {
+       int z = x + y;
+       System.out.println(z);  
+   }
+}
+Sample s2 = new Sample() {
+   public void test(int x, int y) {
+       int z = x - y;
+       System.out.println(z);  
+   }
+}
+Sample s3 = new Sample() {
+   public void test(int a, int b) {
+       int c = a*b;
+       System.out.println(c);  
+   }
+}
+
+람다식으로 표현하면
+Sample s1 = (x,y) -> {
+    int z = x + y;
+    System.out.println(z);
+}
+Sample s2 = (x,y) -> System.out.println(x-y);
+
+Sample s3 = (a,b) -> System.out.println(a*b);
