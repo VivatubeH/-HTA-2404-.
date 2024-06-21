@@ -1,0 +1,157 @@
+● System 클래스 
+- System 클래스의 모든 필드와 모든 메소드는 정적 필드, 정적 메소드다.
+- 자바실행환경이 설치된 시스템(컴퓨터)에 대한 유용한 값과 객체를 제공하는 클래스다.
+
+System 클래스의 in, out, err는 정적 변수로 존재한다.
+[ 각 정적 변수에 객체가 만들어져서 연결되어 있음 ]
+[ in은 InputStream 객체와, out은 PrintStream 객체와, err도 PrintStream 객체와 연결되어 있음 ]
+[ InputStream은 키보드와, PrintStream은 모니터와 연결되어 있다. ]
+
+System.in 정적변수 - 표준 입력장치(키보드)의 입력을 읽어오는 객체(InputStream)를 참조한다.
+System.out 정적변수 - 표준 출력장치(모니터)로 값을 출력하는 객체(PrintStream)을 참조한다.
+System.err 정적변수 - 표준 에러 출력장치(모니터)로 오류 내용을 출력하는 객체(PrintStream)을 참조한다.
+
+이클립스는 정상 출력과 오류 메시지 출력은 색깔 구분을 해줌.
+
+표준 출력과 표준 오류 스트림은 별도의 버퍼를 사용해서, 버퍼링으로 인해 두 스트림 출력이
+비동기적으로 처리될 수 있음에 주의하자.
+
+printf(String format, Object... args) // 만약에 끝이 int... args는 int 값들을 받을 수 있다.
+	format : 출력형식
+	args : 값
+	* Object... args는 가변길이 매개변수다.
+	* 임의의 개수의 값을 매개변수의 인자로 전달받을 수 있다.
+	예 )
+	System.out.printf("출력형식", 10);
+내부적으로 배열로 받아들임.
+
+출력형식
+%d : 정수를 출력
+%s : 문자열을 출력
+%f : 실수를 출력
+예)
+System.out.printf("%d %s %s", 100, "홍길동", "김유신");
+
+long System.currentTimeMillis()
+- 시스템의 유닉스 타임값을 반환한다.
+- 유닉스 타임 : 1970년 1월 1일 0시 0분 0초부터 현재까지의 시간을 1/1000초 단위로 환산한값이다.
+- 활용 : 유닉스타임값을 접두사로 붙여서 이름 중복 방지 가능.
+           프로그램 실행 시간 체크 가능.
+
+String getenv(String name)
+- 지정된 이름의 환경변수값을 반환한다.
+- 활용 : 자바 설치 경로 조회하기, 등록된 path 경로 조회, 운영체제 종류 조회 등
+
+String getProperty(String key)
+- 지정된 key에 해당하는 시스템 설정정보를 반환한다.
+
+● String 클래스
+
+int length()
+- 문자열의 길이를 반환한다.
+
+boolean isEmpty()
+- 문자열의 길이가 0이면 true를 반환한다.
+- 문자열이 비어있으면("") true를 반환한다.
+
+boolean isBlank()
+- 문자열이 비어있거나 문자열이 white space(공백, 탭 등)으로 구성되어 있으면 true를 반환한다. 
+- 즉, 의미 있는 문자열이 아니면 true가 된다. 
+
+boolean equals(Object obj)
+- 문자열의 동등성을 비교하는 메소드다.
+- String 객체가 서로 달라도 내용이 일치하면 true를 반환한다.
+- Object의 equals(Object obj)를 재정의한 것이다.	
+
+boolean equalsIgnorCase(Strign anotherString){
+  - 문자열의 동등성을 비교하는 메소드다.
+  - 단, 대소문자를 구분하지 않고 비교한다. ( a와 A를 같은 글자로.. )
+
+boolean contains(String str)
+- 지정된 문자열이 포함되어 있으면 true를 반환한다.
+
+int indexOf(String str)
+- 지정된 문자열이 등장하는 위치를 반환한다.
+
+int indexOf(String str, int fromIndex)
+- 지정된 위치에서부터 검색했을 때 지정된 문자열이 등장하는 위치를 반환한다.
+
+int lastIndexOf(String str)
+- 지정된 문자열이 맨 마지막으로 등장하는 위치를 반환한다.
+
+int lastIndexOf(String str, int fromIndex)
+- 지정된 위치에서부터 검색했을 때
+   지정된 문자열이 맨 마지막으로 등장하는 위치를 반환한다.
+
+[ 지정된 문자열을 찾지 못한 경우 -1을 반환하도록 되어 있음 ]
+
+boolean startsWith(String prefix)
+- prefix에 해당하는 문자열로 시작하는 true를 반환한다.
+
+boolean endsWith(String suffix)
+- suffix에 해당하는 문자열로 끝나면 true를 반환한다.
+
+char chatAt(int index)
+- 문자열에서 지정된 위치를 char형으로 반환환다.
+
+Stirng toUpperCase()
+- 이 문자열의 모든 문자를 대문자로 바꾼 새 문자열을 반환한다.
+
+String toLowerCase()
+- 이 문자열의 모든 문자를 소문자로 바꾼 새 문자열을 반환한다.
+		  
+String trim()
+-이 문자열의 좌/우 공백문자를 제거한 새 문자열을 반환한다.
+	  
+String replace(CharSequence target, Charsequence replacement)
+- 이 문자열에서 target으로 지정한 것과 매치되는 글자를 
+replacement에서 지정한 것으로 변경한 문자열을 새 문자열을 반환한다.
+
+String substring(int beginIndex)
+- 이 문자열에서 지정된 시작위치부터 잘라낸 새 문자열을 반환
+
+String substring(int beginIndex, int endIndex)
+- 이 문자열에서 지정된 범위만큼 잘라내 새 문자열을 반환한다.
+ [ beginIndex는 포함, endIndex는 포함되지 않는다. ]
+
+String[] split(String regex)
+- 이 문자열을 지정된 표현식에 해당하는 글자를 기준으로 조각내고
+   그 각각의 조각들을 배열에 담아서 반환한다.
+		
+static int Integer.parseInt(String str)
+- 문자열을 정수로 변환해서 반환한다.
+- 문자열은 숫자형의 값만 포함하고 있어야 한다. 
+
+String String.valueOf(값)
+- 지정된 다양한 값을 문자열로 변환해서 반환한다.
+
+메소드 체이닝 : 메소드를 실행한 결과로 다시 객체가 획득되면 이어서 그 객체의 메소드를 실행하는  것
+메소드 체이닝을 이용하면 코드의 가독성이 높아지고, 불필요한 변수를 생성할 필요가 없다.
+
+예 ) calc.setNum(10).addNum(5).substractNum(2).multiplyNum(6).divideNum(4);
+
+문자열 리터럴
+- 문자열 리터럴은 String 객체를 생성하고, 해당 객체의 주소값을 반환한다.
+- 문자열 리터럴의 최종 결과는 String 객체를 참조하는 주소값 그 자체다.
+- 따라서 "문자열리터럴".메소드()와 같은 형식으로 String의 모든 메소드를 즉시 실행 가능.
+
+StringBuilder와 StringBuffer
+- 임시저장소(버퍼)를 가지고 있어서, append(다양한 타입의 데이터)로 새로운 객체 생성 없이
+임시 저장소에 데이터를 저장할 수 있다.
+- 내부 저장소에 저장된 값을 하나의 문자열로 반환한다.
+- 주요 목적은 문자열의 획득이다.
+
+StringBuilder append(값)
+- 다양한 값을 매개변수로 전달받을 수 있도록 중복정의 되어 있다.
+- 전달받은 값을 내부저장소에 저장시킨다.
+- 반환타입이 StringBuilder이기 때문에 메소드 체이닝을 사용할 수 있다.
+
+String toString()
+- Object의 toString() 메소드를 재정의한 메소드다.
+- 내부저장소에 저장된 값을 하나의 문자열로 만들어서 반환한다.
+
+StringBuffer 
+- StringBuilder와 동일한 API를 가지고 있다.
+- 멀티 쓰레드 환경에서 Thread-Safe 하다.
+
+		 
