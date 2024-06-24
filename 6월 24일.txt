@@ -1,0 +1,230 @@
+Wrapper 클래스 [ 기본 자료형을 포장함 ]
+- 기본 자료형을 객체로 표현하기 위해 설계된 클래스
+
+Wrapper 클래스를 사용해야 하는 경우
+- 그냥 객체를 사용해야 할 때
+- null 값이 저장될 가능성이 있을 때 [ 예를 들어, 시험 점수 0점과 미응시 구분이 안되는 경우가 생김 ]
+- 기본 자료형과 다르게 wrapper 클래스는 null도 저장 가능.
+
+박싱(Boxing) : 기본 자료형 값을 Wrapper 클래스 객체에 담는 것.
+
+println 메서드를 이용해서 출력할 때 화면에 출력되는 건 
+Wrapper "객체" 이므로 Integer 클래스의 재정의된 toString() 메소드가 실행되어서
+Wrapper 객체에 저장된 기본자료형값을 문자열로 변환해서 반환.
+
+자동박싱(AutoBoxing)과 자동언박싱(AutoUnBoxing)
+- Java5부터 박싱/언박싱이 필요한 상황이 있으면 자동으로 처리한다.
+
+Boxing - 기본 자료형값을 Wrapper 객체에 포장하는 것
+ex ) Integer a = new Integer(10);
+      Integer b = Integer.valueOf(10);
+
+AutoBoxing - 변수의 타입이 Wrapper 클래스 타입이면 자동으로 Wrapper 객체를 생성해서
+                   기본 자료형 값을 담고 그 객체의 주소값을 변수에 대입한다.
+ex ) Integer a = 10; // 실제 실행되는 코드 Integer a = Integer.valueOf(10);
+      Object b = 10; // 실제 실행되는 코드 Object b = Integer.valueOf(10);
+
+UnBoxing 
+ex ) int x = a.intValue();
+      double y = b.doubleValue();
+      long z = c.longValue();  처럼 메소드를 통해 뽑아내야 했다.
+
+AutoUnboxing - 변수의 타입이 기본자료형 타입이면 Wrapper 객체에 저장된 값을 꺼내서
+그 값만 변수에 대입하는 것을 자동으로 처리한다.
+ex ) Integer a = new Integer(100);
+      Double b = new Integer(3.14);
+
+      int x = a; // 자동 언박싱, 실제 실행되는 코드 int x = a.intValue();
+      double y = b; // 자동 언박싱, 실제 실행되는 코드 double y = b.doubleValue();
+
+Integer a = new Integer(10);
+double z = a; 
+// 더 큰 곳으로의 자동 언박싱은 가능함.
+
+Wrapper 객체를 참조하는 참조변수가 사칙연산에 사용되는 경우 [ 원래는 참조변수 연산 불가 ]
+→ 자동언박싱 상황이다.
+num1, num2 참조변수가 참조하는 Wrapper 객체에 저장된 기본 자료형값을 조회한다.
+// num1.intValue() + num2.intValue()임.
+
+모든 래퍼클래스는 String toString() [ 래퍼 객체에 저장된 기본자료형을 문자열로 반환 ]
+                          , int hashCode() [ 객체에 저장된 기본자료형값이 같으면 같은 해시코드 반환 ]
+                          , boolean equals(Object obj) [ 기본자료형 값이 같으면 true를 반환함 ]
+오버라이딩하고 있다.
+
+★ 사칙연산, 비교연산은 한 쪽이 기본자료형이면 기본 자료형 방향으로 언박싱이 일어난다. ★
+[ 래퍼 객체와 기본자료형이 같이 사용되면 무조건 자동언박싱이 일어난다. ]
+Integer a = new Integer(10);
+int b = 10;
+s.o.p(a == b) // true
+
+하지만,
+Integer x = new Integer(10);
+Integer y = new Integer(10);
+
+s.o.p(x == y); // 이거는 객체의 동일성 비교, 즉 주소값 비교니 false임에 주의한다.
+[ 비교에 한해서는 equals와 == 연산자의 결과가 다르다. ]
+[ 객체끼리의 비교는 자동 언박싱 상황이 아님. ]
+
+- 래퍼 클래스의 메서드들.
+문자열 -> 기본자료형값 변환하기
+		 
+* parse 메소드는 기본형값으로 변환해주는 거고,
+
+문자열 -> 래퍼 객체로 변환하기
+
+* valueOf 메소드는 래퍼클래스 객체로 변환하는거임.
+
+Wrapper 클래스의 주요 API
+Integer 
+	상수 
+	public static final int MIN_VALUE = 최저값;
+	public static final int MAX_VALUE = 최고값;
+
+	정적메소드
+	int Integer.parseInt(String str) 
+		문자열을 전달받아서 int 타입의 값으로 변환해서 반환한다.
+		str 매개변수 전달받는 문자열은 올바른 형식의 숫자로 구성된 문자다.
+		예외 : NumberFormatException 
+          str로 전달받은 문자열에 숫자가 아닌 문자가 포함되어 있으면 오류발생.
+
+	String toBinaryString(int i)
+  		정수를 "0"과 "1"로 구성된 이진수형식의 문자열로 반환한다.
+	String toOctalString(int i)
+		정수를 "01234567"로 구성된 8진수 형식의 문자열로 반환한다.
+	String toHexString(int i)
+		정수를 "0123456789abcdef"로 구성된 16진수 형식의 문자열로 반환한다.
+
+	멤버메소드
+		boolean equals(Object o)
+		Integer 객체의 동등성을 비교한다.
+		
+		int intValue()
+		Integer 객체에 저장된 정수값을 반환한다.
+
+Double
+	상수
+	public static final double MIN_VALUE = 최저값
+	public static final double MAX_VALUE = 최고값
+	정적메소드
+	double Double.parseDouble(String str)
+		문자열을 전달받아 double 타입의 실수값으로 변환해서 반환한다.
+	멤버메소드	
+	boolean equals(Object o)
+		Double 객체의 동등성을 비교한다.
+	double doubleValue()
+		Double 객체에 저장된 정수값을 반환한다.
+	
+매개변수 유효성 검사 시, 항상 null 부터 check 하는 습관들이기.
+
+Date 클래스 [ 단순히 날짜를 사용할 때 주로 사용 ]
+- System의 현재 날짜와 시간정보를 표현하는 클래스.
+- java.util 패키지에 있다.
+- 날짜 사용 시에 가장 많이 사용하는 클래스이다.
+
+생성자
+Date()
+시스템의 현재 날짜와 시간정보로 Date 객체를 초기화한다.
+Date(long date)
+전달받은 유닉스타임으로 Date 객체를 초기화한다. 
+
+주요 메소드
+long getTime()
+유닉스 타임값을 반환한다.
+boolean after(Date when)
+전달받은 날짜보다 이 날짜가 이후 날짜이면 true 반환
+boolean before(Date when)
+전달받은 날짜보다 이 날짜가 이전 날짜이면 true 반환
+boolean equals(Object obj)
+이 날짜와 전달받은 날짜가 동일한 날짜면 true 반환.
+Object의 equals() 메소드를 재정의하였다.
+String toString()
+이 날짜에 대한 간단한 정보를 문자열로 반환한다.
+Object의 toString() 메소드를 재정의하였다.
+
+[ Date로는 특정한 날짜에 대해 사용하기는 힘들다 . ]
+
+Calendar
+- 추상클래스다.
+- Date에 비해서 더 자세한 날짜와 시간 정보를 표현하는 클래스
+- 다양한 구현 클래스가 존재한다.
+ * GregorianCalendar - 그레고리우스 역법
+
+- 주요 API
+상수 [ 상수 필드 사용 시 인덱스 0인것도 있으니 주의하기 ]
+Calendar.YEAR 년
+Calendar.MONTH 월 
+Calendar.DAY_OF_MONTH 일
+Calendar.HOUR 시
+Calendar.MINUTE 분
+Calendar.SECOND 초
+		
+정적메소드
+Calendar Calendar.getInstance()
++ 현재 날짜와 시간정보를 표현하는 Calendar 객체가 반환된다.
++ 실제로는 GregorianCalendar 객체가 반환된다.
+
+멤버메소드
+int get(int field)
+지정된 field 상수값에 해당하는 정보 반환
+void set(int field, int value)
+지정된 field 상수값에 해당하는 정보를 변경한다.
+Date getTime()
+날짜와 시간정보를 표현하는 Date 객체를 반환한다.
+long getTimeInMillis()
+유닉스타임값을 반환한다.
+
+Calendar cal2 = new GregorianCalendar(2024, 0, 1);
+★ GregorianCalendar로 만들 때는 날짜를 직접 지정해 줄 수 있다. ★
+
+날짜 다루기 [ LocalDate는 아직 안배웠으니 걍 패스 ]
+
++ 시스템의 현재 날짜와 시간 정보를 다루기
+  Date date = new Date(); // 날짜와 시간 정보
+  LocalDate date = LocalDate.now(); // 날짜 정보 
+  LocalDateTime dateTime = LocalDateTime.now()// 날짜와 시간 정보
+
++ 특정 날짜의 날짜 정보를 다루기
+  SimpleDateFormate formatter = new SimpleDateFormat("yyyy-MM-dd");
+  Date date = formatter.parse("2023-01-01");
+
+  LocalDate date = LocalDate.of(2023, 1, 1);
+  LocalDate date = LocalDate.of("2023-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+SimpleDateFormat
+문자열을 Date 타입의 객체로 변환하는 기능과 Date 타입의 객체를 지정된 형식의 문자열로 변환하는 기능 제공
+
+주요 API
+
+생성자
+SimpleDateFormat()
+기본 생성자 메소드
+SimpleDateFormat(String pattern)
+패턴문자열을 전달받아서 초기화하는 생성자 메소드
+
+주요 메소드
+String format(Date date)
+전달받은 Date 객체의 날짜와 시간정보를 지정된 패턴형식의 문자열로 변환해서 반환한다.
+Date parse(String text) 지정된 패턴형식에 맞게 작성된 문자열을 전달받아서 Date 객체로 변환해서 반환한다.
+
+패턴 문자
+Y 년
+M 월
+d 일
+E 요일
+a 오전/오후
+H 24시간제
+h 12시간제
+m 분
+s 초
+S 밀리초
+w week in year
+W week in month
+D day in year
+
+parse( 문자열 ) ------->> 다른 형태
+- parse는 문자열을 다른 형태로 바꾼다.
+format( ? ) ------->> 형식화된 문자열
+- format은 특정한 걸 형식화된 문자열로 바꾼다.
+
+문자열을 해석하는 것 -- 파싱 
+
