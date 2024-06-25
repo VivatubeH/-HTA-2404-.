@@ -1,0 +1,209 @@
+// 특수 문자가 있는 걸 int로 바꾸는 2가지 방법
+		
+// 1. String.replace() 메소드를 이용해 특수문자를 제거하거나
+		
+// 2. DecimalNumberFormat을 이용해서 Number라는 래퍼 클래스의
+// 객체를 생성 후, intValue() 메소드를 이요해서 변환하거나
+		
+Integer.parseInt(String text)
++ 숫자, 부호(+ -)로 구성된 문자열을 정수로 변환한다.
++ 그 외에 다른 문자 있는 경우, 불필요한 문자를 제거한 다음에정수로 변환한다.
+
+		
+1st case
+use Integer.parseInt with replace method of String class
+try {
+String text1 = "100,000,000";
+text1 = text1.replace("," , ""); // , 를 제거한다.
+int value1 = Integer.parseInt(text1);
+System.out.println(value1);			
+} catch (NumberFormatException e )
+{
+System.out.println("잘못된 숫자 변환입니다.");
+System.out.println("다시 입력하세요.");
+}
+		
+// 2nd case
+// use DecimalFormat with parse method of Number class 
+// and use intValue method of Mumber class
+		
+DecimalFormat d = new DecimalFormat("###,###");
+Number n = d.parse("100,000,000");
+int i = n.intValue();
+System.out.println(i);
+		
+// Usually, we use parse method to format 
+// String to number( basic type , not wrapper classes )
+음 그 숫자로 변환할 때는 주로 parse 메소드를 쓰자. ( 헛짓 ㄴ )
+
+	}
+}
+
+Math 클래스
+- 수학 계산과 관련된 기능을 제공하는 클래스
+- 정적 필드, 정적 메소드로 구성되어 있다. 
+
+주요 메소드
+static double random() 
+- 0보다 크거나 같고 1보다 작은 실수 난수 생성 후 반환
+static long round(double a), static int round(float b)
+- 반올림한 정수값을 반환
+static double ceil(double value)
+- 올림해서 얻은 정수를 소수점값이 0인 실수로 반환
+static double floor(double value)
+- 내림해서 얻은 정수를 소수점값이 0인 실수로 반환
+
+static int max(int x, int y)
+- 더 큰 값을 반환함
+static int min(int x, int y)
+- 더 작은 값을 반환함
+
+static double pow(double a, double b)
+- a의 b제곱을 반환함.
+
+(int)(Math.random()*B + A)  - A부터 B 사이의 정수값을 임의로 획득 [ 범위에 해당하는 정수값 ]
+
+Random 클래스
+- java.util.Random
+
+주요 API
+- 메소드
+    int nextInt(int bound)
+  	0 <= 숫자 < bound, 범위의 정수값이 반환된다.
+    int nextInt() 
+              int 범위의 값이 출력됨
+
+ceil() - 페이징 기법 시 나머지를 처리하기 위해 사용함
+( 예를 들어 19권의 책이 있고, 페이지마다 10권씩이면 19/10 = 1.9라서 1페이지를 할당하면
+1페이지로는 처리할 수 없다. )  - ceilDiv()를 사용하면 됨.
+
+static import 구문
+- 정적 변수, 정적 메소드를 import 시키는 구문이다.
+- static import 구문은 클래스를 import 하는 것이 아니라 정적 변수, 정적 메소드를 import 한다.
+- 코드에서 클래스이름.정적변수 대신 정적변수만 적는다.
+- 클래스이름.정적메소드 대신 정적메소드만 적는다.
+
+제네릭(Generic)
+- 클래스 내부에서 사용할 데이터 타입을 직접 지정하지 않고, 외부에서 지정하는 것.
+
+예)
+  
+   제네릭 클래스 : 타입 파라미터를 하나 이상 가지고 있는 클래스 [ 구체적인 타입 대신에 ]
+   외부에서 타입파라미터 자리에 실제로 사용할 클래스의 타입을 지정한다.
+
+   public class ArrayList<E>{ 
+       public boolean add(E e) {
+	...
+       } 
+       public E get(int index){
+	...
+       }
+   }
+    
+   제네릭 인터페이스
+   public interface Comparable<T>{
+	void compare(T other);
+    }   
+
+   제네릭의 표시
+    - <타입파라미터> 다이아몬드 표기법으로 타입파라미터(별칭)을 지정한다.
+     타입파라미터의 실제 타입은 외부에서 지정한다.
+     + 타입파라미터는 참조타입만 지정할 수 있다.
+     + 타입파라미터로 기본자료형 타입의 값을 지정할 수 없다. ( 대신 Wrapper 타입은 가능 )
+ 
+      ArrayList<String> list = new ArrayList<String>();
+      ArrayList<String> list = new ArrayList<>(); // 우측 타입은 생략 가능하다. ( 자바 7부터 )
+
+     자료구조가 기본적으로 모든 걸 담을 수 있지만, 그렇다고 모든 걸 섞어서 담지는 않음..
+
+	제네릭을 사용하지 않으면 생기는 문제점.
+
+     ★ 컴파일 시에 의도하지 않은 게 담기는 걸 체크할 수 없다. ★
+     ★ 불필요한 형변환을 계속해야 한다. ★
+
+- 타임 파라미터의 일반적인 의미
+  <T> 타입(type) 클래스 혹은 인터페이스의 타입
+  <E> 요소(element) 자료구조객체에 요소로써 저장되는 클래스 혹은 인터페이스의 타입
+  <K> 키(Key) Map 객체에서 값을 대표하는 키로서 저장되는 클래스 혹은 인터페이스의 타입
+  <V> Map 객체에서 값으로 저장되는 클래스 혹은 인터페이스의 타입
+
+     제네릭의 활용
+     ArrayList<String> list1 = new ArrayList<String>(); // 외부에서 타입을 지정한다.
+     + String 객체만 담을 수 있는 ArrayList 객체가 생성되었다. [ 타입 안정성이 확보되었다. ]
+     + list1이 참조하는 ArrayList 객체의 몇 번째에서 값을 꺼내든 언제나 String 객체만 획득된다.
+	
+- 제네릭의 장점
+   + 제네릭이 적용된 클래스로 생성된 객체는 컴파일 시점에 타입 검사를 수행할 수 있다.
+    ArrayList<Apple> list = new ArrayList<Apple>();
+    list.add(new Apple());
+    list.add(new Apple());
+    list.add(new Book()); // 컴파일 시점에 오류가 검출된다. 
+   + 불필요한 클래스 형변환이 일어나지 않는다.
+
+- 제네릭 타입을 제한하기
+   + 파라미터 타입에 제한이 없는 제네릭 클래스
+   public class FruitBox<T>
+  {  
+  }
+  FruitBox<Apple> fruitBox1 = new FruitBox<>();
+  FruitBox<Orange> fruitBox2 = new FruitBox<>();
+  FruitBox<Book> fruitBox3 = new FruitBox<>(); // 과일 종류가 아닌 객체를 담는 FruitBox 생성.
+
+  + 파라미터 타입에 제한이 있는 제네릭 클래스
+   public class FruntBox<T extends Fruit>
+   {
+   }
+   * T의 타입은 Fruit 및 Fruit의 자식 타입만 가능하다.
+
+- 제네릭 인터페이스의 활용
+  // 제네릭 인터페이스
+   public interface List<E> 
+   {
+	void add(E e);
+              E get(int index);   
+   }
+  // 제네릭 구현클래스
+  public class ArrayList<E> implements List<E>{
+ 	public void add(E e){ }
+	public E get(int index) { }
+  }
+ * 제네릭 인터페이스를 구현한 구현 클래스도 제네릭 클래스로 구현할 수 있다.
+   구현클래스에서 재정의할 때 제네릭 타입에 맞춰서 구현한다.
+ * 제네릭 클래스를 사용할 때 타입을 지정한다.
+
+- 제네릭 인터페이스를 일반 클래스로 구현하기
+  // 제네릭 인터페이스
+  public interface Comparable<T>{
+	int compare(T other);
+  }
+  // 일반 구현 클래스
+  public class Book implements Comparable<Book>{
+	// 제네릭 인터페이스의 제네릭 타입ㅇ르 Book으로 지정했으므로
+	// 재정의하는 메소드에서도 T가 Book으로 지정된다.
+    public int compare(Book other){
+             ...
+    }
+  * 제네릭 인터페이스를 구현한 구현클래스가 일반클래스일 때는
+  구현클래스를 구현하는 시점에 타입을 지정한다.
+  * Book은 일반 클래스이기 때문에 타입을 지정할 필요가 없다.
+    Book book = new Book();
+
+Comparable 인터페이스를 구현한 객체는 대소관계를 비교할 수 있다. 
+즉 정렬이 가능하다.
+
+- 지네릭 메소드
++ 메소드 선언부의 반환타입 앞에 <타입파라미터> 다이아몬드 표기법으로 제네릭이 정의된메소드
+ public class Box<T>
+ {
+  public void add(T t) // 제네릭 메소드가 아니다.
+  {
+  }
+  public E get(int index)
+  {
+  }
+  // 제네릭 메소드다.
+  // <T>는 Box<T>의 T와 상관없이 직접 메소드에<T>제네릭을 독립적으로 설정한 메소드다.
+
+  public <T> void toArray(T[] arr)
+  {
+  }
