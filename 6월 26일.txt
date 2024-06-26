@@ -1,0 +1,215 @@
+제네릭 타입을 제한하기
+ 
+<T extends 타입>은 T의 타입을 제한하는 것이다.
+T는 지정된 타입 혹은 해당 타입의 하위만 가능하다
+
+<T extends Phone>으로 지정하면
+T는 Phone, SmartPhone, FeaturePhone 종류만 가능하다.
+
+PhoneBox를 사용할 때 사용가능한 T가 제한된다.
+PhoneBox<Phone> box = new PhoneBox<Phone>(); // 가능
+PhoneBox<SmartPhone> box = new PhoneBox<SmartPhone>(); // 가능
+PhoneBox<String> box = new PhoneBox<String>() // 컴파일 오류 
+
+타입이 인터페이스더라도 implements 대신 extends를 사용한다.
+
+// Phone, SmartPhone, FeaturePhone, IPhone 다 전달받을 수 있는 경우.
+public void add(Phone p) { ... }
+
+// Phone[], SmartPhone[], FeaturePhone[], IPhone[] 다 전달받을 수 있는 경우
+public void add(Phone[] arr) { ... }
+
+★ Box<Phone>, Box<SmartPhone>, Box<FeaturePhone>, Box<IPhone> 모두 전달받을 수는 없다.
+public void add(Box<Phone> box){ ... }는 Phone만 전달받을 수 있음.
+
+제네릭타입간의 클래스 형변환은 지원되지 않는다.
+[ 즉, Box<SmartPhone>은 Box<Phone>의 하위타입이 아님... ]
+
+- 와일드카드
++ 제네릭에 타입 다형성을 부여하기 위해 도입되었다.
++ 종류
+   Box<?> 비한정 와일드카드	제한없음
+   Box<? extends 타입> 상한 경계 와일드카드		상위 클래스를 제한함. ( 지정된 타입/ 하위타입가능)
+   Box<? super 타입> 하한 경계 와일드카드	하위클래스를 제한함.(지정된 타입/ 상위타입가능 )
+
++예)
+  public void test(Box<?> box) {...}
+  * Box<Phone>, Box<SmartPhone>, Box<FeaturePhone>, Box<String>, Box<Integer> 전부 가능
+ 
+  public void test(Box<? extends Phone> box) {...}
+  * Box<Phone>, Box<SmartPhone>, Box<FeaturePhone>만 가능
+ 
+  public void test(Box<? extends SmartPhone> box) {...}
+ * Box<SmartPhone>, Box<Iphone>, Box<Galaxy>만 가능
+
+  public void test(Box<? super SmartPhone> box) {...}
+ * Box<SmartPhone>, Box<Phone>, Box<Object>만 가능
+
+와일드 카드의 목적은 변수가 전달받을 수 있는 객체의 종류가 다양하게 하는 것이다.
+( 클래스의 타입파라미터로서는 적합하지 않음. 클래스의 타입 파라미터는 제한하는 것이기 때문 )
+
+Collection Framework - 자바에서 자료 구조를 구현해놓은 것.
+
+자료 구조 : 값을 저장/ 삭제/ 조회 등의 기능을 제공하는 것.
+
+배열 : 크기가 불변이다 / 같은 종류만 담을 수 있다 / 인덱스로 사용한다 / 기본 자료형, 객체 모두 담음.
+자료구조 : 객체만 저장할 수 있다 / 크기가 가변적이다 / 다양한 메소드를 지원한다.
+
+콜렉션 인터페이스 : 모든 자료구조 구현체의 최상위 인터페이스
+
+Set 인터페이스 : 중복을 허용하지 않는 자료구조.
+
+// Collection Framework에서 모든 자료구조 구현체의 최상위 인터페이스
+interface Collection<E>
+{}
+
+// Set 인터페이스는 중복을 허용하지 않는 자료구조.
+interface Set<E> extends Collection<E>
+{}
+
+// Queue 인터페이스는 선입선출이 보장되는 자료구조
+interface Queue<E> extends Collection<E>
+{}
+
+// List 인터페이스는 순서가 보장되는 자료구조 
+// 저장한 순서대로 다시 꺼낼 수 있다. [ 가장 많이 사용함 ]
+interface List<E> extends Collection<E>
+{}
+
+// Tree라는 이름이 들어가면 데이터가 무조건 정렬됨.
+// 순서는 보장되지 않음, 트리 구조는 탐색 속도가 빠르다
+// 저장되는 데이터를 정렬하고 싶을 때 사용한다.
+class TreeSet<E> implements SortedSet<E>
+{
+	
+}
+
+// 중복 없이 저장하고 싶을 때 HashSet을 사용한다.
+class HashSet<E> implements Set<E>
+{
+	
+}
+
+// 객체를 저장할 때 가장 많이 사용하는 자료구조
+// 순서가 보장됨
+class ArrayList<E> implements List<E>
+{
+	
+}
+
+// 자료구조의 중간에서 삽입, 삭제가 빈번할 때 사용하는 자료구조
+// 순서가 보장됨
+class LinkedList<E> implements List<E>
+{
+	
+}
+
+// 쓰레드 세이프한 List 구현 자료구조
+class Vector<E> implements List<E>
+{
+	
+}
+
+// LIFO(후입선출)이 구현된 자료구조
+class Stack<E> extends Vector<E>
+{
+	
+}
+
+HashSet<E>
+- Set<E> 인터페이스의 구현클래스다.
+- 중복을 허용하지 않는다.
+- 해시코드값을 이용해서 객체의 중복여부를 체크한다.
+- 주요 API
+
+boolean add(E e)
+객체를 저장한다.
+저장에 성공하면 true 를 반환한다.
+만약 동일한 객체가 있어서 저장에 실패했으면 false를 반환한다. 실제 개발환경에서 반환값은 신경쓰지 않는다.
+
+void addAll(Collection c)
+전달받은 콜렉션에 저장된 모든 객체를 한번에 저장
+
+boolean contains(Object e)
+지정된 객체가 존재하면 true를 반환
+
+void clear()
+저장된 모든 객체를 삭제한다
+
+int size()
+저장된 객체를 개수를 반환한다
+  
+boolean isEmpty()
+저장된 객체가 없으면 true를 반환한다.
+자료구조에 저장된 객체를 표현할 때 항상 empty 여부 체크
+
+boolean remove(Object e)
+지정된 객체를 삭제한다.
+
+Iterator<E> iterator()
+저장된 객체를 반복처리하는 Iterator 객체를 반환한다. 
+
+저장된 객체 조회하기는 항상 향상된 for문을 사용한다. 
+
+// 변수 생성 시 복수형은 employee 이렇게 만드는 게 아니라, 변수만 봐도 
+// 예측할 수 있도록 employees 처럼 문법에 안 맞더라도 그냥 s를 붙이자.
+
+HashSet<E>, TreeSet<E>, ArrayList<E>, Vector<E> 등등은 그냥
+Container 객체이다.  
+
+★ 동일성 비교가 아닌 동등성 비교를 하려면, 객체 자체에서 hashCode()와 equals()를 재정의 해야함 ★ 
+
+★ 동일성 비교가 아닌 동등성 비교를 하려면, 객체 자체에서 hashCode()와 equals()를 재정의 해야함 ★
+
+★ 동일성 비교가 아닌 동등성 비교를 하려면, 객체 자체에서 hashCode()와 equals()를 재정의 해야함 ★
+
+[ 같은 값을 가지고 있으면 같은 객체라고 판단하게 만들어야 함. ]
+[ Integer나 String 같은 건 해시코드와 equals()를 다 재정의 해놨음. ] 
+[ 사용자가 만든 클래스는 동일성 비교밖에 못하므로 동등성 비교를 할 수 있게 추가해야 함. ]
+[ 자동완성으로 hashCode(), equals() 둘 다 오버라이딩 하자 ]
+
+// TreeSet은 정렬이 가능한 객체여야만 가능하다...
+// Comparable 인터페이스를 구현해야 한다.
+
+int compareTo(T t)
+{ 
+	// 내가 더 크면 양수
+	// 같으면 0
+	// 상대가 더 크면 음수
+}
+
+비교가능한 객체 만들기(정렬가능한 객체 만들기)
+java.lang.Comparable<T> 인터페이스를 구현한다.
+
+public interface Comparable<T> { // 이렇게 하면 형변환 없이 사용 가능하다.
+    // 사원번호 순으로 오름차순 정렬.
+    return this.no - other.no;
+    int CompareTo(T ohter);
+}
+
+/*
+ * Comparable<T>
+ * - Comparable<T> 인터페이스를 구현한 객체는 정렬가능한 객체가 된다.
+ * - Comparable<T> 인터페이스는 int compareTo(T other) 추상 메소드가 있다.
+ * - 구현 클래스에서는 compareTo 메소드를 재정의해야 한다.
+ * - 다른 객체가 더 크면 음수, 같으면 0, 다른 객체가 더 작으면 양수
+ *  반환되도록 구현해야 한다.
+ * - 정렬기준이 되는 값은 객체의 값 중에서 아무거나 상관없다.
+ * - 정렬기준이 되는 값은 하나 이상일 수 있다.
+ */
+
+List - 순서가 유지되는 자료구조 [ 저장한 순서대로 다시 꺼낼 수 있음 ]
+[ Set은 인덱스가 없지만, List는 내부적으로 인덱스를 사용한다. ]
+[ List는 Collection 인터페이스의 추상 메서드를 상속받은 것 뿐만 아니라,
+ 자체적으로 인덱스를 활용한 추상 메서드들을 더 정의해놓았다. ]
+
+Set 인터페이스는 
+Collection 인터페이스로부터 물려받은 추상메소드 외에
+특별히 더 추가한 추상메소드가 없다.
+
+List 인터페이스는
+Collection 인터페이스로부터
+물려받은 추상메소드 외에
+인덱스를 활용하는 추상메소드를 추가로 정의하였다.
+
+
