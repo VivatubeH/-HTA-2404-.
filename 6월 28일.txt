@@ -1,0 +1,141 @@
+어제에 이은
+
+9. 사용자 정보 수정하기
+ 
+UserApp 
+	수정() 메소드
+	- 수정할 사용자의 아이디를 입력받는다.
+ 	- 전화번호와 이메일을 입력받는다.
+	- 서비스의 updateUserInfo() 메소드를 호출해서 아이디, 이메일, 전화번호를 전달한다.
+
+ UserService
+	void updateUserInfo(String id, String email, String tel) 메소드
+	- 레파지토리의 findUserById 메소드를 호출해서 아이디가 일치하는 사용자 정보를 조회한다.
+	- 조회된 사용자 정보가 존재하면, Setter 메소드를 호출해서 이메일과 전화번호를 변경한다.
+ 
+UserRepository  
+	User findUserById(String id) 메소드
+	- 이미 구현되어 있음
+
+이미 안 만든 메서드 호출할 때, 그냥 이클립스 자동완성 기능 이용하자.
+
+10. 사용자 정보 삭제하기
+
+UserApp
+	삭제() 메소드
+	- 삭제할 사용자의 아이디를 입력받는다.
+	- Service의 removerUser 메소드를 호출해서 아이디를 전달하고 호출한다.
+UserService
+	void removeUser(String id) 메소드
+	-  레파지토리의 findAll() 메소드를 호출해서 모든 사용자 정보를 조회한다.
+	-  전체 사용자 정보에서 전달받은 아이디와 일치하는 사용자 정보를 찾아서 삭제한다.
+UserRepository
+	 List<User> findAll() 메소드
+	- 이미 구현되어 있음.
+
+
+interface Iterator<E> {
+
+  E next(); // 반복자 객체에서 다음번 객체를 반환한다.
+  boolean hasNext(); // 반복자 객체에서 다음번에 꺼낼 객체가 있으면 true를 반환한다.
+  default void remove() {...}
+  default void forEachRemaining(Consumer<? super E> action) {...}
+}
+
+class HashSet<E> extends ... implements ... {
+  // 멤버 내부 클래스
+  class HashSetIterator implements Iterator<E> {
+     public E next() {
+       // HashSet에 저장된 요소를 하나 반환한다.
+    }
+    public boolean hasNext() {
+      // HashSet에 객체가 남아있으면 true를 반환
+   }
+ }
+
+public Iterator<E> iterator() {
+   return new HashSetIterator<E>();
+  }
+}
+
+Iterator<E> 인터페이스
+- 모든 자료구조 구현클래스에서 저장된 객체를 반복처리하는 방법을 통일시키기 위해서 정의한 표준.
+
+while문을 사용하려면
+1. 반복을 지속할 지 여부를 결정하는 메서드 - hasNext()
+2. 하나씩 뽑아내는 메서드 - Next()
+
+반복처리하기
+
+// 일반 for문 : 반복의 횟수를 미리 정하고 실행할 때 사용.
+// 배열 혹은 리스트의 인덱스를 반드시 사용해야 할 때
+// + 배열 혹은 리스트에서 특정 위치의 값을 이용해야 할 때
+// + 배열 혹은 리스트에서 값이 몇번째에 저장되어 있는지 조사할 때
+for (int i = 시작인덱스; i < 사이즈; i++) {}
+
+// 향상된 for문
+// 배열, 리스트, 셋에 저장된 값을 처음부터 끝까지 반복처리할 때
+// 배열, 리스트, 셋에 저장된 값을 전부 소비하는 경우 언제나 첫 번째로 고려해야 한다.
+
+for ( 타입 변수 : 배열 ) {}
+for ( 타입 변수 : 콜렉션 ) {}
+
+// while문
+// 무한루프 구현할 때
+// While(true) {}
+// 	수행문;
+	if ( 탈출조건 ) {
+                       break; 
+	}
+// }
+// 반복작업을 지원하는 객체(반복지속여부를 알려주는 메소드가 있다.)를 대상으로 할 때
+// Iterator<E>, Enumeration<E>, StringTokenizer, ResultSet, ...
+// Iterator 객체
+// while(iter.hasNext()){
+값 = iter.next();
+}
+// Enumearation 객체
+// while(en.hasMoreElements()){
+값 = iter.nextElement();
+}
+// StringTokenizer 객체
+// while(st.hasMoreTokens()){
+값 = st.nextToken();
+}
+while(조건식) {
+
+}
+
+Thread -> 프로그램 실행 흐름 [ 최소 하나의 쓰레드는 모든 프로그램이 가짐 ]
+
+별도의 스레드를 만듬 == 별도의 실행 흐름을 만든다.
+
+클래스 영역에 멤버를 만들 때 경합이 일어나지 않게 메스드 안에 만드는 게 좋다.
+
+Map<K,V>
+- Key, Value의 쌍으로 값을 저장한다.
+- Entry<K, V>는 Key, Value의 쌍을 표현하는 객체이다.
+- K는 key의 타입, V는 value의 타입이다.
+- Map<K. V>는 여러 개의 Entry<K,V> 객체를 포함한다.
+- Map<K, V> 객체에서 key 값은 고유하다.
+- Map<K, V> 객체에 정보를 저장할 때는 항상 key와 value를 같이 저장한다.
+- Map<K, V> 객체는 key 값을 이용해서 value를 조회할 수 있다.
+		   key 값을 이용해서 Entry<K, V>를 삭제할 수 있다.
+- Map<K, V> 객체에 저장된 정보를 이용하기 위해서는 모든 사용자가 key를 알고 있어야 한다.
+- Map<K, V> 객체에 정보를 저장하거나 정보를 사용할 때 반복문을 사용하지 않는다.
+
+Map을 사용하는 경우 
+- Key는 구분을 목적으로 사용함.
+- 가변성이 높은 데이터를 저장하고 싶을 때.
+- if문을 제거할 수 있음.
+[ 주로 사용자가 입력하는 것들 ]
+[ Map은 정보 자체를 담을 때 사용함 ] 
+[ Map은 VO 객체를 대신할 수 있다.]
+
+* Object put(K key, V value)
+- Map 객체에 key, value 값을 저장한다.
+- key값은 고유해야 한다.
+- 만약, key 값이 중복되면 기존 값을 덮어쓴다.
+
+List를 사용하는 경우
+- 구별할 필요가 없는 값을 담을 때.
