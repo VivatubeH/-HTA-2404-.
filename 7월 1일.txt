@@ -1,0 +1,202 @@
+Map의 주요 API 중 중요한 거
+- V put(K key, V value) : 맵 객체에 key, value 쌍 저장
+- V get(Object key) : 맵 객체에서 지정된 key에 해당하는 value를 조회
+
+내부에 어떤 키가 있는 지 모를 때 사용하는 메소드
+Set<Key> keySet()
+- Map객체에 저장된 모든 Key값을 Set객체에 담아서 반환한다.
+- Set객체에 담아서 반환하는 이유는 Key는 중복되지 않는 값이다.
+
+실제로는 키를 항상 알고 있을 수 밖에 없어서, 자주 사용할 일은 없음.
+
+Set<E>
+	Set<String>
+	Set<Integer>
+	Set<User>
+	Set<Map<K, V>>
+List<E>
+Map<K, V>
+	Map<String, String>
+	Map<String, Integer>
+	Map<Integer, User>
+
+	// 부서명과 소속사원 이름 목록
+	Map<String, List<String>>
+		"영업팀" - ["홍길동, "김유신", "강감찬"]
+		"인사팀" - ["김구", "안중근", "윤봉길", "안창호"]
+
+		// 저장하기
+		// 사원이름 목록을 저장할 List 객체를 생성한다.
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		// List 객체에 사원이름을 저장한다.
+		List<String> names1 = new ArrayList<>();
+		names1.add("홍길동");
+		names1.add("김유신");
+		names1.add("강감찬");
+		// List 객체를 Map객체에 저장하기
+		map.put("영업팀", names1);
+		
+		// 먼저 Map을 만들고 순서대로 값을 넣어줘야 함.
+
+		// 꺼내기
+		//Map 객체에서 영업팀의 사원이름 목록 조회하기		
+		List<String> names = map.get("영업팀");
+		for(String name : names) {
+		s.o.p(name)
+		}
+	
+	// 부서명과 소속사원 정보 목록
+	Map<String, List<User>>
+		"영업팀" - [User 객체, User 객체, User 객체]
+		"인사팀" - [User 객체, User 객체, User 객체]
+		List<Employee> employeeList = map.get("영업팀");
+		for(Employee emp: employeeList){
+		s.o.p(emp.getName() + "," + emp.getDept() + ", " + emp.getSalary());
+  		}
+	
+	// 도서종류와 해당 도서 정보 목록 
+	Map<String, Map<String, Integer>>
+		"김유신" - {국어=100, 영어=90, 수학=60}
+		"이순신" - {국어=90, 영어 = 40, 수학=100}
+
+	// 학생이름과 시험성적(과목명=key, 점수=value)들 
+	Map<String, List<Book>>
+		"최신도서" - [Book 객체, Book 객체, Book 객체]
+		"추천도서" - [Book 객체, Book 객체, Book 객체, Book 객체]
+
+
+java.util.Properties
+
++ .properties 파일에 저장된 설정정보를 표현하는 객체다.
+
++ Properties 객체를 이용하면 설정정보를 읽어오거나 저장할 수 있다.
+
++ Properties 클래스는 key와 value의 타입이 전부 String타입이다.
+( 제네릭 타입을 지정할 필요가 없다. )
+
++ 주요 API
+
+void load(InputStream in)
+지정된 스트림을 이용해서 파일에 설정된 정보를 읽어온다.
+
+void load(Reader in)
+지정된 스트림을 이용해서 파일에 설정된 정보를 읽어온다.
+
+String getProperty(String name)
+지정된 이름으로 설정된 값을 반환한다.
+
+String getProperty(String name, String defaultValue)
+지정된 이름으로 설정된 값을 반환한다.
+지정된 이름으로 설정된 값이 없으면 defaultValue로 지정된 값을 반환한다.
+
+Object setProperty(String name, String value)
+지정된 name, value 쌍을 객체에 저장한다.
+
+void store(OutputStream out, String comments)
+지정된 출력스트림을 이용해서 파일에 설정정보와 주석내용을 기록한다.
+
+void store(Writer out, String comments)
+지정된 출력스트림을 이용해서 파일에 설정정보와 주석내용을 기록한다.
+						 
+스트림(Stream) : 어플리케이션 | 리소스(파일, 다른 컴퓨터)
+프로그램에서 스트림이란 리소스와 연결된 데이터 흐름을 표현하는 것을 말함.
+
+순차적인 데이터의 흐름 그 자체
+스트림은 단방향만 가능함
+
+InputStream, Reader - 읽기 전용 
+OutputStream, Writer - 쓰기 전용
+
+Input, OutputStreamd은 1byte씩 읽고 쓸 수 있음 ( 바이트 스트림이라고 부름 ) - 영상, 사진, 압축파일도 가능.
+Reader, Writer는 한 글자씩 읽고 씀. ( Character 스트림, 문자 스트림이라고 부름 ) - 텍스트 전용
+
+예외처리
+- 프로그램 실행 시 발생할 수 있는 오류에 대비하는 것으로 비정상적 종료를 막고 
+프로그램의 실행 상태를 유지하는 것.
+
+자바에서의 오류
+1. 에러(Error) : 시스템, 운영체제, JVM의 잘못으로 발생되는 것. ( 개발자가 해결할 수 있는 문제가 아님 )
+2. 예외(Exception) : 개발자의 코딩 실수, 사용자의 잘못된 프로그램 사용으로 발생하는 오류.
+[ 예외 처리를 통해 비정상적인 종류를 예방할 수 있다. ]
+
+RuntimeException의 자손  - Unchecked Exception ( 비필수 예외 ) 
+Exception의 자손 - Checked Exception ( 필수 예외 ) [ 컴파일러가 예외 발생 여부를 확인함 ]
+
+RuntimeException과 그 자손들 - 개발자의 코딩 실수가 주로 원인이 되는 예외
+Exception과 그 자손들 - 사용자의 잘못된 사용이 주로 원인이 되는 예외
+
+예외발생 시 프로그램의 실행
+1. 프로그램에서 오류가 발생함.
+2. 오류 상황에 맞는 예외객체를 생성하고,
+    오류 원인과 오류 발생 정보(오류가 발생한 클래스와 행번호 등)을 저장한다.
+3. 발생한 예외를 처리하지 않으면, 최종적으로 JVM에게 전달된다.
+4. JVM은 전달받은 예외객체에서 오류 원인과 오류발생정보를 조회해서
+화면에 출력하고 프로그램을 종료시킨다.
+
+예외 정보 분석하기
+1.Exception in thread "main" java.lang.NumberFormatException: For input string: "123a"
+2. at java.base/java.lang.NumberFormatException.forInputString(NumberFormatException.java:67)
+3. at java.base/java.lang.Integer.parseInt(Integer.java:668)
+4. at java.base/java.lang.Integer.parseInt(Integer.java:786)
+5. at exception.App1.main(App1.java:9)
+
+1번 Exception in thread "main" : main 스레드에서 예외가 발생하였다.
+
+    java.lang.NumberFormatException : 예외 클래스명으로 
+    어떤 오류 상황이 발생했는지 확인한다.
+
+    For input string: "123a"
+    오류 메시지 정보다. 상세한 오류 원인을 알려준다.
+
+2번 ~ 5번 
+   + 오류가 발생한 코드를 호출순서의 역순으로 표시하는 부분이다.
+   + 호출 순서 App1.main 메소드의 9번째 라인 
+   ->  Integer.parseInt 메소드의 778번째 라인
+   ->  Integer.parseInt 메소드의 662번째 라인
+   ->  NumberFormatException.forInputString 메소드의 67번째 라인
+
+   + 2 ~ 4번 : 개발자의 코딩내용이 아니다.
+   ( 코드를 수정할 수 있는 부분이 아니다. )
+   + 5번 라인이 오류의 최초 원인이 되는 부분이다.
+   
+   java.lang.NumberFormatException 클래스와 java.lang.Integer 클래스에서
+   오류가 발생한 행번호를 표시한다.
+
+5번 at demo1.App1.main(App1.java:9)
+      + App1.main 메소드의 9번째 라인에서 오류가 발생했다.
+      + 9번째 라인의 소스코드를 확인해야 한다.
+
+예외처리
+1. 예외가 발생한 곳에서 예외처리하기
+
+try {
+// 예외 발생이 예상되는 수행문
+Date date = sdf.parse("2024-01-01");
+System.out.println(date);			
+} catch (ParseException e) {
+// 예외 발생 시 실행될 수행문
+}
+
++ 예외 발생이 예상되는 수행문(Checked 예외발생)을 try 블록으로 감싼다.
++ try 블록내의 수행문에서 발생한 예외를 가로채는 catch 블록을 정의한다.
+- catch 블록의 괄호부분에는 가로챌 예외의 타입, 예외가 저장될 변수를 선언한다.
+   가로챌 예외 : parseException, 변수 : e
+- catch 블록의 블록부분에는 예외발생 시 실행할 수행문을 작성한다.
++ try 블록에서 예외 발생 x -> try 블록내의 수행문만 실행
++ try 블록에서 예외 발생 -> catch 블록에서 예외를 가로채고, 예외 발생 시 실행할 수행문 실행.
+
+2. 예외처리를 위임하기
+
+public class Sample {
+
+ public void test(String text) throws ParseException {
+     SimpleDateFormat sdf = new simpleDateFormat("yyyy-MM-dd");
+     Date date = sdf.parse(text); // ParseException 발생이 예상되는 수행문
+     System.out.println("날짜: " + date);
+     }
+}
+
+예외는 잡지 않고 던진다.
+( 나중에 단일 코드에서 한 번에 처리하도록 ) 
+
+ 
