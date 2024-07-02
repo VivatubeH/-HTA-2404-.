@@ -1,0 +1,287 @@
+try {
+  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); - 1
+  Date date = sdf.parse("2021-01-01"); - 2
+  System.out.println(date); - 3
+} catch ( ParseException ex) {
+   ex.printStackTrace(); - 4
+}
+
+# 예외가 발생하지 않은 경우
+1 -> 2 -> 3
+
+2번 수행문에서 예외가 발생하지 않으면 catch블록의 수행문은 수행되지 않음.
+
+# 예외가 발생한 경우
+1 -> 2 -> 4
+
+2번 수행문에서 예외가 발생하면 try 블록의 남은 수행문을 실행하지 않고,
+즉시 catch 블록의 수행문이 실행된다.
+
+public void test(String text){
+//NumberFormatException 예외를 던진다.
+//NumberFormatException 예외는 UncheckedException 이다.
+// 예외처리가 필수가 아니다.
+// 예외처리를 위임할 때 throws 키워드를 사용하지 않아도 된다. [ Unchecked Exception의 장점 ]
+int number = Integer.parseInt(text);
+System.out.println(number);
+}
+
+public void test(String text) {
+// IOException 예외를 던진다.
+// IOException 예외는 CheckedException이다.
+// 예외처리가 필수다 try ~ catch 혹은 throws 사용
+// 예외처리를 위임할 때는 throws 키워드를 꼭 사용해야 한다.
+FileWriter writer = new FileWriter("sample.txt");
+writer.write(text);
+writer.flush();
+writer.close();
+
+try {
+
+  // FileNotFoundException이 발생되는 메소드
+  수행문();
+  // IOException이 발생되는 메소드
+  수행문();
+
+  수행문();
+
+  수행문();
+
+} catch ( FileNotFoundException e ) {
+
+} catch ( IOException e ) {
+
+} catch ( Exception e ) { // 항상 예외처리 하는 곳에서는 Exception을 제일 마지막에 선언해서
+ // 처리 되지 않은 모든 예외를 다 처리할 수 있도록 한다.
+
+}
+
++ try 블록에서 여러 종류의 예외가 발생하는 경우 catch 블록을 여러 개 정의할 수 있다.
++ catch 블록에서 예외를 가로챌 때는 반드시 자식 예외 클래스를 가로채는 catch 블록을 위쪽에 배치해야 한다.
++ 보통 맨 마지막 catch 블록에는 Exception 타입으로 변수를 선언해서 예상하지 못한 예외의 발생도
+  가로챌 수 있도록 해야 한다.
++ catch 블록이 잘못 작성되면 컴파일 에러.
++ 예외 
+
+public class UserService {
+  UserRepository repository = new UserRepository();
+
+  // 새 사용자 정보를 전달받아서 아이디, 이메일 중복체크를 수행하고 저장소에 저장시킨다.
+  // 실패하면 오류 원인이 포함된 예외 객체를 발생시킨다.
+  public boolean addNewUser(User user){
+  // 저장소에 새로 저장할 사용자와 동일한 아이디를 사용하는 사용자 정보가 있는지 조회하기
+  boolean isSuccess = false;
+  User savedUser = repository.getUserById(user.getId());
+  if (savedUser != null) {
+     throw new 예외클래스("아이디중복")
+  }
+  // 저장소에 새로 저장할 사용자와 동일한 이메일을 사용하는 사용자 정보가 있는지 조회하기
+  savedUser = repository.getUserByEmail(user.getEmail());
+  if (savedUser != null) {
+     throw new 예외클래스("예외중복")
+  }
+ 
+   repository.save(user);
+   return true;
+ }
+}
+
+* 업무 로직 수행 중 예외상황이 발생했을 때
+throw 키워드를 이용해서 예외를 강제발생 시킬 수 있다.
+* 예외를 강제발생시키면 이 메소드를 호출한 측에게 업무 로직 수행 중 예외 상황이 발생했다는 것을
+알려줄 수 있다.
+* 강제발생시키는 예외객체에 구체적인 정보를 포함할 수 있다.
+- 예외 클래스가 아닌 경우에는 반환타입에 따라 어떤 예외가 발생했는지 명확히 구분이 불가하다.
+- 예외 클래스를 사용하면 반환타입과 무관하게 예외 상황을 알려줄 수 있다.
+
+예외 변환하기
+
+// 수행문에서 발생하는 FileNotFoundException을 가로채고
+// 대신 RuntimeException 예외를 생성해서 던진다.
+public void test1() {
+    try {
+     FileReader reader = new FileReader("a.txt");
+    } catch (FileNotFoundException e) {
+    throw new RuntimeException("오류메시지", e);
+    }
+}
+
+// 수행문에서 발생하는 ParseException을 가로채고
+// 대신 RuntimeException 예외를 생성해서 던진다.
+public void test2() {
+  try {
+  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+  Date date = sdf.parse("20110101");
+  } catch (ParseException e) {
+  throw new RuntimeException("오류메세지", e);
+  }
+}
+
+// 예외 일괄처리하기
+try{
+  test1();
+  test2();
+  ...
+  ...
+} catch (RuntimeException e) {
+
+}
+
+// 발생하는 예외를 특정예외로 변환해서 발생시키면 예외처리할 대상 예외클래스가 단순해진다.
+// 예외를 일괄처리하는 측에서 처리할 예외의 개수가 적어진다.
+// 새로운 예외가 발생하는 기능을 사용하더라도 이미 약속된 예외로 변환해서 발생시키면 되기 때문에 
+// 예외 일괄처리 소스를 변경할 필요가 없다.
+
+public class Throwable {
+  private String message;
+  private Throwable cause;
+
+  public Throwable() {}
+  public Throwable(String message) {
+  this.message = message;
+  }
+
+ public Throwable(Throwable cause) { 
+ this.cause = cause;
+ }
+
+ public Throwable(String message, Throwable cause) {
+ this.message = message;
+ this.cause = cause;
+ }
+
+ public String getMessage() {
+  return message;
+ }
+}
+
+
+public class Exception extends Throwable {
+ public Exception() {}
+ public Exception(String message) {
+  super(message);
+ }
+ public Exception(Throwable cause){
+  super(cause);
+ }
+ public Exception(String message, Throwable cause) {
+  super(message, cause);
+ }
+}
+
+
+public class RuntimeException extends Exception {
+ public RuntimeException() {}
+ public RuntimeException(String message) {
+  super(message);
+ }
+ ...
+}
+
+public class SampleException extends RuntimeException {
+ public SampleException() {}
+ public SampleException(String message) {
+   super(message);
+ }
+ ...
+}
+
+사용자 정의 예외 클래스
+* Exception 또는 RuntimeException을 상속받아서 정의한다.
+* Exception을 상속받으면 Checked 예외가 되고, RuntimeException을 상속받으면 Unchecked 예외
+* 대부분은 RuntimeException을 상속받아서 정의한다.
+* 특별한 경우가 아니면 생성자만 중복 정의한다.
+* 사용자정의 예외 클래스에 고유한 속성이나 기능을 정의할 수도 있다.
+
+// 반환값이 없는 메소드
+public void test() {
+  if (조건식) {
+     throw new 예외(메시지);
+  }
+  수행문;
+}
+
+// 반환값이 있는 메소드
+public int test() {
+  if (조건식) {  
+   throw new 예외(메시지); // 반환값이 있는 경우에도 반환값 대신 예외를 던지는 것도 가능하다.
+   // 어차피 예외 발생 시에 반환값을 사용하지 못하기 때문.
+  }
+  수행문;
+  return 값;
+}
+
+예시
+public static void main(String[] args){
+  App app = new App();
+  try {
+   // test2() 메소드가 반환하는 값을 value에 대입한다.
+   int value = app.test2(); // test2() 메소드에서 예외가 발생하면 남아있는 수행문을 사용하지 않고
+  // 즉시 catch 블록을 실행하기 때문에 test2() 메소드가 값을 반환하더라도 그 값을 사용할 기회가 없다.
+  // value에 대입된 값을 출력에 사용한다.
+  System.out.println(value);
+ } catch ( 예외클래스 ex ) { 
+  ex.printStackTrace();
+ }
+}
+
+자바에서 빠른 종료는 return이 아닌 예외로 하도록 하자.
+
+예외를 발생시키는 2가지 경우
+1. 업무 로직상에 문제가 발생할 경우
+2. 작성한 코드에서 사용자 정의 예외로 치환하려 할 때
+
+앞으로 catch 블록에서는 사용자 정의 예외로 치환해서 발생시키는 게 정석이다.
+
+예외를 가로채서 먹으면 안 되고, 반드시 사용자 정의 예외로 바꿔서 발생시켜야 함.
+[ 즉, catch에서 암것도 안하거나 단순 출력만 하는 코드는 나쁜 코드임 ]
+
+예외는 반드시 다른 예외를 발생시켜서 던져야 함.
+
+Exception in thread "main" demo4.SampleException: java.text.ParseException: Unparseable date: "111111"
+	at demo4.SampleService.textToDate(SampleService.java:14)
+	at demo4.ServiceApp.main(ServiceApp.java:11)
+Caused by: java.text.ParseException: Unparseable date: "111111"
+	at java.base/java.text.DateFormat.parse(DateFormat.java:399)
+	at demo4.SampleService.textToDate(SampleService.java:12)
+	... 1 more
+
+ParseException이 가장 최초의 원인 예외가 되고, 그걸 SampleException으로 감싼 것.
+
+public void test() {
+  try {
+   컴퓨터의 자원을 점유하는 객체를 생성
+   컴퓨터의 자원을 사용하는 수행문; // 예외발생
+   컴퓨터의 자원을 사용하는 수행문; // 예외발생
+
+ } catch (예외클래스 ex) {
+   예외발생시 실행되는 수행문;
+  
+ } finally {
+   컴퓨터의 자원을 반납하는 수행문;
+ }
+}
+
+* finally 블록은 정상실행이 완료되거나 오류가 발생하거나 상관없이
+반드시 실행해야 하는 코드를 작성하는 블록이다.
+
+* 주로 finally 블록에서 점유했던 자원을 해제/반납하는 수행문을 작성한다.
+[ 자원의 누수를 막는다. ]
+
+* 일반적으로 사용하는 코드는 아님.
+
+public void test() {
+   try (컴퓨터의 자원을 점유하는 객체 생성) {
+    컴퓨터의 자원을 사용하는 수행문;
+    컴퓨터의 자원을 사용하는 수행문;
+  } catch (예외클래스 ex) {
+    예외발생시 실행되는 수행문;
+  } 
+}
+
+try (요기) {} 
+* try ~ with ~ resource 블록
+자동 리소스 반납을 지원하는 객체를 이 괄호내에서 생성하면 정상실행이 완료되거나 오류가 발생하거나
+상관없이 점유했던 자원을 자동으로 반납한다.
+
+
