@@ -1,0 +1,198 @@
+
+* try ~ catch ~ finally
+
++ finally 블록은 예외 발생과 상관없이 반드시 수행할 작업을 포함하는 블록이다.
+
++ 애플리케이션 실행 중 사용했던 시스템의 자원을 반납하는 수행문을 포함한다.
+
+------------------------------------------------------------------------------------------
+* try ~ with ~ resource 블록
+
++ java.lang.AutoCloseable 인터페이스를 구현한 객체는 try ~ with ~ resource 블록을 사용해서
+자동 자원반납 서비스를 받을 수 있다.
+
++ try ~ with ~ resource 블록에서 생성된 객체는
+예외발생여부와 상관없이 try ~ with ~ resource 구문이 종료될 때 자동으로 자원을 반납시키는
+메소드를 실행시킨다.
+
++ java 7부터 지원되는 기능
+
+-------------------------------------------------------------------------------------------
+
+www.yes24.com/books
+* pageNumber라는 이름으로 전달되는 값이 없다.
+* String pageNumber = null
+
+www.yes24.com/books?pageNumber=2
+* pageNumber라는 이름으로 "2"가 전달된다.
+* String pageNumber = "2"
+
+www.yes24.com/books?pageNumber=가
+* pageNumber라는 이름으로 "가"가 전달된다.
+* String pageNumber = "가"		
+
+/*
+ pageNumber로 전달받은 페이지번호에 해당하는
+ 도서목록을 반환하는 메소드
+ + 아래의 경우 예외가 발생한다. 
+ + null 값을 전달받을 수 있다.
+ + 숫자가 아닌 문자로 구성된 값을 전달받을 수 있다.
+ 
+public List<Book> getBooks(String pageNumber) {
+  // pageNumber로 전달받은 값을 정수로 변환한다.
+  int page = 0;
+  try {
+  page = Integer.parseInt(pageNumber);
+ } catch ( NumberFormatException ex ) {
+  page = 1;
+ }
+ // 페이지 번호에 해당하는 도서목록을 조회한다.
+ List<Book> books = repository.findBooksByPage(page);
+
+ return books;
+}
+
+------------------------------------------------------------------------------------------------
+쇼핑몰
+   - 회원가입 기능
+      + 아이디 중복을 허용하지 않는다.
+      + 이메일 중복을 허용하지 않는다.
+      + 아이디, 이름, 이메일, 연락처, 비번을 입력받아서 등록시킨다.
+
+   - 회원정보 조회 기능
+      + 아이디를 입력받아서 회원의 상세정보를 출력한다.
+      + 아이디, 이름, 이메일, 연락처, 비번, 남은 포인트
+
+   - 상품조회 기능
+      + 등록된 모든 상품정보를 출력한다.
+      + 상품번호, 상품명, 가격, 재고수량
+     
+   - 상품주문 기능
+      + 상품번호, 구매수량을 입력받아서 상품을 주문한다.
+ 
+   - 주문 내역 조회 기능
+      + 아이디를 입력받아서 회원의 주문내역을 출력한다.
+      + 주문번호, 주문날짜, 상품번호, 상품이름, 가격, 구매수량, 총 구매금액을 출력한다.
+
+1. 프로그램의 대상이 되는 정보를 식별하자.
+    + 회원 정보 - 회원 아이디, 이름, 이메일, 전화번호, 비밀번호, 남은 포인트
+    + 상품 정보 - 상품번호, 상품명, 가격, 재고수량
+    + 주문 정보 - 주문번호, 주문날짜, 상품번호, 상품이름, 가격, 구매수량, 총구매금액, 주문자 아이디
+
+2. 패키지 및 클래스 정의
+  + 패키지 
+      vo 
+          User.java Product.java Order.java
+      repo 
+          UserRepository.java ProductRepository.java OrderRepository.java
+      service 
+          MallService.java
+      app 
+          MallApp.java
+      exception
+          MallException.java
+
+내정보보기
+   Mallapp의 내정보보기()
+	+ 조회할 사용자 아이디를 입력한다.
+	+ 서비스의 getUserInfo(id)를 호출해서 사용자정보를 획득한다.
+	+ 획득된 사용자 정보를 화면에 출력한다.
+
+   MallService의 getUserInfo(String id)
+	+ 전달받은 id로 레포지토리의 getUserById(id)를 호출한다.
+             + 조회된 사용자 정보가 null이면 예외를 발생시킨다.
+             + 조회된 사용자 정보가 있으면 그 정보를 app로 반환한다.
+
+   UserRepository의 getUserById(String id)
+	+ 전달받은 id에 해당하는 사용자정보를 반환한다.
+
+
+포인트 충전
+  MallApp의 포인트 충전()
+     + 사용자 아이디와 충전금액을 입력한다.
+     + 서비스의 chargePoint(id, amount)를 호출해서 포인트를 충전시킨다.
+     + 서비스의 getUserId(id)를 호출해서 사용자 정보를 획득한다.
+     + 사용자의 충전 후 포인트를 화면에 출력한다.
+  MallService의 chargePoint(String id, int amount)
+     + 전달받은 id로 레포지토리의 getUserById(id)를 호출한다.
+     + 조회된 사용자 정보가 nuill 이면 예외를 발생시킨다.
+     + 조회된 사용자 정보가 있으면 사용자의 현재 포인트를 amount만큼 증가시킨다.
+  UserRepository의 getUserById(String id)
+   + 전달받은 id에 해당하는 사용자 정보를 반환한다.
+
+회원가입
+  MallApp의 회원가입()
+	+ 신규 회원정보(아이디, 이름, 이메일, 전화번호)를 입력받는다.
+	+ User 객체를 생성해서 신규회원정보를 저장한다.
+	+ 서비스의 registerUser() 메소드를 호출해서 회원을 가입시킨다.
+  MallService의 registerUser(User user)
+	+ 레포지토리의 getUserById()를 호출해서 신규 가입자의 아이디로 사용자 정보를 조회한다.
+	+ 사용자 정보가 존재하면 예외를 발생시킨다.
+	+ 사용자 정보가 존재하지 않으면 가입처리를 한다.
+		+ 신규 가입자는 포인트를 3000점 처리한다.
+		+ 레포지토리의 saveUser()를 호출해서 신규 가입자를 저장시킨다.
+  UserRepository의 saveUser(User user)
+	+ 전달받은 신규 사용자 정보를 저장한다.
+
+상품조회
+  MallApp의 상품조회()
+	+ 서비스의 getAllProducts() 메소드를 호출해서 모든 상품정보를 조회한다.
+	+ 조회된 모든 상품정보를 화면에 출력한다.
+  MallService의 getAllProducts()
+	+ 레포지토리의 findAll() 메소드를 호출해서 모든 상품정보를 조회한다.
+	+ 조회된 모든 상품정보를 반환한다.
+  ProductRepository의 findAll()
+	+ 모든 상품정보를 반환한다.
+ 
+주문하기
+  MallApp의 주문하기()
+	+ 아이디, 상품번호, 구매수량을 입력받는다.
+	+ 서비스의 order(메소드)를 호출해서 주문한다.
+  MallService의 order(String userId, int productNo, int amount)
+	+ 서비스의 getUserInfo()를 실행해서 사용자 정보를 획득한다. - 사용자 정보가 없으면 예외가 던져짐.
+	+ 레파지토리의 findProductByNo()를 실행해서 상품번호에 해당하는 상품정보를 조회한다.
+	( 상품정보가 없으면 예외를 던진다. )
+	+ 구매수량보다 재고수량이 적으면 예외를 던진다.
+	+ 구매금액보다 보유 포인트가 적으면 예외를 던진다.
+	+ Order 객체를 생성해서 주문번호, 주문날짜, 상품번호, 이름, 가격, 구매수량, 총구매금액, 
+  	사용자 아이디를 저장한다.
+	+ 레포지토리의 saveOrder()를 호출해서 주문정보를 저장시킨다.
+	+ 상품정보의 재고를 주문수량만큼 감소시킨다.
+	+ 고객의 보유 포인트를 주문금액만큼 감소시킨다.
+	
+  ProductRepository의 findProductByNo(int no)
+	+ 상품번호에 해당하는 상품정보를 반환한다.
+
+  OrderRepository의 saveOrder(Order order)
+	+ 신규 주문정보를 저장한다.
+
+주문내역 조회하기
+  MallApp의 주문내역조회하기()
+
+  MallService의 getMyOrders(String userId)
+
+  OrderRepository의 findOrdersByUserId(String userId)
+
+회원가입한다.
+- 회원정보를 데이터베이스에 저장한다.
+
+주문한다.
+- 주문정보를 데이터베이스에 저장한다.
+- 상품재고를 변경한다.
+- 사용자의 보유 포인트를 감소시킨다.
+
+예약한다.
+- 예약정보(누가,무엇을,언제,몇매)를 저장시킨다.
+
+출근한다.
+- 근태정보 데이터베이스에 직원아이디와 출근날짜, 출근시간을 저장한다.
+퇴근한다.
+- 근태정보 데이터베이스에 직원아이디와 퇴근날짜, 퇴근시간을 저장한다.
+
+정보를 표현하는 VO 객체부터 만든 이후에 만들어야 한다.
+
+프로그램을 코딩할 때는 데이터 중심으로 생각하는 게 초보 개발자가 개발하기 용이함.
+
+어떤 값으로 검색하느냐에 따라 반환되는 값이 달라질 수 있음.
+
+ 
