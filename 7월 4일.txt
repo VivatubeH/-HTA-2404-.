@@ -1,0 +1,285 @@
+주문내역 조회하기
+  MallApp의 주문내역조회하기()
+	+ 사용자 아이디를 입력받는다.
+	+ 서비스의 getMyOrder() 메소드에 사용자 아이디를 전달하고 호출해서 주문내역을 획득한다.
+	+ 조회된 주문내역정보를 화면에 출력한다.
+  MallService의 getMyOrders(String UserId)
+	+ 전달받은 사용자 아이디로 getUserInfo()를 호출해서 사용자 정보를 조회한다. - 예외를 던진다.
+	+ 레포짙리의 findOrderByUsersId()를 호출해서 주문내역을 획득한다.
+	+ 조회된 주문 내역을 반환한다.
+  OrderRepository의 findOrderByUserId(String UserId)
+	+ 전달받은 사용자 아이디로 주문내역을 조회한다.
+	+ 조회된 주문내역을 반환한다.
+
+서비스 
+- 특정 서비스를 제공하는 기능이 구현되어 있다.
+- 메소드의 이름을 실제로 제공하는 서비스를 설명하는 이름이 좋다. 
+	회원가입기능 - registerUser(User user)
+		       - addNewUser(User user)
+
+레포지토리
+- 데이터에 대한 CRUD 작업을 설명하는 이름이 좋다
+- 혼동이 없도록 이름은 일관성 있게 지어야 함.
+- 단.복수 이름을 잘 생각해서 정해야함.
+- 저장하기 - insertXXX, saveXXX
+- 조회하기 - getXXX : 동사 + 목적어 + by + 조건
+		     getUserById(String id)
+		     getUserByEmail(String email)
+                   findXXX, 
+                   searchXXX : searchBooksByPrice(int min, int max)
+	      	        : searchBooks(Map<String, Object> condition)
+- 변경하기 - updateXXX, modifyXXX
+- 삭제하기 - deleteXXX, removeXXX
+
+프로젝트 구조
+   주요 패키지
+	vo : 정보를 표현하는 클래스를 정의한다.
+	+ User.java, Product.java, Order.java
+		
+	repo : 정보의 저장/조회/변경/삭제 기능을 제공하는 클래스를 정의한다.
+	+ UserRepository.java, ProductRepository.java, OrderRepository.java
+		
+	service : 업무로직(서비스)이 구현된 클래스를 정의한다.
+	+ MallService.java
+		
+	app : 사용자와 상호작용하는 기능이 구현된 클래스를 정의한다.
+	+ MallApp.java
+
+	exception : 사용자정의 예외 클래스를 정의한다.
+	+ MallException.java
+
+
+과제-
+수강신청 프로그램
+
+	주요 기능
+	+ 개설과정 조회하기	
+	+ 수강신청하기
+	+ 수강철회하기
+	+ 수강신청내역 조회하기
+	+ 학생 가입하기
+ 
+	주요 정보
+	 + 학생 정보 - 아이디, 이름, 학과, 학년
+	 + 과정 정보 - 번호, 과정명, 학과, 학년, 모집인원, 현재신청자수
+	 + 수강신청 정보 - 번호, 과정번호, 과정명, 학과, 학생아이디, 철회여부
+
+프로젝트 구조
+	vo
+		Student.java, Course.java, Request.java
+	repo
+		StudentRepository.java, CourseRepository.java, RequestRepository.java
+		+ StudentRepository의 생성자 메소드에서는 미리 학생 객체를 여러 개 등록한다.
+		+ CourseRepoisitory의 생성자 메소드에서는 미리 과정 객체를 여러 개 등록한다.
+		+ 과정번호, 수강신청번호는 각 Repository에서 int sequence = 1000 변수를 정의하고, 1씩 저장될 때마다 1씩 증가시킨다.
+
+service
+   SchoolService.java
+	+ 개설과정 조회하기
+		- 매개변수 : 없음
+		- 반환타입: List<Course>
+		- 등록된 모든 개설과정을 조회해서 반환한다.
+	+ 수강신청하기
+		- 매개변수 : String studentId, int courseNo
+		- 반환타입 : void
+		- 학생아이디, 과정번호를 전달받는다.
+		- 학생아이디로 레포지토리(StudentRepository)에서 학생 정보를 조회한다. 학생 정보가 null이면 예외 발생
+		- 과정번호로 레포지토리(CourseRepository)에서 과정정보를 조회한다. 과정정보가 null 이면 예외 발생
+		- 조회된 과정정보에서 모집인원과 신청자수가 동일하면 모집마감된 과정이다. 예외 발생
+		- 수강신청정보를 저장하는 객체를 생성하고, 과정번호, 과정명, 학과, 학생아이디를 저장한다.
+		- 레포지토리(CourseRepository)에 수강신청정보를 전달해서 저장시킨다.
+		- 과정정보에서 신청자수를 1증가시킨다.
+	+ 수강신청내역 조회하기
+		- 매개변수: String studentId
+		- 반환타입: List<Request>
+		- 학생아디를 전달받는다.
+		- 학생아이디로 레포지토리에서 학생정보를 조회한다. 학생 정보가 null이면 예외 발생
+		- 레포지토리(RequestRepository)에서 학생아이디로 수강신청내역을 조회한다.
+		- 조회된 수강신청 내역을 반환한다.
+	+ 수강철회하기
+		- 매개변수 : int requestNo
+		- 반환타입 : void
+		- 수강신청번호를 전달받는다.
+		- 수강신청번호로 레포지토리(RequestRepository)에서 수강신청정보를 조회한다. 수강신청 정보가 null이면 예외 발생
+		- 수강신청정보의 철회여부를 true로 설정한다.
+ 		- 수강신청정보의 과목번호로 레포지토리(CourseRepository)에서 과정정보를 조회한다.
+		- 과정정보를 신청인원수를 1감소시킨다.
+	+ 학생 가입하기
+		- 매개변수 : Student student
+		- 반환타입 : 없음
+		- 신규 학생정보를 전달받는다.
+		- 신규 학생정보의 아이디로 레포지토리(StudentRepository)에서 학생정보를 조회한다. 학생 정보가 null 아니면 예외 발생
+		- 레포지토리(StudentRepository)에 저장시킨다. 
+	app
+		SchoolApp.java	
+	exception	
+		SchoolException.java
+
+I/O 입출력
+
+- java.io 패키지의 클래스
+
+APP -> 리소스 : 쓰기 ( OutputStream, Writer )
+리소스 -> APP : 읽기 ( InputStream, Reader )
+
+Stream : 
+- 데이터의 순차적인 흐름을 표현한다.
+- 스트림은 일반적으로 단방향 스트림이다.
+- 스트림은 일회성이다.
+- 조립이 가능하다. [ 스트림과 스트림을 끼워서 사용할 수 있다. ( 보조 스트림 ) ]
+
+Stream의 종류
+---------------------------------------------------------
+< 읽기 전용 스트림 >
+
+InputStream < 바이트 스트림 >
+
+Reader < 문자 스트림 >
+
+---------------------------------------------------------
+< 쓰기 전용 스트림 >
+
+OutputStream < 바이트 스트림 >
+ 
+Writer < 문자 스트림 >
+
+---------------------------------------------------------
+
+바이트 스트림 : 1 byte씩 읽고 쓴다.
++ 이진데이터 전용
++ 이진데이터는 사진, 영상, 텍스트 등
+	          엑셀, 워드, 압축파일
+
+문자 스트림 : 1글자씩 읽고 쓴다.
++ 텍스트 전용
+
+-----------------------------------------------------------
+
+InputStream 클래스
+- 스트림 객체로 1byte씩 읽어오는 메소드다.
+- int read() : 한 바이트씩 읽어서 반환한다. 스트림 끝에 도달하면 -1 반환
+- int read(byte[] buf) : byte[] 배열에 한 바이트씩 저장한다. 반환되는 값은 배열에 저장된 데이터의 개수. 
+  		    스트림 끝에 도달하면 -1을 반환한다.
+
+FileInputStream 클래스
+- 바이트 스트림이다.
+- 읽기 전용 스트림이다.
+- 파일의 데이터를 1byte씩 읽을 수 있다.
+- 더 이상 읽을 게 없으면 -1을 반환함.
+
+- 주요 메소드
+
+int read()
+스트림으로 1byte씩 읽어서 정수값으로 반환한다.
+스트림의 끝에 도달하면 -1을 반환한다.
+
+int read(byte[] buf)		
+스트림으로 1byte씩 읽어서 배열의 처음부터 하나씩 저장한다.
+배열이 가득 채워지면 값(저장된 갯수)를 반환한다.
+스트림의 맨 마지막까지 읽으면 값(저장된 갯수)를 반환한다.
+스트림의 끝에 도달하면 -1을 반환한다.
+
+--------------------------------------------------------------
+
+String의 API
+- new String(byte[] arr, int offset, int length)
++ arr : byte배열 데이터
++ offset : 시작 위치
++ length : 길이
++ byte 배열에서 offset 위치부터 length 만큼 읽어서 문자열로 변환한다.
+
+----------------------------------------------------------------
+
+InputStream이라는 추상 클래스의 자손이
+FileInputStream을 포함해서 많다.
+
+어떤 리소스로부터 읽어오느냐에 따라 갈라진다.
+fileinputstream은 파일로부터 읽어온다.
+
+스트림은 빨대같은 역할을 수행한다.
+
+----------------------------------------------------------------
+URI와 URL
+URI 가 URL보다 더 상위 집합이다. 
+[ 즉 URL은 URI의 부분집합이다 . ]
+
+URI(Uniform Resource Identifier) - 자원(리소스)을 식별하기 위한 문자열
+			       웹, XML, 기타 다양파일에서 리소스를 식별하기 위한 용도로 사용된다.
+			       URI는 자원마다 고유하게 부여된 값이, 실제 자원의 위치가 아닐 수도 있다.
+예) http://www.daum.net/news
+      http://www,daum.net/best
+	/news가 자원의 위치를 나타내는 것이 아니라
+	/news는 최신 뉴스정보를 요청하는 요청 URI이고
+	웹 애플리케이션에서는 이 요청 URI와 매핑되는 애플리케이션이
+	실행되어서 최신 뉴스 정보가 사용자에게 제공된다.
+
+	사람의 이름
+
+URL(Uniform Resource Locator) - 자원(리소스)의 위치를 나타내는 문자열
+			       웹상의 리소스 위치를 나타내기 위해서 사용된다.
+			       URL이 표현하는 주소에 실제 자원이 존재한다.
+
+예) http://www.daum.net/index.html
+      	index.html 파일은 호스트명이 www.daum.net인 웹서버에 있다.
+      http://www.yes24.com/images/icon/btn.png
+      	btn.png 파일은 호스트명이 www.daum.net인 웹서버의 images/icon 폴더에 있다.
+      
+      우리집 주소 
+	
+URL 객체
++ 웹사이트 자원의 물리적 위치를 표현하는 객체다.
++ URL 객체는 해당 자원을 읽어올 수 있는 스트림 객체를 제공한다.
++ 주요 api
+	InputStream openStream()
+	* URL이 표현하는 해당 자원을 읽어 올 수 있는 스트림 객체를 반환한다.
+	* 획득된 InputStream 객체의 int read() 혹은 int read(byte[] buf)를 이용하면 
+	자바 애플리케이션에서 해당 자원의 정보를 읽어올 수 있다.	
+			 
+
+
+----------------------------------------------------------------------
+
+OutputStream
+
+flush() - 스트림에서 내부저장소가 채워지지 않아도 강제로 목적지로 출력시킨다.
+
+Buffered - 임시 저장소를 제공해줌 ( 속도가 엄청나게 빠르다. )
+
+말단스트림 - 리소스에 직접 연결됨. ( 1차 스트림 )
+보조스트림 - 리소스에 직접 연결되지 않음. ( 2차 스트림 )
+
+BufferedInputStream(InputStream in) - 처럼 생성자 이름에 다른 스트림 이름이 적혀있으면 2차 스트림임.
+
+CharArrayReader(char[] buf) - 처럼 생성자가 스트림이 아닌 애들은 1차 스트림임. 
+
+PipedInputStream(PipedOutputStream src) - 처럼 자기들끼리 연결되는 애들은 보조 스트림이 아님.
+
+PrintStream, PrintWriter는 둘 다 짝이 없는, 입력은 없고 출력만 있는 스트림들임.
+
+애플리케이션 <--- 보조 스트림 <--- 말단 스트림 <---- 리소스
+
+
+말단 스트림 
+- 리소스와 직접 연결되는 스트림이다.
+- 리소스에 대한 기본적인 읽기/쓰기 기능을 제공하는 스트림
+
+보조 스트림 
+- 다른 스트림에 부가적인 기능을 제공하는 스트림이다.
+- 리소스와 직접 연결하지 않고, 부가기능이 필요한 다른 스트림과 연결해서 사용한다.
+- 생성자 메소드의 매개변수 타입이 다른 스트림 타입이다.
+
+------------------------------------------------------------------------
+
+* BufferedInputStream, BufferedOutputStream
++ 보조 스트림이다.
++ 읽기/쓰기 성능을 향상시키는 내부 젖장소를 가지고 있는 스트림이다.
++ 다른 스트림과 연결해서 사용하면 읽기/쓰기 성능이 개선된다.
++ 보조 스트림과 다른 스트림 연결하기
+	* 보조 스트림의 생성자 메서드의 매개변수로 연결할 스트림을 전달받는다.
+		         |------------------------------------
+	FileInputStream fis = new FileInputStream("smaple.pdf");  |	
+	BufferedInputStream bis = new BufferedInputStream(fis); |
+                                                                                          ^     |
+						    |___
+	이렇게 연결됨.
+
