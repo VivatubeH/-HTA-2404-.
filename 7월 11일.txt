@@ -1,0 +1,358 @@
+JDBC
+mybatis
+JPA
+
+Java Application - JDBC - 각종 DB( 오라클, MySQL 등... )
+                      
+
+JDBC표준(인터페이스)
+
+Statement 인터페이스
+- SQL 구문을 DBMS로 전송해서
+실행시키는 기능에 대한 표준을 정의한 인터페이스
+[ int executeUpdate(String sql);
+  ResultSet executeQuery(String sql);
+  boolean execute(String sql) ]
+
+Statement 인터페이스는 각종 DB사에서 이미 자바로 구현해놓음.
+
+각종 DB에서 만들어 놓은 JDBC 인터페이스의 구현체를 JDBC 드라이버라고 부른다.
+개발자는 JDBC 드라이버만 다운로드 받으면 된다.
+
+JDBC - 자바에서 데이터베이스 액세스 기술에 대한 표준을 정의한 것
+
+JDBC Driver
+- JDBC에서 정의한 표준을 자신의 DBMS에 맞게 구현클래스를 작성해 놓은 것
+- 각각의 DBMS 제조사에서 직접 구현하고, 라이브러리로 제공한다.
+
+[ DBMS에서 가장 속도가 빠른 건 JDBC임. ]
+
+------------------------------------------------------------------------------
+
+JDBC의 주요 API
+
+1. Connection 인터페이스 - 데이터베이스와 연결을 담당하는 객체가 가지는 기능이 추상화된 인터페이스다.
+
+2. Statement 인터페이스 
+    PreparedStatement 인터페이스
+- SQL을 데이터베이스로 전송하고, 실행시키는 객체가 가지는 기능이 추상화된 인터페이스다.
+
+4. ResultSet 인터페이스 [ 실제 조회 결과 중 데이터 ]
+- SELECT문 실행 후 획득된 조회결과를 처리하기 위한 객체가 가지는 기능이 추상화된 인터페이스다.
+
+5. ResultSetMetaData 인터페이스 [ 실제 조회 결과 중 컬럼에 대한 정보 및 개수 등이 담긴 것 ]
+- SELECT문 실행 후 획득된 조회결과에 대한 부가정보를 처리하는 객체가 가지는 기능이 추상화된 인터페이스다.
+
+ResultSetMetaData - 지붕
+ResultSet - 몸통
+
+-------------------------------------------------------------------------------------------
+
+애플리케이션     JDBC 표준     |         해당DB의 인터페이스 구현체 및 해당 DB
+    그냥 여기만 신경쓰면 됨     |     
+
+
+자바 애플리케이션과 데이터베이스 엑세스 작업
+1. 자바 애플리케이션은 JDBC 표준에 맞춰서 데이터베이스 액세스 작업을 작성한다.
+2. 자바 애플리케이션이 실제로 사용하는 것은 DBMS 제작사 구현한 구체적인 구현객체에 재정의된 메소드가
+   실행된다.
+3. JDBC는 DBMS 제작사가 제작한 구현 객체를 사용할 수 있는 방법을 제공한다.
+
+------------------------------------------------------------------------------------------------------
+
+		    Statement 구현객체로 구문 전송.
+자바 애플리케이션 <------------------------------------>  
+                                 ★ Connection 구현객체로 연결 ★
+                           <------------------------------------->
+                                ResultSet 구현객체로 조회결과 제공.
+
+-------------------------------------------------------------------------------------------------------
+
+class Sample {
+	
+	// 필드 -> 멤버변수, 정적변수
+	
+	// 생성자
+	
+	// 메소드 -> 멤버메소드, 정적메소드
+	
+	// static 초기화 블럭 : - 클래스가 메모리에 로딩되면 즉시 실행됨. 
+	//                      - 객체 생성과 상관없다.
+	//						- 클래스의 일생동안 단 한 번만 실행된다.
+	static {
+		// 수행문;
+		// 수행문;
+		System.out.println("클래스 파일이 메모리에 로드되었습니다");
+		System.out.println("Static 초기화 블럭이 실행되었습니다.");
+	}
+	
+}
+
+------------------------------------------------------------------------------------------------------
+
+1. JDBC 드라이버를 메모리에 로딩하기.
+
+// Class.forName("클래스전체경로")
+// 해당 위치의 클래스를 메모리에 로딩한다.
+Class.forName("oracle.jdbc.OracleDriver");
+-> 그러면 드라이버 레지스트리에 Oracle Driver가 등록된다.
+
+
+오라클과 연결할래
+
+String url = "jdbc:oracle:thin:@localhost:1521:xe"; // Driver 이름과 db 접속 정보(localhost, 1521, xe)
+* 참고로 thin은 JDBC의 type4 드라이버의 별명임.
+String username = "hta";
+String password = "zxcv1234";
+
+Connection connection = DriverManager.getConnection(url, username, password);
+
+* OracleDriver와 연동된 JDBC 라이브러리를 이용한다.
+* Connection 인터페이스의 구현객체를 생성해서 오라클 데이터베이스와 연결되고, 그 객체를 반환한다.
+  ( 그 객체가 Connection 인터페이스를 구현한 것이기 때문에 Connection 타입의 참조변수로 참조할 수 있다. )
+
+-------------------------------------------------------------------------------------------------------
+
+( 몰라도 됨
+Mysql과 연결할래
+String url = "jdbc:mysql://localhost:3306/mydb"; // 이건 신경 x
+String username = "hta";
+String password = "zxcv1234";
+
+Connection connection = DriverManager.getConnection(url, username, password);
+) 걍 참고용임
+
+------------------------------------------------------------------------------------------------------
+
+Statement 
+- "insert into Sample_Products values (100, '지우개', '문구사', 500, 10)"
+
+PreparedStatement
+- "insert into sample_products values(?, ?, ?, ?, ?)" // 
+[ DB에서 분석 -> 실행계획작성 -> 저장 및 실행 ]을 할 때, 이전에 온 쿼리랑 동일하면 실행계획을 다시 작성하지 않음.
+[ 1. 속도와 저장 공간에서 효율적이어서 실행 성능이 높아짐 ]
+
+ public class UserRepo {
+	
+	public User getUserById(String id, String pwd) {
+		String sql = "select *
+			   from user
+                                              where user_id = ?" // 이렇게 ?로 하면 주석으로 입력하든 뭘 하든 값으로만 치환됨
+                                                                         // 즉, SQL Injection 공격에서 안전함.
+
+--------------------------------------------------------------------------------------------------------------
+
+String sql = """
+			insert into sample_products 
+			(product_no, product_name, product_company, product_price)
+			values 
+			(?, ?, ?, ?)	
+		"""; // 값이 들어갈 자리만 표시한 미리 준비됨. 
+		// """ """ 이렇게 쌍따옴표 3개 사이에 문자열을 적으면 여러 줄에 걸쳐 적을 수 있음. [ 텍스트 블록 ]
+
+---------------------------------------------------------------------------------------------------------------
+
+		Class.forName("oracle.jdbc.OracleDriver");
+		Connection con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","hta","zxcv1234");
+		
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setInt(1, 200);
+		pstmt.setString(2, "맥북");
+		pstmt.setString(3, "애플");
+		pstmt.setInt(4, 1500000);
+		
+		int rowCount = pstmt.executeUpdate();
+		System.out.println(rowCount);
+		
+		pstmt.close();
+		con.close();
+
+---------------------------------------------------------------------------------------------------------------
+
+INSERT, UPDATE, DELETE 구문
+
+- PreparedStatement의 
+	int executeUpdate()를 실행한다.
+	
+		+ INSERT, UPDATE, DELETE 구문을 전송하고 실행시킨다.
+		+ 반환값은 추가/변경/삭제된 행의 갯수를 반환한다.
+
+SELECT 구문
+
+- PreparedStatement의 
+	ResultSet executeQuery()를 실행한다.
+
+		+ SELECT 구문을 전송하고 실행한다.
+		+ 반환값은 ResultSet 객체다.
+		+ ResultSet은 조회결과를 제공하는 객체다.
+---------------------------------------------------------------------------------------------------------------
+
+PreparedStatement
+	+ SQL을 데이터베이스로 전송하고 실행시키는 기능이 추상화된 인터페이스다.
+	+ 값이 치환될 위치가 ?로 미리 표시되어 있는 SQL문을 사용한다.
+	+ 따라서, 데이터베이스에는 SQL 구문과 ?에 치환할 값을 같이 전송해야 한다.
+	+ Statement에 비해서 실행 성능이 향상되고, SQL Injection 공격을 방어할 수 있다.
+
+?(바인딩 변수)에 파라미터값 바인딩하기
+
+PreparedStatement에는 ?에 값을 매핑하는
+setXXX() 메소드가 중복되어 있다.
+		
+void setInt(int index, int value)
+void setLong(int index, long value)
+void setDouble(int index, double value)
+void setString(int index, String value)
+void setDate(int index, Date value)
+
+--------------------------------------------------------------------------------------------------------------------
+
+ResultSet 인터페이스
+- SELECT 구문의 조회결과 처리를 지원하는 기능이 추상화된 인터페이스다.
+- ResultSet의 구현객체는 조회결과를 포함하고 있고, 조회결과를 한 행씩 처리하는 기능이 제공된다.
+- 주요 API
+	boolean next()
+	  + ResultSet 객체에 내장된 커서를 한 행 아래로 이동시킨다.
+	  + 이동된 위치에 행이 존재하면 true를 반환한다.
+	  + 커서의 최초 상태는 첫 번째 행 바로 위에 위치한다.
+	  + 커서가 위치한 행에서만 값을 꺼낼 수 있다.
+	  + 값을 꺼낼때는 아래의 getXXX() 메소드를 사용한다.
+	int getInt(String columnName)
+	long getLong(String columnName)
+	double getDouble(Stirng columnName)
+	String getString(String columnName)
+	Date getDate(String columnName)
+
+-------------------------------------------------------------------------------------------------------------------
+
+DAO ( Data Access Object ) 클래스
+
+- 데이터베이스 액세스를 전담하는 클래스
+
+- 특정 테이블에 대한 CRUD 작업을 구현한다. [ 테이블마다 만듬 ]
+예시) EmployeeDao.java
+          DepartmentDao.java
+          JobDao.java
+          ProductDao.java
+          BookDao.java
+- 데이터베이스 액세스에 필요한 정보는 Value Object로 전달받는다.
+- 데이터베이스 조회 결과는 Value Object로 반환한다.
+
+VO(Value Object) 클래스
+
+- 특정 테이블에서 한 행의 정보를 표현하는 클래스
+
+- 멤버변수, 생성자, Getter/Setter로 구성된다.
+   예시) Employee.java
+            Department.java
+            Job.java
+            Product.java
+            Book.java
+
+      새 도서정보
+     ------------> 새 도서정보를 저장하는 기능
+       Book 객체
+
+
+      변경된 도서정보
+      ---------------> 기존 도서정보를 변경하는 기능
+       Book 객체         
+
+					모든 도서정보
+      모든 도서정보를 조회하는 기능 ------------------>
+					List<Book>
+
+    조회할 책번호			          도서 정보
+   ----------------> ?번 책정보를 조회하는 기능 -------------->
+        int                                        Book 객체
+
+--------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------
+    SAMPLE_BOOKS 테이블에 대한 액세스   |
+----------------------------------------
+
+1. SAMPLE_BOOKS 테이블의 한 행 정보를 표현하는
+   VO 클래스 정의하기
+
+public class Book {
+  private int no;
+  private String title;
+  private String author;
+  private String publisher;
+  private int price;
+  private double discountRate;
+  private int stock;
+  private String status;
+  private Date createdDate;
+  private Date updatedDate;
+
+  public Books() {}
+
+  Getter/Setter 메소드 
+}
+
+2. SAMPLE_BOOKS 테이블에 대한 CRUD 작업을 전담하는 DAO 클래스 정의하기
+
+public class BookDao {
+  // 신규도서 등록기능
+  public void insertBook(Book book) {
+	...
+  }
+
+  // 도서정보 변경기능
+  public void updateBook(Book book) {
+        ...
+  }
+
+  // 모든 도서정보 조회 기능
+  public List<Book> getAllBooks() {
+        ...
+  }
+ 
+  // 특정 도서번호의 도서정보를 조회하는 기능
+  public Book getBookByNo(int no) {
+	...
+  }
+
+}
+
+예시1)
+public class BookDao {
+  public void deleteBookByNo(int no) {
+   String sql = "delete from sample_books where book_no = ?"; 
+  
+   Connection con = ConnectionUtils.getConnection();
+   PreparedStatement pstmt = con.prepareStatement(sql);
+   pstmt.setInt(1, no);
+   pstmt.executeUpdate();
+   
+   pstmt.close();
+   con.close();
+  }
+}
+
+BookDao bookDao = new BookDao();
+bookDao.deleteBookByNo(100);
+bookDao.deleteBookByNo(200);
+bookDao.deleteBookByNo(300);
+
+BookDao에 도서 정보 삭제 기능 구현
+* 삭제할 책번호를 전달받아서 해당 책정보를 삭제한다.
+
+예시2)
+public class BookDao {
+  public void insertBook(Book book) {
+  String sql = "insert into sample_books
+                (book_no, book_title, book_author, book_publisher,
+                 book_price, book_discount, book_discount_rate, book_stock)
+                 values(?,?,?,?,?,?,?)";
+  Connection con = ConnectionUtils.getConnection();
+  PreparedStatement pstmt = con.prepareStatement(sql);
+  pstmt.setInt(1, book.getNo());
+  pstmt.setString(2, book.getTitle());
+     ... 이하 생략
+  
+  con.close();
+  pstmt.close();
+  }
+}
