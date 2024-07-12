@@ -1,0 +1,284 @@
+테이블의 정보를 표현할 수 있는 VO 클래스
+
+예시)
+COUNTRIES 테이블
+
+public class Country{
+ private String id;
+ private String name;
+ private int regionId;
+}
+
+/*
+ * SAMPLE_BOOKS 테이블에 대한 CRUD 작업이 구현된 클래스
+ * 
+ * - 신규 도서 추가 기능
+ *   + 반환타입 : void
+ *   + 매개변수 : Book book
+ *   + 메소드명 : insertBook
+ *   
+ * - 전체 도서 조회기능
+ *   + 반환타입 : List<Books>
+ *   + 매개변수 : 없음
+ *   + 메소드명 : findAllBooks
+ *   
+ * - 특정 도서 조회기능 [ Book을 반환(기본키가 검색조건)하거나 List<Book>을 반환하거나 ]
+ *   + 반환타입 : Book
+ *   + 매개변수 : int bookNo
+ *   + 메소드명 : findBookByNo
+ *   
+ * - 도서정보 변경기능
+ *   + 반환타입 : void
+ *   + 매개변수 : Book book
+ *   + 메소드명 : updateBook
+ *   
+ * - 도서정보 삭제기능
+ *   + 반환타입 : void
+ *   + 매개변수 : int bookNo
+ *   + 메소드명 : deleteBookByNo
+ *   
+ * - 도서정보 제목으로 검색기능 
+ *   + 반환타입 : List<Book>
+ *   + 매개변수 : String title
+ *   + 메소드명 : getBooksByTitle
+ *   
+ * - 도서정보 저자로 검색기능
+ *   + 반환타입 : List<Book>
+ *   + 매개변수 : String author
+ *   + 메소드명 : getBooksByAuthor
+ *   
+ * - 도서정보 출판사로 검색기능
+ * 	 + 반환타입 : List<Book>
+ *   + 매개변수 : String publisher
+ *   + 메소드명 : getBooksByPublisher
+ *   
+ * - 도서정보 가격으로 검색기능
+ * 	 + 반환타입 : List<Book>
+ *   + 매개변수 : int minPrice, int maxPrice
+ *   + 메소드명 : getBooksByPrice
+ *   
+ * 데이터베이스 엑세스 작업을 수행하는 메소드의 반환값
+ * 
+ * 메소드에서 수행한 SQL 구문         반환타입
+ *   INSERT                             void
+ *   UPDATE                             void
+ *   DELETE                             void
+ *   
+ *   SELECT                              VO		조회조건이 테이블의 기본키다.
+ *   SELECT                             List<VO>	조회조건이 테이블의 기본키가 아니다.
+ *
+ * - insert, update, delete : void
+ * - select : 반환값 필수
+ */
+
+메소드에서 수행한 SQL 구문     반환타입                        조회결과가 없는 경우
+	SELECT			VO				null이 반환된다.
+	SELECT			List<VO>	길이가 0인 List 객체 반환 [ 메소드 내부 구현이 그럼 ]
+
+예시)
+public List<Book> findAllBooks() {
+   List<Book> books = new ArrayList<>();
+
+   while (rs.next()) {
+     Book book = new Book();
+     ...
+     books.add(book);
+   }
+
+   return books;
+}
+// 여러 건은 일단 리스트 객체를 만들고 시작함. [ 포장지는 만듬 ]
+
++ 언제나 한 건 이상 조회되는 경우
+( 조회 결과가 없을 수 있다. )
++ 여러 건의 행을 담기위해서 미리 ArrayList 객체를 생성한다.
+
+조회결과가 있다.
+- 행의 개수만큼 Book 객체를 생성하고 행의 값을 저장한 다음,
+  Book 객체를 ArrayList 객체에 저장한다.
+
+조회결과가 없다.
+- ArrayList 객체에 담긴 Book 객체가 없다.
+- while문 내부가 실행되지 않는다.
+
+public Book getBookByNo(int no) {
+    Book book = null;
+	
+    while (rs.next()) {
+     book = new Book();
+     ...
+    }
+   
+    return book;
+}
+// 한 건은 일단 null을 담고 시작함 [ 한 건이라도 있으면 null이 안되도록 ]
+
++ 언제나 조회 결과가 한 건만 조회되는 경우
+( 조회 결과가 하나도 없는 경우도 있다. )
+
+- 미리 Book객체를 생성하지 않고, 행이 존재할 때만 Book 객체를 생성한다.
+
+조회결과가 있을 때
+- while문 내부가 실행된다.
+- Book 객체가 생성되고 값이 담긴다.
+- 최종적으로 Book 객체가 반환된다.
+
+조회결과가 없을 때
+- while문 내부가 실행되지 않는다.
+- null이 반환된다.
+
+//// 실행은 무조건 하게 됨.
+
+DAO는 제공해주는 데이터에 대해서는 알지 못하니까 DB 관련 기능만 부여한다.
+
+--------------------------------------------------------------------------------------------------
+// 회원이 주문하면 user에 회원정보가 있다.
+// 비회원이 주문하면 guest에 주문한 사람정보가 있다.
+public Order {
+	int order;
+	User user;
+	Guest guest;
+}
+
+Order order1 = orderDao.getOrderByNo(1000);
+	// order1이 null이다.
+	s.o.p(order1.getUser().getName());
+
+Order order2 = orderDao.getOrderByNo(2000);
+	// order2는 null이 아니다.
+	order2 ---> { 
+			no : 2000,
+			user : {id:hong, name:홍길동, ...},
+			guest : null
+		     }
+	s.o.p(order2.getUser().getName());
+
+Order order3 = orderDao.getOrderByNo(3000);
+	// order3는 null이 아니다.
+	order3 ---> {
+			no : 2000
+			user : null
+			guest : {name:홍길동, tel:"010-111-111"}
+		    }
+	s.o.p(order3.getUser().getName());
+
+// NullPointerException 오류가 나면 어떤 게 오류인지 확인해보자.
+// 기본적으로 참조변수를 보고, 계속 따라가보자.
+
+// 코딩 잘못한 건 예외처리의 대상이 아님.
+if (book1 != null) {
+			System.out.println(book1.getTitle());			
+		} else {
+			System.out.println("책정보가 없습니다.");
+		}
+
+★ 얘는 null을 미연에 방지해야 하는거지, 예외처리를 해야 할 대상은 아님 ★
+
+------------------------------------------------------------------------------------------------------
+
+제목 : xxxx  			no = 1000		  책 정보를 다 가져온다. [ 조회 ]
+가격 : 100000            →  	title = xxxx		→ 바뀌는 걸 제외하고는 유지하고 덮어쓴다. 
+할인율 : 0.12 			price = 10000		  [ 설계부터 후보들을 다 만들어놓는다. ]
+				discountRate = 0.12
+-------------------------------------------------------------------------------------------------------
+
+BookService [ 서비스에서 따로 Book을 관리함 ]
+
+void updateBook(int no, String title, int price, double discountRate) {
+        // 책번호로 수정 전 책 정보 조회
+	Book book = dao.getBookByNo(no);
+        book -> no:1000, title:aaaa,
+	       author:bbbb, publisher:cccc
+	       price:15000, discountRate:0.1
+	       stock:10, status:sell
+               ....
+
+       // 변경된 책정보를 조회된 Book객체에 저장
+        book.setTitle(title);
+        book.setPrice(price);
+        book.setDicount(discountRate);
+	book -> no:1000, title:xxxx, autor:bbbb, publisher:cccc
+                price:10000, discountRate:0.12, stock:10, status:sell
+                ...
+        dao.updateBook(book); // 변경된 정보가 포함된 Book객체를 전달
+        }
+
+-------------------------------------------------------------------------------------------------------
+
+주문하기 - 재고 감소
+public void order(int no, int amount) {
+    ...
+   // 주문시 ㄷ서 재고 변경하기
+   Book book = bookDao.getBookByNo(no);
+   book.setStock(book.getStock() - amount);
+   bookDao.updateBook(book);
+}
+
+도서 할인이벤트 - 가격 변경, 할인율 변경
+public void insertEvent(Evert event) {
+     ...
+    // 이벤트 내용을 도서에 반영하기
+    Book book = bookDao.getBookByNo(event.getItemNo());
+    book.setPrice(evenet.getEventPrice());
+    book.setDicountRate(event.getEventDiscountRate());
+    bookDao.updateBook(book);
+}
+
+도서 입고 - 재고 증가, 상태를 판매중으로 변경
+public void importBook(int no, int amount) {
+   ...
+   // 입고시 도서정보 변경하기
+   Book book = bookDao.getBookByNo(no);
+   book.setStock(book.getStock() + amount);
+   book.setStatus("판매중");
+   bookDao.updateBook(book);
+}
+
+-------------------------------------------------------------------------------------------------------
+
+특정 컬럼에 대용량 데이터가 담기는 경우는 같은 업데이트문에 포함시키지말고,
+그것만 따로 만든다. [ 예외적인 경우 ]
+
+------------------------------------------------------------------------------------------------------
+
+테이블의 정보를 수정 작업
+- 기존 정보를 조회한 다음, 변경이 발생된 부분의 값만 객체의 멤버변수에 저장한다.
+  ( 조회된 정보에서 나머지 정보는 그대로 있고, 값을 새로 대입한 것만 변경되게 된다. )
+- 위의 작업이 수행되고 나면, 저절로 객체에 수정한 정보만 값이 변경되어 있다.
+- 변경된 정보가 반영된 객체를 DAO에 전달해서 테이블에 반영시킨다.
+- 굳이 각각의 사항에 맞는 업데이트 메소드를 따로 만들 필요가 없다.
+ ( 항상 변경사항이 반영된 객체를 전달받는다. 해당 객체는 테이블의 모든 정보를 가지고 있다. )
+
+-------------------------------------------------------------------------------------------------------
+
+class BookService {
+  // 관리자가 도서 정보 수정하기. - 제목, 가격, 할인율 정보 수정
+  public void modifyBookInfo(Book book) {
+     Book src = BookDao.getBookByNo(book.getNo()); [ 조회 ]
+     src.setTitle(book.getTitle()); 
+     src.setPrice(book.getPrice());
+     src.setDicountRate(book.getDiscountRate());
+     bookDao.updateBooks(src); [ 수정 ]
+   }
+
+   // 도서정보 주문하기 - 재고 정보 수정하기
+   public void orderBook(int no, int amount, String userId) {
+	...
+        Book book = bookDao.getBookByNo(); [ 조회 ]
+        book.setStock(book.getStock() - amount);
+        bookDao.updateBook(book); [ 수정 ]
+   }
+
+   // 할인이벤트 하기 - 가격, 할인율 수정
+   public void applyBookEvent(Event event) {
+       ....
+       
+   }
+
+도서정보 수정하기 서비스, 도서 주문 서비스 등에서 변경되는 도서정보는 각각 다르지만,
+변경된 도서정보를 테이블에 반영시키는 메소드는 동일하다.
+* 변경전에 원래 도서를 조회한다.
+* 테이블에 반영하기전에 변경된 도서정보를 표현하는 Book객체에 먼저 변경된 사항을 반영한다.
+* Book객체는 변경된 정보가 반영되어 있다. 이 객체를 BookDao에 전달해서 테이블에 반영시킨다.
+* SQL에서는 항상 전체 도서 정보를 변경한다. 
+------------------------------------------------------------------------------------------------------
