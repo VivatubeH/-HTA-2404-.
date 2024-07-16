@@ -1,0 +1,372 @@
+VARCHAR2 - 가변길이 문자 데이터 타입.
+CHAR - 고정 길이 문자 데이터
+LONG - 가변 길이 문자 데이터, 지금은 거의 사용 x [ 테이블 당 하나만 사용 ]
+CLOB - 현재 사용하는 대용량 문자 데이터 타입
+NUMBER(p,s) - p는 전체 자릿수, s는 소수점 이하 자릿수라서 s가 p보다 클수없음.
+DATE - 날짜 및 시간 데이터
+TIMESTAMP - 조금 더 정밀한 날짜 및 시간 데이터
+BLOB - 대용량 이진 데이터 타입 ( 그림, 영상, 게임파일 등... )
+ROWID - 테이블에서 행의 고유주소를 나타내는 64진수 숫자데이터
+[ 6/3/6/3 - Data Object/File/Block/Row ]
+
+index(색인) - ROWID와 값이 매칭되어서 자료를 빨리 찾을 수 있음.[자동부여]
+
+내장함수 - SQL 작성 시 사용할 수 있는 유용한 기능이 제공되는 함수.
+
+오라클 내장 함수의 종류
+1) 단일행 함수 - 조회된 행마다 하나의 결과를 반환
+[ 문자, 숫자, 날짜, 변환, 기타 함수... ]
+
+2) 다중행 함수(그룹함수) - 조회된 행을 그룹으로 묶고 그룹마다 하나의 결과 반환
+[ 최댓값, 최솟값, 평균, 합계, 행의 개수.... ]
+[ group by 절을 사용 ] 
+
+DUAL - 결과를 1번만 조회하기 위해 오라클에서 만든 자체 테이블 
+
+/*
+단일행함수 - 문자함수
+ + 함수의 파라미터값이 문자데이터다.
+ + 주요함수 
+    LOWER(문자) : 소문자로 변환한다.
+    UPPER(문자) : 대문자로 변환한다.
+    LENGTH(문자) : 길이를 반환한다.
+    CONCAT(문자1, 문자2) : 문자1과 문자2가 연결된 값을 반환한다.
+    [ 근데 어차피 ||로 연결하는 게 더 편하니까 ||로 쓰기, ||는 2개 넘게 연결 가능 ]
+    SUBSTR(문자, 시작위치) : 문자에서 시작위치부터 끝까지 문자만 반환한다.
+                             시작위치는 1부터 시작한다.
+    SUBSTR(문자, 시작위치, 길이) : 문자의 시작위치부터 길이만큼 잘라서 반환한다.
+    INSTR(문자, 검색할문자) : 문자에서 검색할 문자가 등장하는 위치를 반환한다.
+    INSTR(문자, 검색할문자, 시작위치) : 문자에서 시작위치부터 찾아서 검색할 문자가 등장하는 위치를 반환한다.
+    INSTR(문자, 검색할문자, 시작위치, N번째위치) : 문자에서 시작위치부터 찾아서 검색할 문자가 N번째 등장하는 위치를 반환한다.
+    LPAD(문자, 길이, 추가할문자), RPAD(문자, 길이, 추가할문자)
+        문자가 지정한 길이보다 짧으면 부족한 길이만큼 왼쪽 혹은 오른쪽에 문자를 추가한다.
+    REPLACE(문자, 문자1, 문자2)
+        문자에서 문자1을 찾아서 문자2로 변환한다.
+*/
+
+-- 대/소문자로 변환하기
+SELECT FIRST_NAME, LOWER(FIRST_NAME), UPPER(FIRST_NAME)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+-- 문자데이터의 길이를 조회하기
+SELECT FIRST_NAME, LENGTH(FIRST_NAME)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+-- 문자 연결하기
+SELECT CONCAT(FIRST_NAME, LAST_NAME), FIRST_NAME || ', ' || LAST_NAME
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+-- 문자데이터에서 원하는 정보만 잘라서 조회하기
+-- 주민번호에서 태어난 해를 조회하기
+SELECT SUBSTR('800101-1234567', 1, 2)
+FROM DUAL;
+-- 주민번호에서 생일을 조회하기
+SELECT SUBSTR('800101-1234567', 3, 4)
+FROM DUAL;
+-- 주민번호에서 성별을 조회하기
+SELECT SUBSTR('800101-1234567', 8, 1)
+FROM DUAL;
+
+SELECT *
+FROM DUAL;
+
+-- 시작 위치가 양의 정수면 왼쪽끝에서부터 오른쪽으로 시작위치 검색
+SELECT SUBSTR('ABCDEFGHIJKLMN', 4, 2)
+FROM DUAL;
+
+-- 시작 위치가 음의 정수면 오른쪽끝에서부터 왼쪽으로 시작위치 검색
+SELECT SUBSTR('ABCDEFGHIJKLMN', -4, 2)
+FROM DUAL;
+
+-- 문자에서 특정 글자가 등장하는 위치를 조회하기
+SELECT INSTR('02)1234-5678', ')'),
+       INSTR('051)1234-5678', ')')
+FROM DUAL;
+
+-- 시작위치를 -1로 지정하면 문자의 끝에서부터 검색할 문자를 찾아서 그 위치를 반환한다.
+SELECT INSTR('010-1234-5678', '-'),
+       INSTR('010-1234-5678', '-', -1)
+FROM DUAL;
+
+-- INSTR과 SUBSTR를 이용해서 문자데이터의 일부를 알아내기
+WITH TEMP AS(
+    SELECT 'hong@gmail.com' email
+    FROM dual
+    UNION ALL
+    SELECT 'eungsulee@gmail.com' email
+    from dual
+    UNION ALL
+    SELECT 'kimyusin@hanmail.net' email
+    from dual
+)
+
+SELECT EMAIL,
+--  SUBSTR(문자, 시작위치, 길이)
+    SUBSTR(EMAIL, 1, INSTR(EMAIL, '@')-1), -- 아이디 잘라내기
+    SUBSTR(EMAIL, INSTR(EMAIL,'@')+1) -- 도메인네임 잘라내기
+FROM TEMP;
+
+-- 문자의 왼쪽에 '0'을 추가해서 항상 10글자의 문자로 반환하기
+SELECT LPAD('123',   10, '0'),
+       LPAD('1',     10, '0'),
+       LPAD('123456',10, '0')
+FROM DUAL;
+
+/*
+    급여 1000당 '*' 하나씩 표시되게 조회하기
+    EMPLOYEE_ID FIRST_NAME SALARY
+    100         홍길동     3000    ***        
+    101         김유신     6700    ******
+    102         강감찬     4500    ****
+*/
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY, RPAD('*', TRUNC(SALARY/1000), '*')
+FROM EMPLOYEES;
+
+/*
+    EMPLOYEE_ID     FIRST_NAME      FIRST_NAME2
+    103	Alexander   Alexander       A**xander
+    104	Bruce       Bruce           B**ce
+    105	David       David           D**id
+    106	Valli       Valli           V**li
+    107	Diana       Diana           D**na
+*/
+SELECT EMPLOYEE_ID, FIRST_NAME
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+SELECT EMPLOYEE_ID, FIRST_NAME,
+       REPLACE(FIRST_NAME, SUBSTR(FIRST_NAME, 2,2) ,'**') FIRST_NAME2
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+/*  
+        TEL                 TEL2            TEL3
+    02-1239-5903         02-1239-****       02-****-5903
+    051-0392-7885        051-0392-****      051-****-7885
+    010-6954-1298        010-6954-****      010-****-1298
+    02-3451-6584         02-3451-****       02-****-6584
+    032-5671-6847        032-5671-****      032-****-6847
+    
+    TEL2 : 끝에 4글자를 '****'로 변환하기
+            + 두 번째 '-' 다음부터 전화번호 끝까지를 '****'로 바꾼다. 
+                1. 두 번째 '-'의 위치 : INSTR(TEL, '-', -1)
+                2. 두번째 '-'부터 전화번호 끝까지 : INSTR(TEL, '-', -1) + 1
+                3. 두 번째 '-'부터 전화번호 끝까지의 문자 : SUBSTR(TEL, INSTR(TEL, '-', -1)+1)
+                4. 두 번째 '-' 다음부터 전화번호 끝까지의 문자를 '****'로 바꾼다.
+                REPLACE(TEL, SUBSTR(TEL, INSTR(TEL, '-', -1)+1, '****')
+    
+    TEL3 : 가운데 4글자를 '****'로 변환하기
+            + 첫 번째 '-' 다음부터 전화번호 4글자를 '****'로 바꾼다.
+                1. 첫 번째 '-' : INSTR(TEL, '-')
+                2. 첫 번째 '-' 다음부터 : INSTR(TEL, '-')+1
+                3. 첫 번째 '-' 다음부터 전화번호 4글자 : SUBSTR(TEL, INSTR(TEL,'-')+1, 4)
+                4. 첫 번째 '-' 다음부터 전화번호 4글자를 '****'로 바꾼다.
+                    REPLACE(TEL, SUBSTR(TEL, INSTR(TEL,'-')+1, 4), '****')
+
+    TEL4 : 가운데 글자를 그 글자수에 맞게 *로 변환하기
+        + 첫번째 '-' 다음부터 마지막번째 '-' 사이의 전화번호에 맞게 '*'로 바꾼다.
+            1. 첫 번째 '-' : INSTR(TEL, '-')
+            2. 마지막 '-' : INSTR(TEL, '-', -1)
+            3. 변경할 글자의 시작위치
+              첫 번째 '-'의 위치 +1 : INSTR(TEL, '-') + 1
+            4. 글자수 [ 마지막 '-'위치 - 첫 번재 '-'위치 - 1]
+                INSTR(TEL, '-', -1) - INSTR(TEL, '-') - 1    
+            5. 변경할 가운데 글자
+                SUBSTR(TEL, INSTR(TEL,'-')+1, INSTR(TEL,'-',-1) - INSTR(TEL, '-') -1)
+                
+            예)
+            '010-123-4567'
+                + 첫번째 '-'의 위치 : 4
+                + 마지막번째 '-'의 위치 : 8
+                + 시작위치 : 5
+                + 길이 : 8 - 4 - 1 = 3
+                + 변경할 문자 : SUBSTR('010-123-4567', 5, 3 ) => '123'
+            '02-1234-5678'
+                + 첫번째 '-'의 위치 : 3
+                + 마지막번째 '-'의 위치: 8
+                + 시작위치 : 4
+                + 길이 : 8 - 3 - 1 = 4
+                + 변경할 문자 : SUBSTR('02-1234-5678', 4, 4) => '1234'
+            6. 글자수에 맞게 '*'을 만들기
+                LPAD('*', INSTR(TEL, '-', -1) - INSTR(TEL, '-')-1), '*')
+                         ----------------------------------------  -----
+                            글자수                                 부족 시 추가할 글자
+                예) 
+                '010-123'4567'
+                    LPAD('*', 3, '*') => '***'
+                '02-1234-5678'
+                    LPAD('*', 4, '*') => '****'
+                    
+            7. 첫번째 '-' 다음부터 마지막번째 '-'사이의 전화번호를 글자수에 맞게 '*'로 바꾼다.
+                REPLACE('010-123'4567',
+                        SUBSTR(TEL, INSTR(TEL, '-')+1, INSTR(TEL, '-', -1) - INSTR(TEL, '-')-1),
+                        LPAD('*', INSTR(TEL, '-', -1) - INSTR(TEL, '-')-1), '*'))
+*/
+
+WITH TEMP AS (
+    SELECT '02-1239-5903' TEL FROM DUAL
+    UNION
+    SELECT '051-0392-7885' TEL FROM DUAL
+    UNION
+    SELECT '010-6954-1298' TEL FROM DUAL
+    UNION
+    SELECT '02-3451-6584' TEL FROM DUAL
+    UNION
+    SELECT '032-5671-6847' TEL FROM DUAL
+)
+SELECT TEL 
+     , REPLACE(TEL, SUBSTR(TEL, INSTR(TEL, '-', -1) + 1), '****') TEL2
+     , REPLACE(TEL, SUBSTR(TEL, INSTR(TEL, '-') +1, 4) , '****') TEL3
+FROM TEMP;
+
+-----------------------------------------------------------------------------------------------------
+
+-- 인상후 급여는 100의 자리까지만 포함한다. ( -2로 trunc ) 
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , TRUNC(SALARY*1.15, -2)
+FROM EMPLOYEES;
+
+SELECT CEIL(1.1)
+    , CEIL(1.4)
+    , CEIL(1.8)
+    , CEIL(2)
+FROM DUAL;
+
+/*
+ROWNUM
+    - 의사컬럼(Pseudo column)이다.
+      * 의사컬럼은 테이블의 컬럼처럼 동작하지만, 실제로 테이블의 컬럼으로 저장되지는 않는 컬럼이다.
+    - ROWNUM은 SELECT 쿼리문에서 조회되는 각 행에 대한 순번값을 나타내는 의사컬럼이다.
+    
+    단위별로 끊고 싶을 때 CEIL을 사용할 수 있다. (n개로 끊고 싶으면 n으로 나눈다.)
+*/
+-- ROWNUM과 CEIL을 이용하면 대량의 데이터를 일정 개수씩 끊어서 조회할 수 있다.
+SELECT CEIL(ROWNUM / 10) PAGE
+    , EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+FROM EMPLOYEES;
+
+-- 가상 테이블을 만들고 가상 테이블에서 PAGE가 4인 걸 가져오기.
+SELECT *
+FROM (SELECT CEIL(ROWNUM/10) PAGE
+    , EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    FROM EMPLOYEES)
+WHERE PAGE = 4;
+
+-------------------------------------------------------------------------------------------------------
+
+/*
+날짜 연산
+    날짜 + 숫자 -> 날짜 : 날짜에서 숫자만큼 경과된 날을 반환한다.
+    날짜 - 숫자 -> 날짜 : 날짜에서 숫자만큼 이전 날을 반환한다.
+    날짜 - 날짜 -> 숫자 : 두 날짜사이의 일수를 반환한다.
+    
+    단일행 함수 - 날짜 함수
+    
+        SYSDATE 
+            시스템의 현재 날짜와 시간정보를 DATE 타입으로 반환한다.
+            입력값이 필요없는 함수는 ()를 적지않는다.
+        MONTHS_BETWEEN(날짜1, 날짜2)
+            두 날짜 사이의 개월 수를 반환한다.
+        ADD_MONTHS(날짜, 개월 수)
+            주어진 날짜에서 개월 수만큼 더한 날짜를 반환한다.
+            무조건 30일을 더한 날짜가 반환되는 것이 아니라,
+            주어진 날짜에서 개월수 만큼 경과된 날짜를 반환환다.
+        예) 1월 31일의 1개월 후 -> 2월 28일
+            1월 31일의 2개월 후 -> 3월 31일
+            1월 31일의 3개월 후 -> 4월 30일
+        LAST_DAY(날짜)
+            주어진 날짜가 속한 달의 마지막 날을 반환한다.
+        TRUNC(날짜)
+            주어진 날짜의 당일날짜를 반환한다.
+            계산된 값의 시분초는 00:00:00이다.
+        ROUND(날짜)
+            주어진 날짜를 정오를 기준으로 정오를 지났으면 다음날을 반환한다.
+                                          정오를 지나지 않았으면 당일을 반환한다.
+            계산된 값의 시분초는 00:00:00이다.
+*/
+
+-- 시스템의 현재 날짜와 시간 정보를 반환한다.
+SELECT SYSDATE
+FROM DUAL;
+
+-- 3일전 날짜를 반환한다.
+SELECT SYSDATE - 3
+FROM DUAL;
+
+-- 3일후 날짜를 반환한다
+SELECT SYSDATE + 3
+FROM DUAL;
+
+-- 7일후 날짜를 반환한다.
+SELECT SYSDATE + 7
+FROM DUAL;
+
+-- 책정보중에서 최근 5일 이내에 등록된 책정보를 조회하기
+SELECT *
+FROM SAMPLE_BOOKS
+WHERE BOOK_CREATED_DATE > SYSDATE - 5;
+
+-- 직원정보에서 직원들의 입사일을 기준으로 근속일수를 계산하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE
+    , TRUNC(SYSDATE - HIRE_DATE) DAYS
+FROM EMPLOYEES;
+
+-- 나는 몇일이나 살았나?
+SELECT SYSDATE - TO_DATE('1996-02-23')
+FROM DUAL;
+
+-- 직원정보에서 입사일을 기준으로 근속개월수를 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE
+    , TRUNC(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)) MONTHS
+FROM EMPLOYEES;
+
+SELECT SYSDATE
+    , ADD_MONTHS(SYSDATE, 1) DAY1
+    , ADD_MONTHS(SYSDATE, 3) DAY2
+    , ADD_MONTHS(SYSDATE, 6) DAY3
+    , ADD_MONTHS(SYSDATE, 9) DAY4
+FROM DUAL;
+
+SELECT ADD_MONTHS('2024/01/30', 1)
+FROM DUAL;
+
+SELECT LAST_DAY(SYSDATE)
+FROM DUAL;
+
+-- 현재날짜를 기준으로 3일전에 입고된 책정보를 조회한다.
+-- 현재날짜가 '2024/07/15 15:14:56'라면
+-- SYSDATE - 3 값은 '2024/07/12 15:14:56'이다. ( 7월 12일 오전에 입고된 책은 조회되지 않는다. )
+-- TRUNC(SYSDATE - 3) 값은 '2024/07/12 00:00:00'이다.
+SELECT *
+FROM SAMPLE_BOOKS
+WHERE BOOK_CREATED_DATE > TRUNC(SYSDATE - 3);
+
+-- 반올림된 날짜를 조회한다.
+-- 현재 날짜가 '2024/07/15 07:14:56'라면 반환값은 '2024/07/15 00:00:00'
+-- 현재 날짜가 '2024/07/15 15:14:56'라면 반환값은 '2024/07/16 00:00:00'
+SELECT ROUND(SYSDATE)
+FROM DUAL;
+
+-- 주어진 날짜의 당일날짜를 반환한다.
+-- 시분초값은 00시 00분 00초다.
+SELECT TRUNC(SYSDATE)
+FROM DUAL;
+
+SELECT TRUNC(SYSDATE), ROUND(SYSDATE)
+FROM DUAL;
+
+----------------------------------------------------------------------------------------------------
+
