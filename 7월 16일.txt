@@ -1,0 +1,597 @@
+변환함수
+
+/*
+단일행 함수 - 변환함수
+    TO_CHAR(날짜, 포맷형식)
+        + 날짜를 문자로 변환한다.
+        + 패턴문자
+            'YYYY'  : 년도를 4자리로 표현한다.
+            'RRRR'  : 년도를 4자리로 표현한다.
+            'RR'    : 년도를 2자리로 표현한다.
+            'MM'    : 월을 2자리로 표현한다.
+            'DD'    : 일을 2자리로 표현한다.
+            'HH24'  : 24시간제로 시간을 표현한다.
+            'HH'    : 12시간제로 시간을 표현한다.
+            'MI'    : 분을 표현한다
+            'SS'    : 초를 표현한다.
+            * 패턴문자는 대소문자를 구분하지 않는다.
+            * 패턴문자는 위에 제시한 패턴으로만 사용한다.
+        
+        
+    
+    TO_CHAR(숫자, 포맷형식)
+        숫자를 문자로 변환한다.
+        
+    TO_DATE(문자, 패턴)
+        문자를 날짜로 변환한다.
+        TO_DATE('20240101'), TO_DATE('2024-01-01'), TO_DATE('2024/01/01')과
+        같은 형식의 문자는 패턴을 지정하지 않아도 날짜로 변환된다.
+        따로, 시간을 지정하지 않으면 0시 0분 0초다.
+        
+        + TO_DATE('2024-01-01 23:31:11')와 형식의 문자는 패턴을 지정하지 않아도
+        날짜와 시간정보를 표현하는 DATE 타입으로 변환된다.
+        
+    TO_CHAR(숫자, 포맷)
+        숫자를 지정된 포맷형식의 문자로 변환한다.
+        + 패턴 문자
+            '9' : 9의 개수만큼 자릿수를 표현한다.
+            '0' : 빈자리를 0으로 채운다.
+            '.' : 소수점 이하를 표시한다.
+            ',' : 천단위 구분기호를 표시한다.
+        
+    TO_NUMBER(문자, 패턴)
+        문자를 숫자로 변환한다.
+
+
+묵시적 데이터타입 변환과 명시적 데이터타입 변환
+ - 묵시적 데이터타입 변환(자동 변환)
+   * DBMS가 자동으로 수행하는 데이터변환이다.
+   * 연산에 참여하는 값의 데이터타입이 서로 다를 때 같은 타입의 데이터로 자동으로 변환한 후
+     연산을 수행하는 것이다.
+   * 연산에 참여하는 값이 특정 타입의 데이터로 변환가능한 값일 때 가능하다.
+ - 명시적 데이터타입 변환(수동변환)
+   * 변환함수를 사용해서 수동으로 데이터타입을 변환하는 것이다.
+   * DBMS가 자동으로 데이터변환을 할 수 없는 경우 사용한다.
+
+*/
+
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE
+    , TO_CHAR(HIRE_DATE, 'YYYY') YEAR
+    , TO_CHAR(HIRE_DATE, 'MM/DD') DAY
+FROM EMPLOYEES;
+
+-- 책정보에서 도서 번호, 도서 제목, 등록일을 조회하기
+-- 등록일은 등록년도, 등록일자, 등록시간으로 구분해서 조회하기
+SELECT BOOK_NO
+    , BOOK_TITLE
+    , BOOK_CREATED_DATE
+    , TO_CHAR(BOOK_CREATED_DATE, 'YYYY') YEAR
+    , TO_CHAR(BOOK_CREATED_DATE, 'MM-DD') DAY
+    , TO_CHAR(BOOK_CREATED_DATE, 'HH24:MI:SS') TIME
+FROM SAMPLE_BOOKS;
+
+-- 직원정보 중에서 7월달에 입사한 직원의 아이디, 이름, 입사일을 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'MM') = '07';
+
+-- 이렇게 작성하면 패턴을 안 적어도 알아서 변환됨.
+-- 날짜와 시간을 이렇게 같이 적으면 시간 정보도 같이 변환된다.
+-- 다양한 형식의 문자데이터(날짜형식의 문자데이터)를 날짜로 변환하기
+SELECT TO_DATE('2024-01-01')
+    , TO_DATE('2024/01/01')
+    , TO_DATE('2024-01-01 23:11:11')
+    , TO_DATE('20240101')
+FROM DUAL;
+
+-- 60번 부서에 소속된 직원의 아이디, 이름, 급여를 조회하기
+-- 급여는 천단위마다 ,를 붙인다.
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , TO_CHAR(SALARY, '999,999')
+    , TO_CHAR(SALARY, '000,000')
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+-- 커미션을 받는 직원들의 아이디, 이름, 커미션을 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , COMMISSION_PCT
+    , TO_CHAR(COMMISSION_PCT, '9.99')
+    , TO_CHAR(COMMISSION_PCT, '0.00')
+FROM EMPLOYEES
+WHERE COMMISSION_PCT IS NOT NULL;
+
+-- 오른쪽으로 정렬되어 있으면 숫자, 왼쪽으로 정렬되어 있으면 문자
+SELECT TO_NUMBER('10')
+    , TO_NUMBER('3.14')
+    , TO_NUMBER('10,000', '99,999')
+    , TO_NUMBER('123,567.89', '000,000.00')
+FROM DUAL;
+
+--------------------------------------------------------------------------------------------
+
+/*
+단일행 함수 - 기타 함수(일반 함수)
+    - 일반함수는 함수에 입력되는 값이 숫자, 문자, 날짜 구분없이 모두 사용할 수 있는 함수
+    
+    NVL(컬럼, 치환값)
+        + 지정된 컬럼값이 NULL일 때 치환값으로 바꿔주는 함수
+        + 컬럼의 타입과 치환값의 타입은 같은 타입이다.
+        + 예) [ 값이 NULL일 때만 치환된다. ]
+            NVL(100, 0) -> 100 [ 컬럼 위치의 값이 NULL이 아닌 경우 원래값이 최종결과가 된다. ]
+            NVL(NULL, 0) -> 0 [ 컬럼 위치의 값이 NULL인 경우 치환값이 최종결과가 된다. ]
+            
+    NVL2(컬럼, 치환값1, 치환값2)
+        + 지정된 컬럼의 값이 NULL이 아니면 치환값 1이 최종결과가 되고,
+          지정된 컬럼의 값이 NULL이면 치환값 2가 최종결과가 된다.
+        + 치환값1과 치환값2의 타입은 같은 타입이다. (컬럼의 타입과 치환값의 타입이 같을 필요는 없다. )
+        
+    DECODE(컬럼, 비교값1, 결과값1, 결과값2)
+        + 분기문을 처리하는 함수다.
+        + 컬럼의 값이 비교값1과 일치하면 최종결과는 결과값1이다.
+        + 컬럼의 값이 비교값1과 일치하지 않으면 최종결과는 결과값 2이다.
+        + 컬럼을 제외하고, 입력값이 홀수개면 맨 마지막 값은 컬럼의 값과 일치하는 값이 하나도
+        없을 때 최종결과가 된다.
+        + 컬럼과 비교값은 타입이 같다.
+        + 모든 결과값들끼리 타입이 같다.
+        + 결과값 자리에는 계산식과 SELECT문이 모두 가능하다.
+        
+        예) 
+            DECODE(CUSTOMER_GRADE, '골드', 0.5,
+                                   '실버', 0.2,
+                                   '브론즈', 0.1,
+                                   0.03)
+    DECODE(컬럼, 비교값1, 결과값1, 비교값2, 결과값2, 특정값)
+        + 분기문을 처리하는 함수다.
+        + 컬럼의 값이 비교값1과 일치하면 최종결과는 결과값1이다.
+        + 컬럼의 값이 비교값2와 일치하면 최종결과는 결과값2이다.
+        + 컬럼의 값이 비교값1, 비교값2와 전부 일치하면 결과값은 NULL 또는 특정값
+        
+    CASE ~ WHEN
+        + IF문의 역할을 수행한다.
+        + DECODE는 = 비교만 가능,
+          CASE ~ WHEN은 =비교, 크다/작다 비교도 가능하다.
+          
+        + 형식
+            CASE 컬럼혹은값 
+                WHEN 비교값1 THEN 결과값1
+                WHEN 비교값2 THEN 결과값2
+                WHEN 비교값3 THEN 결과값3
+                ELSE 결과값4
+            END
+            * 컬럼혹은값과 비교값끼리 = 비교를 수행한다.
+            
+            CASE
+                WHEN 조건식1 THEN 결과값1
+                WHEN 조건식2 THEN 결과값2
+                WHEN 조건식3 THEN 결과값3
+                ELSE 결과값4
+            END
+            * 제시된 조건식이 TRUE로 판정되면 해당 결과값이 최종 결과가 된다.
+        예) 
+            CASE CUSTMOMER_GRADE
+                WHEN '골드' THEN 0.5
+                WHEN '실버' THEN 0.2
+                WHEN '브론즈' THEN 0.1
+                ELSE 0.05
+            END
+            
+            CASE 
+                WHEN CUSTOMER_GRADE = '골드' THEN 0.5
+                WHEN CUSTOMER_GRADE = '실버' THEN 0.2
+                WHEN CUSTOMER_GRADE = '브론즈' THEN 0.1
+                ELSE 0.05
+            END
+            
+            CASE 
+                WHEN SALARY >= 20000 THEN 0.1
+                WHEN SALARY >= 10000 THEN 0.15
+                WHEN SALARY >= 5000 THEN 0.2
+                ELSE 0.5
+            END
+            
+            equal 비교 시 ---> DECODE
+            크다 작다 비교 ---> CASE ~ WHEN
+*/
+
+-- 직원정보에서 직원의 아이디, 이름, 급여, 커미션 정보를 조회하기
+-- 커미션이 NULL인 직원은 0으로 출력하기
+-- null 값을 다른 값으로 치환할 때 사용함.
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , COMMISSION_PCT
+    , NVL(COMMISSION_PCT, 0) COMMISSION
+FROM EMPLOYEES;
+
+-- 오라클에서는 null과의 사칙연산은 무조건 결과가 null이 됨.
+-- 직원정보에서 직원의 아이디, 이름, 급여, 커미션, 연봉을 조회하기
+-- 연봉 = 급여*12 + 급여*커미션*12
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , COMMISSION_PCT
+    , SALARY*12 + SALARY*NVL(COMMISSION_PCT, 0)*12 ANNUAL_SALARY
+FROM EMPLOYEES;
+
+-- 직원정보에서 직원의 아이디, 이름, 급여, 커미션을 조회하기
+-- 커미션을 받는 직원은 '있음', 커미션을 받지 않는 직원은 '없음'으로 표시하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , NVL2(COMMISSION_PCT, '있음', '없음')
+FROM EMPLOYEES;
+
+-- 직원정보에서 직원의 아이디, 이름, 부서아이디, 팀을 조회하기
+-- 팀은 부서아이디를 기준으로 정한다.
+-- 50번은 A팀, 80번은 B팀, 그외는 C팀이다.
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , DEPARTMENT_ID
+    , DECODE(DEPARTMENT_ID, 50, 'A팀', 80, 'B팀') TEAM
+    
+FROM EMPLOYEES
+ORDER BY TEAM;
+
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , DEPARTMENT_ID
+    , CASE DEPARTMENT_ID
+        WHEN 50 THEN 'A팀'
+        WHEN 80 THEN 'B팀'
+        ELSE 'C팀'
+       END AS TEAM
+FROM EMPLOYEES
+ORDER BY DEPARTMENT_ID;
+
+-- 직원정보에서 직원 아이디, 이름, 급여, 인상된 급여를 조회하기
+-- 급여가 2만 이상은 5%인상, 1만 이상은 10% 인상, 그외는 30% 인상한다.
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , CASE 
+        WHEN SALARY >= 20000 THEN SALARY * 1.05
+        WHEN SALARY >= 10000 THEN SALARY * 1.1
+        ELSE SALARY * 1.3
+      END INCREASE_SALARY
+FROM EMPLOYEES
+ORDER BY 4 DESC;
+
+--------------------------------------------------------------------------------------------
+
+오라클의 내장함수
+	단일행함수
+		문자함수 [ 입력값(컬럼의 데이터타입)이 문자 ]
+			LOWER(컬럼)
+			UPPER(컬럼)
+			LENGTH(컬럼)
+			SUBSTR(컬럼, 시작위치)
+			SUBSTR(컬럼, 시작위치, 길이)
+			INSTR(컬럼, 문자)
+			INSTR(컬럼, 문자, 시작위치)
+			INSTR(컬럼, 문자, 시작위치, 등장순서)
+			REPLACE(컬럼, 검색문자, 대체할문자)
+		숫자함수 [ 입력값(컬럼의 데이터타입)이 숫자 ]
+			ROUND(컬럼)
+			ROUND(컬럼, 자릿수)
+			TRUNC(컬럼)
+			TRUNC(컬럼, 자릿수)
+			CEIL(컬럼)
+			FLOOR(컬럼)
+			MOD(숫자1, 숫자2)
+		날짜함수 [ 입력값이 날짜 ]
+			날짜 + 숫자
+			날짜 - 숫자
+			날짜1 - 날짜2
+			SYSDATE
+			MONTHS_BETWEEN(날짜1, 날짜2)
+			ADD_MONTH(날짜, 숫자)
+			LAST_DAY(날짜)
+			ROUND(날짜)
+			TRUNC(날짜)
+		변환함수
+			TO_DATE(문자) 지정된 문자를 날짜로 변환한다.
+			TO_NUMBER(문자) 지정된 문자를 숫자로 변환한다.
+			TO_CHAR(날짜, 포맷형식) 날짜를 지정된 포맷형식의 문자로 변환한다.
+			TO_CHAR(숫자, 포맷형식) 숫자를 지정된 포맷형식의 문자로 변환한다.
+		일반함수
+			NVL(컬럼, 치환값)
+			DECODE(컬럼, 비교값1, 결과값1, 비교값2, 결과값2, 결과값3)
+			CASE ~ WHEN
+		
+	  다중행함수(그룹함수)
+		 다중행함수(그룹함수)
+        + 그룹함수는 그룹당 하나의 결과를 반환하는 함수다.
+        + 그룹을 별도로 지정하지 않으면 테이블 전체 혹은 조회된 모든 행이 하나의 그룹이다.
+        + GROUP BY 절을 이용하면 그룹을 나눌 수 있다.
+        + SELECT절에 그룹 함수와 그룹 함수가 아닌 것을 같이 적을 수 없다.
+          단, GROUP BY 절에서 사용한 컬럼 혹은 표현식은 SELECT절에 적을 수 있다.
+        + 그룹함수는 중첩을 한 번만 지원한다.
+        + 그룹함수는 WHERE절의 조건식에서 사용할 수 없다.
+        
+        COUNT(*)
+            조회된 모든 행의 갯수를 반환한다.
+        COUNT(컬럼)
+            조회된 행중에서 지정된 컬럼의 값이 NULL이 아닌 행의 갯수를 반환한다.
+        COUNT(DISTINCT 컬럼)
+            조회된 행중에서 지정된 컬럼의 값을 기준으로 중복된 행을 제외한 행의 갯수를 반환한다.
+        
+        SUM(컬럼)
+            조회된 모든 행에서 지정된 컬럼의 합계를 반환한다. NULL은 제외한다.
+        AVG(컬럼)
+            조회된 모든 행에서 지정된 컬럼의 평균을 반환한다. NULL은 제외한다.
+        MIN(컬럼)
+            조회된 모든 행에서 지정된 컬럼의 최소값을 반환한다. NULL은 제외한다.
+        MAX(컬럼)
+            조회된 모든 행에서 지정된 컬럼의 최대값을 반환한다. NULL은 제외한다.
+*/
+
+-- 전체 직원수를 조회하기
+SELECT COUNT(*)
+FROM EMPLOYEES;
+
+-- 전체 직원들이 실제 종사하는 직종의 갯수를 조회하기
+SELECT COUNT(DISTINCT JOB_ID)
+FROM EMPLOYEES;
+
+-- 전체 부서 개수를 조회하기
+SELECT COUNT(*)
+FROM DEPARTMENTS;
+
+-- 전체 부서중에서 MANAGER_ID가 NULL이 아닌 행의 갯수를 조회하기
+SELECT COUNT(MANAGER_ID)
+FROM DEPARTMENTS;
+
+SELECT MANAGER_ID
+FROM DEPARTMENTS;
+
+SELECT *
+FROM DEPARTMENTS;
+
+-- 그룹 함수와 그룹 함수가 아닌 거를 같이 사용할 수는 없다.
+
+-- 직원 정보에서 최고급여, 최소급여, 평균급여를 계산하기
+SELECT MAX(SALARY), MIN(SALARY), TRUNC(AVG(SALARY))
+FROM EMPLOYEES;
+
+-- 직원정보에서 커미션비율의 평균값을 조회하기
+-- 평균값 = (NULL아닌 값의 합계) / (지정된 컬럼이 NULL 아닌 행의 갯수)
+SELECT TRUNC(AVG(COMMISSION_PCT), 2)
+        , TRUNC(SUM(COMMISSION_PCT)/COUNT(COMMISSION_PCT), 2)
+FROM EMPLOYEES;
+
+-- GROUP BY 절에 적은 건 SELECT문에 적을 수 있다.
+SELECT DEPARTMENT_ID, COUNT(*)
+FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID;
+
+/*
+GROUP BY
+    - 테이블의 행 혹은 조회된 행을 지정된 컬럼의 값이 같은 값을 가지는 행끼리 그룹화한다.
+    - 형식
+        SELECT 컬럼1, 컬럼2, 그룹함수(), 그룹함수
+        FROM
+        [WHERE 조건식]
+        [GROUP BY 컬럼1, 컬럼2]
+        [ORDER BY 컬럼]
+    - GROUP BY 절에는 컬럼 혹은 표현식이 올 수 있다.
+    - GROUP BY 절에서 사용된 컬럼 혹은 표현식은 SELECT 절에서 그룹함수와 같이 사용할 수 있다.
+    - 그룹함수는 GROUP BY로 그룹화된 모든 그룹에 한번씩 실행되고, 그룹마다 결과를 생성한다.
+    
+*/
+
+-- 직원정보에서 직종아이디별 사원수를 조회하기
+SELECT JOB_ID, COUNT(*)
+FROM EMPLOYEES
+GROUP BY JOB_ID;
+
+-- 직원정보에서 소속부서가 있는 직원들을 소속부서아이디별로 사원수를 조회하기
+SELECT DEPARTMENT_ID, COUNT(*)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID IS NOT NULL
+GROUP BY DEPARTMENT_ID
+ORDER BY 1;
+
+-- DEPARTMENT_ID를 먼저 그룹화 한 다음, 걔를 JOB_ID를 기준으로 그룹화한다.
+SELECT DEPARTMENT_ID, JOB_ID, COUNT(*)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID IS NOT NULL
+GROUP BY DEPARTMENT_ID, JOB_ID
+ORDER BY 1;
+
+-- 입사년도별 사원수를 조회하기
+SELECT TO_CHAR(HIRE_DATE, 'YYYY') "년도"
+    , COUNT(*) "입사자 수"
+    , TO_CHAR(TRUNC(COUNT(*)*100/107, 1), '90.9') || '%' "비율"
+FROM EMPLOYEES
+GROUP BY TO_CHAR(HIRE_DATE, 'YYYY')
+ORDER BY 년도;
+
+/*
+    HAVING 절
+    - 그룹함수를 조건식으로 사용해서 행을 필터링한다.
+    - GROUP BY 절을 사용해서 행을 그룹화하고, 각 그룹에 그룹함수를 실행한 결과로 행을 필터링한다.
+    - 형식
+        SELECT 컬럼1, 그룹함수(), 그룹함수()
+        FROM 테이블
+        [WHERE 조건식]
+        [GROUP BY 컬럼1]
+        [HAVING 그룹함수를 사용한 조건식]
+        [ORDER BY 정렬기준]
+*/
+
+-- 직종별 사원수를 조회하기
+SELECT JOB_ID, COUNT(*)
+FROM EMPLOYEES
+GROUP BY JOB_ID
+HAVING COUNT(*) >= 20;
+
+--------------------------------------------------------------------------------------
+
+-- 직원정보에서 급여를 5000이상 받는 직원의 아이디, 이름, 직종아이디, 급여를 조회하고, 급여순으로 오름차순 정렬하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , JOB_ID
+    , SALARY
+FROM EMPLOYEES
+WHERE SALARY >= 5000
+ORDER BY SALARY ASC;
+
+-- 직원정보에서 직종아이디가 'CLERK'로 끝나는 직원들의 아이디, 이름, 직종아이디, 급여를 조회하고, 아이디순으로 정렬하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , JOB_ID
+    , SALARY
+FROM EMPLOYEES
+WHERE JOB_ID LIKE '%CLERK'
+ORDER BY EMPLOYEE_ID ASC;
+
+-- 직원정보에서 이번달에 입사한 직원의 아이디, 이름, 입사일을 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE 
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'YYYY-MM') 
+    = TO_CHAR(SYSDATE, 'YYYY-MM');
+    
+-- 연산자에서 좌변은 되도록 가공하지 말자. ( 쿼리 성능이 저하됨 )
+-- SQL 칠거징가 참조
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE
+FROM EMPLOYEES
+WHERE HIRE_DATE > TRUNC(LAST_DAY(ADD_MONTHS(SYSDATE,-1)) + 1);
+
+-- 오늘이 속해있는 달의 첫날을 조회하는 쿼리
+SELECT TRUNC(LAST_DAY(ADD_MONTHS(SYSDATE,-1))+1)
+FROM DUAL;
+
+SELECT TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM') || '-01')
+FROM DUAL;
+
+-- 직원정보에서 이름이 8글자 이상인 직원의 아이디, 이름을 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+FROM EMPLOYEES
+WHERE LENGTH(FIRST_NAME) >= 8;
+
+-- 직원정보에서 직원의 이름을 대문자로 변환했을 때 3번째 글자가 'E'인 직원의 이름을 전부 조회하기
+SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE UPPER(SUBSTR(FIRST_NAME, 3, 1)) = 'E';
+
+SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE INSTR(UPPER(FIRST_NAME), 'E', 3) = 3;
+
+SELECT FIRST_NAME
+FROM EMPLOYEES
+WHERE UPPER(FIRST_NAME) LIKE '__E%';
+
+-- 직원정보에서 2006년에 입사한 직원의 아이디, 이름, 직종아이디를 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , JOB_ID
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'YYYY') = '2006';
+
+SELECT EMPLOYEE_ID, FIRST_NAME, JOB_ID
+FROM EMPLOYEES
+WHERE HIRE_DATE >= '2006-01-01' AND HIRE_DATE < '2007-01-01';
+
+-- 직원정보에서 2005년에 입사한 직원 중에서 커미션을 받는 직원의 아이디, 이름, 급여, 커미션을 조회하기
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , JOB_ID
+    , SALARY
+    , COMMISSION_PCT
+FROM EMPLOYEES
+WHERE HIRE_DATE >= '2005-01-01' AND HIRE_DATE < '2006-01-01' 
+AND COMMISSION_PCT IS NOT NULL;
+    
+-- 직원정보에서 급여를 5000이상 받는 직원들의 아이디, 이름, 급여, 급여 등급을 조회하기. 
+-- 급여 등급: 20000이상 A, 15000이상 B, 10000이상 C, 그 외는 D 다.
+WITH TEMP AS (
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , CASE
+        WHEN SALARY >= 20000 THEN 'A'
+        WHEN SALARY >= 15000 THEN 'B'
+        WHEN SALARY >= 10000 THEN 'C'
+        ELSE 'D'
+      END SALARY_GRADE
+FROM EMPLOYEES
+WHERE SALARY >= 5000)
+SELECT SALARY_GRADE, COUNT(*)
+FROM TEMP
+GROUP BY SALARY_GRADE;
+
+-- 직원정보에서 2006년 상반기에 입사한 직원들의 직원아이디, 이름, 입사일, 연봉을 계산하기. 
+-- 연봉은 급여12 + 급여*커미션*12다
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , HIRE_DATE
+    , SALARY*12 + SALARY*NVL(COMMISSION_PCT, 0)*12 ANNUAL_SALARY
+FROM EMPLOYEES
+WHERE HIRE_DATE >= '2006/01/01' AND HIRE_DATE < '2006/07/01';
+
+-- 직원정보에서 80번부서에 소속된 직원들의 평균급여, 최소급여, 최대급여를 조회하기
+SELECT TRUNC(AVG(SALARY)) 평균급여
+    , MIN(SALARY) 최소급여
+    , MAX(SALARY) 최대급여
+FROM EMPLOYEES
+WHERE
+    DEPARTMENT_ID = 80;
+
+-- 직원정보에서 100번 상사에게 보고하는 직원의 수를 조회하기
+SELECT COUNT(*)
+FROM EMPLOYEES
+WHERE
+    MANAGER_ID = 100;
+
+-------------------------------------------------------------------------------------------
+
+조인 - 여러 테이블에 흩어져 있는 정보중에서 사용자가 원하는 정보만 가져와서 
+가상의 테이블처럼 만들어서 데이터를 조회하는 것이다.
+
+/*
+조인  
+    - 조회할 정보가 2개 이상의 테이블을 이용해야 할 때 사용되는 조회방법이다.
+    - 조인을 이용하면 2개 이상의 테이블을 연결해서 마치 하나의 테이블처럼 만들고,
+      해당 테이블에서 필요한 정보를 조회할 수 있다.
+    - 방법
+        + 등가 조인
+        + 비등가 조인
+        + 셀프 조인
+        + 포괄 조인
+    
+    - 등가조인(Equi Join)
+    + 조인에 참여하는 테이블끼리 같은 값을 가지고 있는 행을 조인해서 데이터를 조회한다.
+    + 조인에서 가장 많이 사용되는 조인방법이다.
+    + 같은 이름을 가지고 있지 않아도 연결 가능함...!
+    
+    - 직원정보 조회
+                                        부서 테이블의 정보
+                                -------------------------------                   
+        + 직원아이디, 직원이름, |소속부서아이디|, 소속부서명 조회
+          ------------------------------------
+                직원 테이블의 정보
+                
+        직원 테이블                                                                  부서테이블
+        EMP_ID      EMP_NAME     DEPT_ID                                       DEPT_ID      DEPT_NAME
+        100         홍길동         10                      조인                10           총무부
+        101         김유신         10             <------------------>         20           관리부
+        102         강감찬         20                                          30           홍보부
+        103         이순신         30                                          40           영업부
+        
+    직원 테이블이 선행 테이블이 되고, 부서 테이블이 후행 테이블이 된다.
+*/
+
+-- 부서정보와 소재지 정보를 조인하기 [ FROM절에 조인할 테이블을 나열하는 게 조인임 ]
+-- 조인 조건이 없으면 모든 행이 다 연결됨.
+SELECT *
+FROM DEPARTMENTS, LOCATIONS;
