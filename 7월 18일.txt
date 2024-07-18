@@ -1,0 +1,517 @@
+-- 급여를 3000이하로 받는 직원의 아이디, 이름, 급여, 직종아이디, 직종제목을 조회하기
+--  EMP                     EMP           EMP   EMP    EMP  
+--                                                     JOB          JOB
+SELECT E.EMPLOYEE_ID ID
+    , E.FIRST_NAME NAME
+    , E.SALARY SALARY
+    , J.JOB_ID JOB_ID
+    , J.JOB_TITLE JOB_TITLE
+FROM EMPLOYEES E, JOBS J
+WHERE E.SALARY <= 3000
+      AND
+      E.JOB_ID = J.JOB_ID;
+
+-- 80번 부서에 소속된 직원의 아이디, 이름, 급여, 직종아이디, 직종제목을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.SALARY
+    , J.JOB_ID
+    , J.JOB_TITLE
+FROM EMPLOYEES E, JOBS J
+WHERE E.DEPARTMENT_ID = 80
+AND
+E.JOB_ID = J.JOB_ID;
+
+-- 10, 20, 30번 부서에 소속된 직원의 아이디, 이름, 급여, 부서아이디, 부서명을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.SALARY
+    , D.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+FROM EMPLOYEES E, DEPARTMENTS D
+WHERE E.DEPARTMENT_ID IN (10,20,30)
+    AND
+    E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+      
+-- 부서관리자가 지정되어 있는 부서의 부서아이디, 부서명, 부서관리자아이디, 부서관리자의 이름을 조회하기
+--   DEPT                           DEPT           DEPT         DEPT                                       
+--                                                              EMP             EMP 
+SELECT D.DEPARTMENT_ID,
+    D.DEPARTMENT_NAME,
+    D.MANAGER_ID,
+    E.FIRST_NAME
+FROM DEPARTMENTS D, EMPLOYEES E
+WHERE
+    D.MANAGER_ID IS NOT NULL
+    AND
+    D.MANAGER_ID = E.EMPLOYEE_ID;
+    
+-- 급여를 15000이상 받는 직원의 아이디, 이름, 직종아이디, 급여, 직종최고급여와 자신의 급여의 갭을 조회하기
+--  EMP                          EMP     EMP    EMP       EMP                      EMP
+--                                                                 J
+SELECT E.EMPLOYEE_ID EMPLOYEE_ID
+    , E.FIRST_NAME FIRST_NAME
+    , E.JOB_ID JOB_ID
+    , E.SALARY SALARY
+    , J.MAX_SALARY
+    , J.MAX_SALARY - E.SALARY GAP_SALARY
+FROM EMPLOYEES E, JOBS J
+WHERE 
+    E.SALARY >= 15000
+    AND
+    E.JOB_ID = J.JOB_ID;
+    
+-- 커미션을 받는 직원의 직원아이디, 이름, 직종아이디, 직종제목, 급여, 커미션, 소속부서아이디, 소속부서명을 조회하기
+--                        EMP        EMP      EMP                EMP   EMP       EMP
+--                                            JOBS     JOBS                                   
+--                                                                               DEP            DEP
+SELECT E.EMPLOYEE_ID EMPLOYEE_ID
+    , E.FIRST_NAME FIRST_NAME
+    , E.JOB_ID JOB_ID
+    , J.JOB_TITLE JOB_TITLE
+    , E.SALARY SALARY
+    , E.COMMISSION_PCT COMMISSION_PCT
+    , E.DEPARTMENT_ID DEPARTMENT_ID
+    , D.DEPARTMENT_NAME DEPARTMENT_NAME
+FROM EMPLOYEES E, JOBS J, DEPARTMENTS D
+    WHERE
+        E.COMMISSION_PCT IS NOT NULL
+        AND
+        E.JOB_ID = J.JOB_ID
+        AND
+        E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+-- 30, 60, 90번 부서에 소속된 직원중에서 100에게 보고하는 직원의 아이디, 이름, 소속부서아이디, 소속부서명을 조회하기
+--                                                            EMP         EMP        EMP
+--                                                                                   DEP          DEP
+SELECT E.EMPLOYEE_ID
+    ,  E.FIRST_NAME
+    ,  D.DEPARTMENT_ID
+    ,  D.DEPARTMENT_NAME
+FROM DEPARTMENTS D, EMPLOYEES E
+WHERE
+    E.DEPARTMENT_ID IN (30, 60, 90)
+    AND
+    E.MANAGER_ID = 100
+    AND
+    E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+-- 80번 부서에 소속된 직원들의 아이디, 이름, 급여, 급여등급을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.SALARY
+    , S.SAL_GRADE
+FROM EMPLOYEES E, SALARY_GRADES S
+WHERE
+    E.DEPARTMENT_ID = 80
+    AND
+    E.SALARY >= S.MIN_SALARY AND E.SALARY <= S.MAX_SALARY;
+
+-- 2006년에 입사한 직원들의 아이디, 이름, 소속부서아이디, 부서명, 소재지 아이디, 소재지 도시명을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+    , L.LOCATION_ID
+    , L.CITY
+FROM EMPLOYEES E, DEPARTMENTS D, LOCATIONS L
+WHERE 
+    TO_CHAR(E.HIRE_DATE, 'YYYY') = '2006'
+    AND
+    E.DEPARTMENT_ID = D.DEPARTMENT_ID
+    AND
+    D.LOCATION_ID = L.LOCATION_ID;
+    
+-- 100번 직원에게 보고하는 직원들의 아이디, 이름, 급여, 급여등급을 조회하기
+-- BETWEEN을 쓰려면 이상, 이하일 때만 가능함요.
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.SALARY
+    , S.SAL_GRADE
+FROM EMPLOYEES E, SALARY_GRADES S
+WHERE E.MANAGER_ID = '100'
+      AND
+      E.SALARY >= S.MIN_SALARY AND E.SALARY <= S.MAX_SALARY;
+      
+-- 50이나 80번 부서에 근무하는 직원들의 아이디, 이름, 급여, 급여등급, 소속부서아이디, 소속부서명을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.SALARY
+    , S.SAL_GRADE
+    , E.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+FROM
+    EMPLOYEES E, SALARY_GRADES S, DEPARTMENTS D
+WHERE
+    E.DEPARTMENT_ID IN (50, 80)
+    AND
+    E.SALARY >= S.MIN_SALARY AND E.SALARY <= S.MAX_SALARY
+    AND
+    E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+-- 급여등급이 'A'등급에 속하는 직원의 아이디, 이름, 직종아이디, 급여를 조회하기
+-- 급여등급이 'A'에만 조인이 되야 함. 
+-- 등급이 'A'인 행만 먼저 선택한다 -> 'A' 등급과 연결되는 것만 조인한다.
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , E.JOB_ID
+    , E.SALARY
+FROM
+    EMPLOYEES E, SALARY_GRADES S
+WHERE
+    S.SAL_GRADE = 'A'
+    AND
+    E.SALARY >= S.MIN_SALARY AND E.SALARY <= S.MAX_SALARY;
+    
+-- 직원의 급여와 등급이 맞게 연결한다 -> 그 중 등급이 'A'인 것만 조회한다.
+SELECT *
+FROM EMPLOYEES E, SALARY_GRADES G
+WHERE E.SALARY BETWEEN G.MIN_SALARY AND G.MAX_SALARY
+AND G.SAL_GRADE = 'A';
+
+-- 2001년에 직종이 변경된 적이 있는 직원의 아이디, 이름, 2001년 당시의 직종아이디, 현재 직종아이디를 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , J.JOB_ID PREV_JOB_ID
+    , E.JOB_ID CURR_JOB_ID
+FROM EMPLOYEES E, JOB_HISTORY J
+WHERE   
+    TO_CHAR(J.START_DATE, 'YYYY') = '2001'
+    AND
+    E.EMPLOYEE_ID = J.EMPLOYEE_ID;
+
+-- 'Oxford'에서 근무중인 직원의 아이디, 이름을 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+FROM LOCATIONS L, DEPARTMENTS D, EMPLOYEES E
+WHERE
+    L.CITY = 'Oxford'
+    AND
+    D.LOCATION_ID = L.LOCATION_ID 
+    AND
+    E.DEPARTMENT_ID = D.DEPARTMENT_ID;   
+
+------------------------------------과제------------------------------------------------------------
+
+/*
+    셀프조인
+    - 테이블에 저장된 데이터들이 계층적 관계를 가지고 있을 때, 
+      
+    - 테이블 하나로 조인을 구성하는 조인방법이다.
+    SELECT ~
+    FROM EMPLOYEES A, EMPLOYEES B
+    WHERE 조인조건;
+    
+    - 셀프조인을 할 때는 같은 테이블이지만 서로 다른 역할(이름)을 부여한다.
+    SELECT ~
+    FROM EMPLOYEES 부하직원, EMPLOYEES 상사
+    WHERE 부하직원.MANAGER_ID = 상사.EMPLOYEE_ID;
+    
+    - 셀프조인을 수행하면 SELECT 절에 같은 컬럼명으로 다른 값이 조회되기 때문에 별칭이 필수다.
+    SELECT EMP.EMPLOYEE_ID AS EMP_ID
+         , EMP.FIRST_NAME AS EMP_NAME
+         , MGR.EMPLOYEE_ID AS MGR_ID
+         , MGR.FIRST_NAME AS MGR_NAME
+    FROM EMPLOYEES EMP, EMPLOYEES MGR
+    WHERE EMP.MANAGER_ID = MGR.EMPLOYEE_ID;
+    
+    예)
+    
+    카테고리 테이블
+    CAT_NO      CAT_NAME      PARENT_CAT_NO
+    100          가구             NULL
+    200          가전             NULL
+    300          주방용품         NULL
+    101          식탁             100
+    102          쇼파             100
+    103          의자             100
+    104          장식장           100
+    201          TV               200
+    202          냉장고           200
+    203          세탁기           200
+    110          2인용식탁        101
+
+    예)
+         직원의 아이디, 이름, 자신의 상사아이디, 자신의 상사 이름 조회
+         [ 하나는 부하직원, 하나는 상사 테이블로 생각 ]
+    직원 테이블
+    EMPLOYEE_ID    FIRST_NAME   JOB_ID    MANAGER_ID
+    100            홍사장        사장        NULL
+    101            김전무        임원        100
+    102            박상무        임원        100
+    103            장이사        임원        101
+    104            박부장       마케팅총괄   103
+    105            이부장        홍보        103
+    106            김차장       마케팅실무   104
+    
+    부하직원과 상사직원의 정보 조회하기
+    - 부하직원의 직종제목, 소속부서명, 상사직원의 직종제목, 소속부서명
+   
+    EMP(부하직원)                            JOB(부하직원)                         DEPT(부하직원)
+    EMP_ID  EMP_NAME    JOB_ID  DEPT_ID      JOB_ID     JOB_TITLE                DEPT_ID        DEPT_NAME
+    101     JANE       AC_ACCOUNT  10       ACC_ACCOUNT PUBLIC_ACCOUNT             10           ACCOUNTING
+    
+     EMP(상사직원)                            JOB(상사직원)                         DEPT(상사직원)
+    EMP_ID  EMP_NAME    JOB_ID  DEPT_ID      JOB_ID     JOB_TITLE                DEPT_ID        DEPT_NAME
+    100     STEVEN      AD_PRES   90        AD_PRES     PRESIDENT                   90          EXECUTIVE
+*/
+
+-- 60번 부서에 소속된 직원의 아이디, 이름, 상사의 이름을 조회하기
+-- 조회는 항상 행 단위로만 가능하다. ( 셀프 조인을 해야함 )
+--                           EMP     EMP   
+--                                          EMP
+-- 조인할 테이블 : EMPLOYEES, EMPLOYEES
+-- 조인 조건 : 직원의 MANAGER_ID와 상사의 EMPLOYEE_ID가 일치하는 행을 조인한다.
+SELECT EMP.EMPLOYEE_ID EMP_ID
+    , EMP.FIRST_NAME EMP_NAME
+    , MGR.EMPLOYEE_ID MGR_ID
+    , MGR.FIRST_NAME MGR_NAME
+FROM EMPLOYEES EMP, EMPLOYEES MGR
+WHERE EMP.DEPARTMENT_ID = 60
+AND EMP.MANAGER_ID = MGR.EMPLOYEE_ID;
+
+
+-----------------------------------셀프조인 리마인드 -------------------------------------------------
+
+/*
+    포괄조인(Outer Join)
+    - 한 쪽 테이블에는 데이터가 있고, 다른 쪽 테이블에는 데이터가 없는 경우,
+    - 데이터가 있는 쪽 테이블의 데이터를 전부 조회하는 조인방법이다.
+     * 등가조인, 비등가조인, 자체조인에서는 조인에 참여하는 모든 테이블에서
+     조인할 행이 있는 경우에만 조회가 된다.
+    - 모든 데이터가 다 조회될 곳에 +를 붙이는 게 아니라, 부족한 곳에 +를 붙인다.
+    - 데이터가 없는 쪽 테이블에 + 기호를 붙인다.
+    - 여러 테이블을 포괄조인할 때도, 조인된 이후의 테이블도 고려해야 함. ( 한 군데라도 조인이 안 되면 안됨 )
+    
+     예시) DEPARTMENTS 테이블에서 MANAGER_ID가 NULL인 행과 조인할 행(EMPLOYEES 테이블의 행)이
+     EMPLOYEES 테이블에 없다.
+     DEPARTMENTS 테이블에서 MANAGER_ID가 NULL인 행은 조인에 참여하지 못하기 때문에
+     최종 조회결과에서 제외된다.
+    + 조인조건에서 EMPLOYEES 테이블측에 포괄조인 기호를 붙이면 EMPLOYEES 테이블에 NULL 행이 추가된다.
+    
+    각 테이블을 조회할 때마다 NULL 행을 추가해서 검색할 수 있게 해야함.
+    
+    오라클에서는 양쪽에 (+)를 다 붙이는 FULL-OUTER JOIN을 지원하지 않는다.
+*/
+
+-- 부서정보에서 부서아이디, 부서이름, 관리자아이디, 관리자명을 조회하기
+-- 단, 부서정보는 모두 출력한다.
+SELECT D.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+    , D.MANAGER_ID
+    , E.FIRST_NAME
+FROM DEPARTMENTS D, EMPLOYEES E
+WHERE D.MANAGER_ID = E.EMPLOYEE_ID(+);
+
+-- 부서정보에서 부서아이디, 부서이름, 관리자아이디, 관리자명, 관리자의 직종아이디, 관리자의 직종명 조회하기
+-- 부서가 다 조회되도록
+SELECT D.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+    , D.MANAGER_ID
+    , E.FIRST_NAME
+    , E.JOB_ID
+    , J.JOB_TITLE
+FROM DEPARTMENTS D, EMPLOYEES E, JOBS J
+WHERE
+    D.MANAGER_ID = E.EMPLOYEE_ID(+)
+    AND
+    E.JOB_ID = J.JOB_ID(+);
+
+---------------------------------------------포괄조인------------------------------------------------
+
+/*
+    무결성 제약조건
+    
+    1. NOT NULL 제약조건
+    - 해당 컬럼이 NULL 값을 허용하지 않는 제약조건이다.
+    - 예)
+        CREATE TABLE USER (
+            USER_NO NUMBER(8)
+            USER_ID VARCHAR2(20) NOT NULL,
+            USER_NAME VARCHAR2(100) NOT NULL,
+            USER_PASSWORD VARCHAR2(20) NOT NULL,
+            USER_EMAIL VARCHAR2(255) NOT NULL,
+            USER_TEL VARCHAR2(20)
+        )
+        * 아이디, 이름, 비밀번호, 이메일은 반드시 NULL 값을 허용하지 않는다.
+        * 새로운 사용자행을 추가할 때 아이디, 이름, 비밀번호, 이메일은 필수 입력값이다.
+        * 하나의 테이블안에서 NOT NULL 제약조건이 지정된 컬럼은 여러 개 가능하다.
+        * NOT NULL 제약조건을 컬럼 단위로만 지정할 수 있고, 2개 이상의 컬럼을 묶어서
+          지정할 수는 없다.
+          
+     2. UNIQUE 제약조건 ( 고유키 제약조건 )
+     - 해당 컬럼의 값은 테이블내에서 고유한 값을 가져야한다.(중복된 값을 허용하지 않는다.)
+     - 만약, 해당 컬럼에 NULL 값이 허용된다면 NULL 값을 입력하는 것은 가능하다.
+     - 예)
+        CREATE TABLE USER (
+            USER_NO         NUMBER(8)
+            USER_ID         VARCHAR2(20) NOT NULL
+            USER_NAME       VARCHAR2(100) NOT NULL,
+            USER_PASSWORD   VARCHAR2(20) NOT NULL,
+            USER_EMAIL      VARCHAR2(255) NOT NULL,
+            USER_TEL        VARCHAR2(20) 
+            
+            UNIQUE (USER_ID)
+            UNIQUE (USER_EMAIL)
+            UNIQUE (USER_TEL)
+        )
+        USER_NO USER_ID USER_NAME PASSWORD  USER_EMAIL       USER_TEL
+        ----------------------------------------------------------
+        100     HONG    홍길동   ZXCV1234   HONG@NAVER.COM    NULL
+        101     KIM     김유신   ZXCV1234   KIM@NAVER.COM     NULL
+        102     KANG    강감찬   ZXCV1234   KANG@NAVER.COM    '010-1234-5678'
+        
+        CREATE TABLE JOB_HISTORY (
+            EMP_ID NUMBER(4) NOT NULL,
+            JOB_ID VARCHAR2(20) NOT NULL,
+            
+            UNIQUE (EMP_ID, JOB_ID)
+        )
+        * 직종변경이력 테이블에서 직원아이디와 직종아이디를 합한 값은 언제나 고유해야 한다.
+        
+        CREATE TABLE SCHOOL_REQ_COURSE (
+            YEAR NUMBER(4),
+            TERM CHAR(1),
+            STUDENT_NO NUMBER(8),
+            COURSE_NO NUMBER(6),
+            
+            UNIQUE (YEAR, TERM, STUDENT_NO, COURSE_NO)
+        )
+        * 수강신청 테이블에서 수강년도, 학기, 학번, 신청과정을 합한 값은 언제나 고유해야 한다.
+        YEAR    TERM       STUDENT_NO       COURSE_NO
+        ----------------------------------------------
+        2023     1         240010100        100000
+        2024     1         240010100        100000
+        
+        * 아이디, 이메일, 전화번호 값은 고유한 값을 가져야한다.
+        * 전화번호는 NULL을 허용함으로써 NULL 값을 입력해도 상관없다.
+        * 전화번호가 NULL인 행은 여러 개 있는 것도 상관없다.
+          ( NULL 값은 중복여부 체크대상이 아니다. )
+        * UNIQUE 제약조건은 컬럼 단위로 지정할 수 있고, 2개 이상의 컬럼을 묶어서
+          지정할 수 있다.
+          
+      - 일반적으로 NOT NULL만 컬럼 레벨에서 정의하고,
+        나머지는 테이블 레벨에서 제약조건을 정의한다. ( 하나의 컬럼에 2개 이상의 제약조건 )
+        
+      - 테이블 레벨 제약조건은 2개 이상의 컬럼을 묶어서 제약조건을 정의할 때 유용함.
+      
+      3. PRIMARY KEY 제약조건(기본키 제약조건)
+      - 하나의 테이블의 각 행을 고유하게 식별할 수 있는 값을 가지는 컬럼에 적용하는 제약조건이다.
+      - 기본키 제약조건이 지정된 컬럼은 NULL을 허용하지 않으며, 값의 중복도 허용하지 않는다.
+        기본키 제약조건은 (NOT NULL 제약조건 + UNIQUE 제약조건)과 유사하다.
+      - 기본키 제약조건은 테이블당 하나만 지정할 수 있다.
+      - 기본키 제약조건이 지정된 컬럼의 값은 특별한 정보를 포함하지 않으며
+        대부분은 단순한 숫자형식의 값으로 설정하는 것이 좋다.
+        ( 기본키 컬럼의 값으로 숫자가 아닌 형식의 값도 가능하지만, 숫자일 때 SQL 실행속도가 더 빠르다. )
+      - 실행속도가 중요한 업무인 경우 가상의 숫자값을 가지는 컬럼을 추가하고, 해당 컬럼의 기본키로 실행하는 것이 좋다.
+      - 기본키 제약조건은 하나의 컬럼에 지정할 수도 있고, 2개 이상의 컬럼을 묶어서 지정할 수도 있다.
+      - 예)
+        CREATE TABLE USER (
+            USER_NO         NUMBER(8)
+            USER_ID         VARCHAR2(20) NOT NULL
+            USER_NAME       VARCHAR2(100) NOT NULL,
+            USER_PASSWORD   VARCHAR2(20) NOT NULL,
+            USER_EMAIL      VARCHAR2(255) NOT NULL,
+            USER_TEL        VARCHAR2(20) ,
+            
+            PRIMARY KEY(USER_NO)
+        );
+        
+        CREATE TABLE COURSE_REQUEST (
+            STUDENT_NO      NUMBER(8),
+            COURSE_NO       CHAR(6),
+            ..
+            
+            PRIMARY KEY (STUDENT_NO, COURSE_NO)
+        )
+        * 2개 이상의 컬럼을 묶어서 기본키 제약조건을 적용할 수 있다.
+        * 기본키 제약조건이 적용된 컬럼에 NOT NULL 제약조건은 적용할 필요가 없다.
+        ( 기본키 제약조건에는 NOT NULL + UNIQUE 제약 조건이 포함되어 있다. )
+        
+        4. CHECK 제약조건
+        - 해당 컬럼은 제시된 조건을 만족하는 값만 허용된다.
+        - 아래 예시에서 ()괄호안에 제시된 조건이 TRUE로 판정되는 값만 저장이 허용된다.
+        - CHECK 제약조건은 각 컬럼마다 지정할 수 있고, 2개이상의 컬럼을 묶어서 지정할 수는 없다.
+        - 예)
+            CREATE TABLE PRODUCT (
+                PRODUCT_NO            NUMBER(8),
+                ...
+                PRODUCT_PRICE         NUMBER(7)     CHECK(PRODUCT_PRICE >= 0),
+                PRODUCT_DISCOUNT_RATE NUMBER(3, 2)  CHECK(PRODUCT_DISCOUNT_RATE BETWEEN 0.0 AND 0.75),
+                PRODUCT_STATUS        VARCHAR2(20)  CHECK(PRODUCT_STATUS IN ('입고대기', '판매중', '절판')),
+                ...
+            )
+            
+        5. FOREIGN KEY 제약조건(외래키 제약조건)
+        - 해당 컬럼의 값은 참조하는 컬럼(다른 테이블의 컬럼 혹은 같은 테이블의 컬럼)이 가지고 있는 값만 허용하는 제약조건이다.
+        - 참조하는 컬럼이 있는 테이블은 부모테이블이 된다. 외래키 제약조건이 적용된 컬럼이 있는 테이블은 자식 테이블이 된다.
+        - 기본키 제약조건 혹은 고유키 제약조건이 적용된 컬럼만 참조할 수 있다.
+        ( 자식 테이블에서 참조하는 컬럼에 똑같은 값을 가지고 있는 행이 있으면, 어떤 행을 참조하는지 모호해지기 때문에 )
+        - 외래키 제약조건이 지정된 컬럼이라도 NOT NULL 제약조건이 지정되지 않았다면 NULL값을 가질 수 있다.
+        - 예시
+            부모테이블(외래키가 참조하는 컬럼을 가지고 있는 테이블)
+            CREATE TABLE CATEGORIES (
+                CAT_NO      NUMBER(3)       PRIMARY KEY,
+                CAT_NAME    VARCHAR2(100)   
+            );
+            CAT_NO      CAT_NAME
+            100         소설
+            101         인문
+            102         외국어
+            103         IT/컴퓨터
+            
+            자식테이블(외래키를 가지고 있는 테이블)
+            CREATE TABLE BOOKS (
+                    BOOK_NO     NUMBER(4)   PRIMARY KEY,
+                    CAT_NO      NUMBER(3)   REFERENCES CATEGORIES (CAT_NO),
+                    BOOK_TITLE  VARCHAR2(255)   NOT NULL
+            )
+            * BOOKS 테이블의 CAT_NO는 외래키 제약조건이 적용된 컬럼이다.
+            * BOOKS 테이블의 CAT_NO는 CATEGORIES 테이블의 CAT_NO 컬럼의 값을 조회한다.
+            
+            BOOK_NO     CAT_NO       BOOK_TITLE
+            1000        100          언젠가 우리가 같은 별을 바라본다면
+            1001        100          모순
+            1002        100          나의 돈키호테
+            1003        103          Do it! 점프 투 파이썬
+            
+            * CATEGORIES 테이블의 100번 행과 103번 행은 각각 자식레코드가 존재한다.
+            * 자식 레코드가 발견된 100번, 103번 행은 CATEGORIES 테이블에서 삭제할 수 없다.
+            * 자식 레코드가 발견되지 않은 101번, 102번 행은 CATEGORIES 테이블에서 삭제할 수 있다.
+            
+        테이블의 종류
+        
+        - 원장성 테이블(Master Table)
+            업무의 핵심 테이블이다.
+            많은 자식 테이블을 거느리고 있다.
+            
+            쇼핑몰 업무
+                고객정보 테이블
+                카드정보 테이블
+                상품정보 테이블
+                
+        - 거래성 테이블(Transaction Table)
+            행위 테이블(Behavior Table)이다.
+            업무가 진행됨에 따라 데이터가 등록되는 테이블이다.
+            
+            쇼핑몰 업무
+                주문내역 테이블
+                문의내역 테이블
+                배송내역 테이블
+                카드결제내역 테이블
+                
+        - 이력 테이블(History Table)
+            원장성 테이블의 변경 이력정보를 저장하는 테이블이다.
+            원장성 테이블의 외부에 원장성 테이블과 유사한 형태의 테이블을 생성하고,
+            원장성 테이블의 상태변경정보를 날짜별로 구분해서 저장하는 테이블이다.
+            
+        시퀀스
+            - 오라클의 데이터베이스 객체다.
+            - 일련번호를 발행하는 객체다.
+            - 생성
+                CREATE SEQUENCE 시퀀스명;
+            - 사용(일련번호 발생하기)
+                시퀀스명.NEXTVAL
+*/
+
+---------------------------------------------------------------------------------------------------
