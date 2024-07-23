@@ -1,0 +1,276 @@
+-- 60번 부서에 소속된 직원의 아이디, 이름, 부서아이디, 부서명, 소재도시, 국가명 조회하기
+--    EMP                   EMP       EMP       DEPT    DEPT       LOC     CONT
+--    EMP           EMP       EMP       VIEW    VIEW       VIEW    VIEW
+
+-- 뷰를 사용하지 않고 기존 테이블을 조인해서 필요한 데이터를 조회하기
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , D.DEPARTMENT_ID
+    , D.DEPARTMENT_NAME
+    , L.CITY
+    , C.COUNTRY_NAME
+FROM EMPLOYEES E, DEPARTMENTS D, LOCATIONS L, COUNTRIES C
+WHERE E.DEPARTMENT_ID = 60
+AND E.DEPARTMENT_ID = D.DEPARTMENT_ID
+AND D.LOCATION_ID = L.LOCATION_ID
+AND L.COUNTRY_ID = C.COUNTRY_ID;
+
+-- 테이블과 뷰를 조인해서 필요한 데이터를 조회하기
+-- 뷰에서 부서-소재지-국가 테이블을 조인해서 필요한 정보를 이미 제공하고 있어서
+-- EMPLYOEES와 DEPT_DETAIL_VIEW를 조인하는 것만으로도 필요한 정보를 전부 조인가능.
+SELECT E.EMPLOYEE_ID
+    , E.FIRST_NAME
+    , V.DEPARTMENT_ID
+    , V.DEPARTMENT_NAME
+    , V.CITY
+    , V.COUNTRY_NAME
+FROM EMPLOYEES E, DEPT_DETAIL_VIEW V
+WHERE E.DEPARTMENT_ID = 60
+AND
+E.DEPARTMENT_ID = V.DEPARTMENT_ID;
+
+/*
+    SELECT *
+    FROM 테이블
+    WHERE 컬럼 = 서브쿼리 <--- 서브쿼리
+    # 서브쿼리는 조건의 연산에 필요한 값을 제공한다.
+    
+    SELECT *
+    FROM 서브쿼리     <--- 인라인 뷰
+    # 서브쿼리는 테이블을 대신해서 서브쿼리의 조회 결과가 가상의 테이블 역할
+    
+    SELECT 컬럼, 서브쿼리  <-- 스칼라 서브쿼리
+    FROM 테이블
+    # 서브쿼리는 1행 1열의 값 단 하나만 반환하는 스칼라 서브쿼리가 된다.
+*/
+
+/*
+    인라인 뷰
+    - SQL의 FROM절에서 작성한 서브쿼리의 조회결과가 가상의 테이블 역할을 수행하는 것이다.
+    - 인라인 뷰는 해당 서브쿼리가 포함된 SQL 구문이 실행되는 동안만 사용가능한
+    가상의 테이블이 생성된다.
+    - 인라인 뷰로 생성된 가상의 테이블도 마치 테이블처럼 다른 테이블과 조인할 수 있다.
+    - 형식
+        SELECT 컬럼, 컬럼, 컬럼
+        FROM (SELECT 컬럼, 컬럼, 컬럼
+              FROM 테이블
+              WHERE 조건식)
+        WHERE 조건식;
+        * 메인쿼리의 SELECT절, WHERE절에서는 인라인 뷰에서 정의한 컬럼만 사용 가능.
+        * 인라인뷰의 SELECT 절에서 별칭을 정의했다면, 메인쿼리에서도 그 별칭을 사용해야 한다.
+        * 인라인뷰의 SELECT 절에서 연산식을 사용했다면 반드시 별칭을 부여한다.
+        SELECT EMP_ID, EMP_NAME, SALARY, ANNUAL_SALARY
+        FROM (SELECT EMPLOYEE_ID              EMP_ID
+                     FIRST_NAME || LAST_NAME  EMP_NAME
+                     SALARY
+                     SALARY*12                ANNUAL_SALARY
+              FROM EMPLYOEES)
+*/
+
+/*
+    인덱스(색인)
+    - 데이터 행의 검색 속도를 향상시키기 위해서 사용하는 데이터베이스 객체다.
+    - 테이블과 독립적으로 존재한다.
+    - 색인의 값은 항상 정렬되어 있음.
+    - primary 제약조건이나 unique 제약조건이 걸려있으면 무조건 자동생성됨.
+    - 트리구조로 되어 있어서 검색 속도가 단축된다.
+    - 한 번 생성된 인덱스는 오라클이 자동으로 유지 관리함.
+    - 인덱스는 컬럼의 값과 해당 컬럼의 위치정보로 구성되어 있다.
+    - 인덱스의 구조는 자식노드가 2개 이상인 B+Tree 자료구조다.
+        + B+Tree는 Root 노드, Branch 노드, Leaf 노드로 구성되어 있다.
+        + Leaf노드(데이터노드)는 컬럼의 값과 위치정보를 가지고 있다.
+    - 인덱스의 종류
+        + 자동생성 인덱스
+            * 테이블 생성시에 자동으로 생성되는 인덱스다.
+            * 테이블의 기본키, 고유키 제약조건이 적용된 컬럼의 값은 자동으로 색인이 저장된다. 
+        + 수동생성 인덱스
+            * 개발자가 데이터에 대한 엑세스 시간을 줄이기 위해서 특정 컬럼을 대상으로
+              인덱스를 생성하는 것이다.
+
+- 인덱스의 구분
+        Unique 인덱스  
+            * 컬럼에 중복된 값이 없을 때 설정되는 인덱스
+            * 기본키 제약조건, 고유키 제약조건이 정의된 컬럼을 기준으로 생성된
+              인덱스 unique 인덱스
+              * 생성하기
+                CREATE UNIQUE INDEX 인덱스명
+                ON 테이블명 (컬럼명 ASC|DESC)
+        Non-Unique 인덱스
+            * 컬럼에 중복된 값이 들어 있을 때 설정되는 인덱스
+            * 예시) 고객명은 중복된 값이 있지만, 검색에 자주 활용되는 컬럼이다.
+                CREATE INDEX 인덱스명
+                ON 테이블명 (컬럼명 ASC|DESC, ...)
+        Function Based 인덱스(함수 기반 인덱스)
+            * WHERE 조건식에서 검색에 활용되는 값이 컬럼값 그대로 사용되지 않고
+              연산식의 형태로 자주 사용될 때 생성할 수 있는 인덱스다.
+            * 예시) 직원의 입사일은 년월일시분초 데이터가 전부 포함되어 있지만
+              대부분의 경우 입사년도를 기준으로 검색하는 경우가 많다.
+              따라서, where 조건식에 to_char(hire_date,'yyyy')의 형태로 자주
+              사용된다.
+              이 경우, to_char(hire_date,'yyyy') 함수의 실행결과로 인덱스를
+              생성할 수 있는데, 이 경우가 함수기반 인덱스다.
+        Composite 인덱스(복합 인덱스)
+            * 인덱스를 생성할 때 두 개 이상의 컬럼을 사용해서 생성한 인덱스다.
+            
+        인덱스 생성이 필요한 경우
+        - where절이나 JOIN조건에 자주 등장하는 컬럼
+        - 매우 다양한 값으로 구성된 컬럼 [ 고객명 컬럼, 전화번호 컬럼, 이메일 컬럼 ]
+        - 조회시 전체 데이터의 2% 미만의 데이터가 조회되는 컬럼
+        인덱스 생성이 필요하지 않은 경우
+        - 테이블이 작고, 자주 갱신되는 경우
+*/
+
+-- 조회조건에 인덱스가 생성되어 있는 컬럼을 사용하는 경우
+-- 직원아이디가 100번인 직원정보 조회하기
+SELECT *
+FROM EMPLOYEES
+WHERE EMPLOYEE_ID = 100;
+
+-- 조회조건에 인덱스가 생성되어 있지 않은 컬럼을 사용하는 경우
+-- 직원이름이 'Steven'인 직원정보 조회하기
+SELECT *
+FROM EMPLOYEES
+WHERE FIRST_NAME = 'Jack';
+
+-- 조회조건에 자주 사용되는 직원이름으로 인덱스 생성하기
+CREATE INDEX EMP_FIRST_NAME_IDX
+ON EMPLOYEES (FIRST_NAME ASC);
+
+-- 입사년도로 직원정보 조회하기
+SELECT *
+FROM EMPLOYEES
+WHERE TO_CHAR(HIRE_DATE, 'YYYY') = '2006';
+
+SELECT */*+ INDEX("EMPLOYEES"@"SEL$1" EMP_HIRE_DATE_YEAR_IDX) */ 
+FROM EMPLOYEES
+WHERE HIRE_DATE >= '2005-01-01' AND HIRE_DATE < '2006-01-01';
+
+select * from table(dbms_xplan.display_cursor(sql_id=>'2db27rzgx01m5', format=>'ALLSTATS LAST'));
+
+
+select * from table(dbms_xplan.display_cursor(sql_id=>'2db27rzgx01m5', format=>'ALLSTATS LAST'));
+
+
+-- 조회조건에 자주 사용되는 입사년도로 인덱스 생성하기
+CREATE INDEX EMP_HIRE_DATE_YEAR_IDX
+ON EMPLOYEES (TO_CHAR(HIRE_DATE, 'YYYY') DESC);
+COMMIT;
+
+/*
+    트랜잭션(transaction)
+    - 여러 번의 데이터베이스 엑세스 작업을 하나의 논리적인 작업 단위로 묶는 것이다.
+    - 작업 단위 내의 DML 작업에 대해서 일괄반영/일괄취소 하기 위해서 논리적인 작업단위로 정의한다.
+    - 목적 : 데이터베이스의 일관성 유지.
+        + 데이터의 일관성(안정성 혹은 무결성)을 보장하기 위해 사용한다.
+        ( DML 작업을 진행하다가 일부분만 완료되는 경우에 데이터가 일관적이지 않은 상태가 되는 것을)
+        + All or Nothing으로만 DML 작업을 완료시킨다.
+        ( 전체 반영하던지 아니면 전체 취소하는 경우만 존재한다. 즉, 부분적인 성공을 허용하지 않는다.)
+    - 특징
+        + Atomicity(원자성)
+            * 트랜잭션 내의 작업은 부분적인 성공을 허용하지 않는다.
+            * All or Nothing을 의미한다.
+        + Consistency(일관성)
+            * 트랜잭션이 성공적으로 실행이 완료되면 언제나 데이터베이스의 데이터는 일관성이 유지된다.
+        + Isolation(독립성)
+            * 트랜잭션이 실행 중일 때 다른 트랜잭션의 DML 작업이 끼어들지 못한다.
+            * 트랜잭션의 외부에 어떤 DML 작업도 트랜잭션내의 중간 단계의 데이터를 볼수 없음을 의미한다.
+        + Durability(지속성)
+            * 성공적으로 수행된 트랜잭션 작업은 데이터베이스에 영구적으로 반영된다.
+
+- 명령어(DCL)
+    + COMMIT
+        * 트랜잭션내의 모든 DML 작업이 성공적으로 끝나고, 데이터베이스의 데이터가 일관성이 있는
+          상태에 있을 때 하나의 트랜잭션이 완료되었음을 알려주는 명령어다.
+        * 이 명령어를 실행하면 트랜잭션내의 모든 DML 작업 결과가 테이블에 영구적으로 반영된다.
+    + ROLLBACK
+        * 트랜잭션내의 DML 작업이 비정상적으로 실행되어(오류가 발생하여) 트랜잭션의 원자성이
+          손상되고, 데이터베이스의 데이터 일관성이 깨진 상태가 되었기 때문에
+          트랜잭션내의 모든 DML 작업의 테이블 반영을 일괄 취소시키는 명령이다.
+    + SAVEPOINT
+        * 트랜잭션내에 ROLLBACK할 지점을 정의할 때 사용하는 명령이다.
+        * ROLLBACK 명령어를 실행하면 SAVEPOINT 이후의 DML만 취소된다.
+ 
+- 트랜잭션의 시작과 종료
+    + 트랜잭션의 시작
+        * 데이터베이스와 커넥션이 연결될 때 혹은 첫 번째 DML 명령어가 실행될 때 자동으로 시작된다.
+    + 트랜잭션의 종료
+        * commit 또는 rollback 명령이 실행될 때 기존 트랜잭션이 종료된다.
+        * 트랜잭션이 
+*/
+
+-- 트랜잭션이 시작되었다.
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1001, '아이폰15', '애플', 1300000);
+
+SELECT *
+FROM SAMPLE_PRODUCTS;
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1002, '갤럭시6', '삼성전자', 1700000);
+
+COMMIT; -- 현재 트랜잭션내의 모든 DML 실행결과가 일괄반영된다.
+        -- 현재 트랜잭션이 종료되고, 새 트랜잭션이 시작된다.
+        -- 커밋으로 반영된 데이터는 데이터베이스 영구적으로 유지된다.
+-- 트랜잭션이 종료된다.
+-- 트랜잭션이 시작된다.
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1004, '갤럭시6폴더', '삼성전자', 2500000);
+
+SELECT PRODUCT_NAME
+FROM SAMPLE_PRODUCTS;
+
+ROLLBACK; -- 현재 트랜잭션내에서 실행했던 모든 DML 작업이 일괄 취소된다.
+          -- 현재 트랜잭션이 종료된다.
+          -- 새 트랜잭션이 시작된다.
+-- 트랜잭션이 종료된다.
+-- 트랜잭션이 시작된다.
+SELECT PRODUCT_NAME, PRODUCT_PRICE
+FROM SAMPLE_PRODUCTS;
+
+UPDATE SAMPLE_PRODUCTS
+SET
+    PRODUCT_PRICE = 1500000
+WHERE PRODUCT_NO = 1001;
+
+COMMIT;
+-- 트랜잭션 종료
+-- 트랜잭션 시작
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1004, '갤럭시6폴더', '삼성전자', 2500000);
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1005, '갤럭시6플립', '삼성전자', 2200000);
+
+SAVEPOINT TX1;
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1006, '샤오미10', '샤오미', 2200000);
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1007, '샤오미11', '샤오미', 2200000);
+
+SELECT *
+FROM SAMPLE_PRODUCTS
+ORDER BY PRODUCT_CREATED_DATE DESC;
+
+ROLLBACK TO TX1;
+
+INSERT INTO SAMPLE_PRODUCTS
+(PRODUCT_NO, PRODUCT_NAME, PRODUCT_COMPANY, PRODUCT_PRICE)
+VALUES
+(1700, 'LG그램', 'LG', 1100000);
