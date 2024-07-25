@@ -1,0 +1,388 @@
+/*
+집합 연산자
+- 2개 이상의 SELECT문 조회결과를 하나로 결합시키는 연산자
+- 집합 연산자는 각각의 SQL 조회결과를 집합으로 간주하고
+  해당 집합들에 대한 합집합, 교집합, 차집합 연산을 수행한다.
+- 종류
+    + SQL1 UNION SQL2
+        * SQL1과 SQL2의 합집합을 반환한다.
+        * 조회 결과에 중복된 행이 있으면 중복행을 제거한다. ( 교집합 부분이 한 번만 조회된다. )
+    + UNION ALL
+        * SQL1과 SQL2의 합집합을 반환한다.
+        * SQL1과 sql2의 중복으로 포함된 행을 중복을 제거하지 않고 반환한다.
+    + INTERSECT
+        * SQL1과 SQL2의 교집합을 반환한다.
+        * SQL1과 SQL2에 공통으로 포함된 행을 반환한다.
+    + MINUS
+        * SQL1과 SQL2의 차집합을 반환한다.
+        * SQL1의 조회결과에서 SQL2와 일치하는 행을 제외하고 반환한다.
+    
+    [ 집합 연산시에 UNION과 UNION ALL 중에 먼저 UNION ALL을 고려해야 함]
+    [ 쿼리문 성능 고려 ]
+    
+- 집합 연산자 사용 지침
+    + SQL1과 SQL2의 컬럼 갯수가 같다.
+    + SQL1과 SQL2의 각각의 컬럼별 데이터타입이 같다.
+    + SQL1과 SQL2의 각각의 컬럼이름은 달라도 상관없다.
+    + 최종 조회결과의 컬럼명은 첫번째 SQL문의 컬럼명을 따른다.
+    + UNION, UNION ALL, INTERSECT는 SQL1과 SQL2의 순서가 달라져도 조회결과가 동일하다.
+    + MINUS는 SQL1과 SQL2의 순서가 달라지면 조회 결과가 달라진다.
+*/
+
+-- 다른 직원으로부터 보고를 받는 상사
+SELECT DISTINCT MANAGER_ID
+FROM EMPLOYEES
+WHERE MANAGER_ID IS NOT NULL;
+
+-- 부서의 관리자인 사람
+SELECT MANAGER_ID
+FROM DEPARTMENTS
+WHERE MANAGER_ID IS NOT NULL;
+
+-- 다른 직원으로부터 보고를 받는 상사와 부서의 관리자 정보를 조회하기
+SELECT DISTINCT MANAGER_ID
+FROM EMPLOYEES
+WHERE MANAGER_ID IS NOT NULL
+UNION
+SELECT MANAGER_ID
+FROM DEPARTMENTS
+WHERE MANAGER_ID IS NOT NULL;
+
+-- 다른 직원으로부터 보고를 받는 상사와 부서의 관리자 정보를 조회하기
+-- UNION을 하려면 두 개의 컬럼수를 맞춰줘야 함.
+SELECT DISTINCT MANAGER_ID MGR_ID, 'EMP_MGR' MANAGER_TYPE
+FROM EMPLOYEES
+WHERE MANAGER_ID IS NOT NULL
+UNION
+SELECT MANAGER_ID, 'DEPT_MGR'
+FROM DEPARTMENTS
+WHERE MANAGER_ID IS NOT NULL
+ORDER BY 1;
+
+-- 직종이 한 번도 변경된 적이 없는 직원의 아이디를 조회하기
+SELECT EMPLOYEE_ID
+FROM EMPLOYEES
+MINUS
+SELECT EMPLOYEE_ID
+FROM JOB_HISTORY;
+
+-- 다른 직원에게 보고도 받고, 부서의 관리도 맡고 있는 직원의 아이디를 조회하기
+SELECT DISTINCT MANAGER_ID
+FROM EMPLOYEES
+WHERE MANAGER_ID IS NOT NULL
+INTERSECT
+SELECT MANAGER_ID
+FROM DEPARTMENTS
+WHERE MANAGER_ID IS NOT NULL;
+
+SELECT M.EMPLOYEE_ID
+    , M.FIRST_NAME
+FROM ( SELECT DISTINCT MANAGER_ID
+       FROM EMPLOYEES
+       WHERE MANAGER_ID IS NOT NULL
+       INTERSECT
+       SELECT MANAGER_ID
+       FROM DEPARTMENTS
+       WHERE MANAGER_ID IS NOT NULL
+       )A, EMPLOYEES M
+WHERE A.MANAGER_ID = M.EMPLOYEE_ID;
+
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+FROM EMPLOYEES
+WHERE EMPLOYEE_ID IN (SELECT DISTINCT MANAGER_ID
+                      FROM EMPLOYEES
+                      WHERE MANAGER_ID IS NOT NULL
+                      INTERSECT
+                      SELECT MANAGER_ID
+                      FROM DEPARTMENTS
+                      WHERE MANAGER_ID IS NOT NULL);
+                      
+-- 쇼핑몰 회원과 샘플 회원에서 사용자 아이디, 이름, 성별을 조회하기
+-- * 집합 연산에 참여하는 조회결과의 컬럼 갯수가 서로 다르면
+--  부족한 컬럼부분에는 적절한 값이나 NULL을 지정하면 된다.
+SELECT USER_ID
+    , USER_NAME
+    , USER_GENDER
+FROM MALL_USERS
+UNION ALL
+SELECT USER_ID
+    , USER_NAME
+    , NULL
+FROM SAMPLE_USERLIST;
+
+-----------------------------------------------------------------------------------
+
+/*
+ 사용자 엑세스 관리 [ 데이터베이스 관리자가 수행하는 일 ]
+- 데이터베이스는 다중 사용자 환경이다.
+- 데이터베이스 및 데이터베이스 객체에 대한 엑세스 접근 제어가 필요하다.
+- 데이터베이스 엑세스 관리는 사용자에게 부여하는 권한을 제어함으로써 관리할 수 있다.
+
+- 권한
+    + 특정한 SQL 구문을 실행할 수 있는 권리다.
+    + 데이터베이스 관리자는 사용자에게 데이터베이스 및 데이터베이스 객체에
+    대한 권한 부여 가능
+    + 데이터베이스 객체의 주인은 다른 사용자에게 자신의 데이터베이스 객체에
+    대한 엑세스 권한 부여 가능.
+    
+    + 권한의 종류
+     * 시스템 권한 - 데이터베이스를 엑세스 할 수 있는 권한이다.
+     * 객체 권한 - 다른 사용자가 데이터베이스 객체에 엑세스 할 수 있는 권한이다.
+- 롤
+    + 사용자에게 부여할 수 있는 관련 권한을 하나로 묶어서 그룹화한 것
+    + 롤을 이용하면 권한의 부여 및 박탈 등 유지보수가 매우 편리해진다.
+- 대표적인 롤
+    * CONNECT 롤
+        데이터베이스에 접속할 수 있는 시스템 권한을 포함하는 롤이다.
+        포함된 권한 : CREATE SESSION, SET CONTAINER
+    * RESOURCE 롤
+        일반 데이터베이스 사용자에게 부여되는 시스템 권한을 포함하는 롤이다.
+        포함된 권한 : CRAETE INDEXTYPE
+                    , CREATE OPERATOR
+                    , CREATE TYPE
+                    , CREATE TRIGGER
+                    , CREATE PROCEDURE
+                    , CREATE SEQUENCE
+                    , CREATE CLUSTER
+                    , CREATE TABLE
+    * DBA 롤
+        데이터베이스 관리자에게 부여되는 시스템 궎나을 포함하는 롤이다.
+        포함된 권한 : 총 239개의 시스템 권한이 포함되어 있다.
+        
+- 일반 데이터베이스 사용자에게 권한 부여하기
+    + 사용자 생성 후 CONNECT 롤, RESOURCE 롤을 부여하면 된다.
+    
+- 사용자에게 시스템 권한 부여하기
+    + 시스템 권한은 데이터베이스 관리자만 부여할 수 있다.
+    + 권한부여 SQL
+        GRANT 시스템권한, 시스템권한, 시스템권한
+        TO 사용자명;
+
+- 사용자에게 부여된 권한 회수하기
+    + 권한 회수 SQL
+        REVOKE 시스템권한, 시스템권한, ...
+        FROM 사용자명
+        
+        REVOKE 롤, 롤, ...
+        FROM 사용자명;
+        
+- 객체 권한
+    - 데이터베이스 객체 소유자는 해당 객체에 대한 모든 권한을 가지고 있다.
+    - 소유자는 다른 사용자에게 자신의 객체에 대한 특정 권한을 부여할 수 있다.
+
+-----------------------------------------------------------------
+      객체권한   테이블      뷰   시퀀스      프로시저
+      -----------------------------------------------------------------
+      SELECT      O          O       O   
+      -----------------------------------------------------------------      
+      INSERT      O          O
+      -----------------------------------------------------------------
+      UPDATE      O          O
+      -----------------------------------------------------------------
+      DELETE      O          O
+      -----------------------------------------------------------------
+      ALTER      O           O
+      -----------------------------------------------------------------
+      REFERENCES   O         O
+      -----------------------------------------------------------------
+      EXECUTE                                     O  
+      -----------------------------------------------------------------
+    
+- 객체권한 부여하기
+    GRANT 객체권한, 객체권한, 객체권한
+    ON 객체명
+    TO 사용자명, 사용자명;
+    
+    GRANT 객체권한, 객체권한, 객체권한
+    ON 객체명
+    TO PUBLIC;
+    * PUBLIC으로 지정하면 모든 사용자에게 해당 객체에 대한 엑세스 권한을 부여한다.
+    
+    GRANT 객체권한, 객체권한, 객체권한
+    ON 객체명
+    TO 사용자명, 사용자명
+    WITH GRANT OPTION;
+    * 객체 권한을 부여받은 사용자에게 객체 권한을 부여할 수 있는 권한을 같이 제공한다.
+    
+*/
+SELECT *
+FROM ROLE_SYS_PRIVS
+WHERE ROLE = 'CONNECT';
+
+SELECT *
+FROM ROLE_SYS_PRIVS
+WHERE ROLE = 'RESOURCE';
+
+SELECT *
+FROM ROLE_SYS_PRIVS
+WHERE ROLE = 'DBA';
+
+/*
+    신규 사용자계정을 생성하고, 권한 부여하기
+*/
+
+-- 오라클 12부터 계정명 C##을 안 붙이려면 이렇게 해줘야 함.
+ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
+
+-- 신규 사용자 생성
+CREATE USER scott identified by tiger;
+
+-- 신규 사용자에게 CONNECT 롤 부여
+GRANT CONNECT
+TO SCOTT;
+
+-- 신규 사용자에게 RESOURCE 롤을 부여함
+GRANT RESOURCE
+TO SCOTT;
+
+---------------------------------------------------------------------------------------
+
+-- HTA.EMPLOYEES를 EMP라는 이름으로 바꿔부르는 SYNONYM 생성
+CREATE SYNONYM EMP
+FOR HTA.EMPLOYEES;
+
+SELECT *
+FROM EMP;
+
+----------------------------------------------------------------------------------------
+
+/*
+PL/SQL(Procedural Language extension to SQL)
+- SQL로 절차지향적 프로그램구현이 가능하도록 지원하는 언어
+- 특징
+    + DBMS 내부에서 실행된다.
+    + BEGIN/END의 블록 구조로 프로그램을 모듈화한다.
+    + 조건문, 반복문 등을 사용해서 연속적인 SQL 작업을 수행할 수 있다.
+- 종류
+    + 프로시저(Procedure)
+        * 이름이 있는 PL/SQL 블록이다.
+        * 매개변수를 받을 수 있고, 재사용할 수 있는 PL/SQL 블록이다.
+        * 연속적인 SQL 작업 또는 실행단계가 복잡합 SQL 작업을 수행하기 위해 사용
+    + 함수(Function)
+        * 결과값을 반환할 수 있는 PL/SQL 블록이다.
+        * PL/SQL을 이용해서 일련의 SQL 작업을 수행하고, 그 처리결과를 반환값으로 반환한다.
+    + 트리거(Trigger)
+        * 특정 테이블에 데이터의 추가/변경/삭제 등의 데이터 변경 이벤트가
+        발생하면 DBMS에서 자동으로 실행하도록 구현된 프로그램이다.
+*/
+
+/*
+프로시저
+- 프로시저의 정의
+    CREATE OR REPLACE PROCEDURE 프로시저명
+        (변수명 IN 데이터타입,
+         변수명 IN 데이터타입, [ in은 입력값]
+         변수명 OUT 데이터타입) 
+    IS
+        변수명 데이터타입;
+        변수명 데이터타입 := 값;
+    BEGIN
+        PL/SQL 수행문;
+        ...
+    END;
+    
+    * 오라클에서 값 대입은 := 사용함.
+    
+- 프로시저의 실행
+    EXECUTE 프로시저명(값, 값, 값) 
+*/
+
+-- 직원 아이디를 전달받아서 직원의 급여를 인상시키는 프로시저
+-- 직원의 급여 20000 이상 10%, 10000 이상 15%, 그 외는 20% 인상
+create or replace NONEDITIONABLE PROCEDURE UPDATE_EMP_SALARY
+    -- 매개변수를 선언한다.
+    -- 급여를 인상할 직원 아이디를 입력받는다.
+    (I_EMP_ID IN NUMBER)
+IS
+    -- 변수를 선언한다.
+    -- 변수명        데이터타입
+    V_EMP_SALARY    EMPLOYEES.SALARY%TYPE;  
+    V_UPDATE_RATE   NUMBER(3,2);
+BEGIN
+    -- PL/SQL 수행문을 작성한다.
+    -- 1. 직원의 원래 급여를 조회한다.
+    SELECT SALARY
+    INTO V_EMP_SALARY
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = I_EMP_ID;
+
+    -- 2. 직원의 급여를 기준으로 인상률을 계산한다
+    IF V_EMP_SALARY >= 20000  THEN V_UPDATE_RATE := 0.1;
+    ELSIF V_EMP_SALARY >= 15000 THEN V_UPDATE_RATE := 0.15;
+    ELSE V_UPDATE_RATE := 0.2;
+    END IF;
+
+    -- 3. 직원의 급여를 인상시킨다.
+    UPDATE EMPLOYEES
+    SET
+        SALARY = SALARY + TRUNC(SALARY * V_UPDATE_RATE)
+    WHERE EMPLOYEE_ID = I_EMP_ID;
+
+    -- 4. 변경내용을 테이블에 반영시킨다.
+    COMMIT;
+END;
+
+EXECUTE UPDATE_EMP_SALARY(100);
+
+SELECT SALARY FROM EMPLOYEES WHERE EMPLOYEE_ID = 100;
+
+SELECT EMPLOYEE_ID
+    , FIRST_NAME
+    , SALARY
+    , GET_ANNUAL_SALARY(EMPLOYEE_ID)
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 60;
+
+--------------------------------------------------------------------------------------------
+
+/*
+함수
+함수 정의하기
+    CREATE OR REPLACE FUNCTION 함수명
+        -- 매개변수
+        (변수명 IN 타입,
+         변수명 IN 타입)
+        -- 반환타입
+        RETURN 타입
+    IS
+        -- 변수선언
+        변수명 타입;
+        변수명 타입;
+    BEGIN
+        PL/SQL 수행문
+        
+        RETURN 반환값;
+    END;
+함수 실행하기
+*/
+-- 직원 아이디를 전달받아서 해당 직원의 연봉을 반환하는 함수
+CREATE OR REPLACE FUNCTION GET_ANNUAL_SALARY
+    -- 매개변수로 연봉을 조회할 직원아이디를 입력받는다.
+    (I_EMP_ID IN NUMBER)
+    -- 이 함수는 연봉을 반환함으로 반환타입은 NUMBER 타입이다.
+    RETURN NUMBER
+IS
+    -- PL/SQL 구문 실행에 필요한 변수를 선언한다.
+    -- 각각 직원의 급여, 직원의 커미션비율, 직원의 연봉을 저장하는 변수다.
+    V_SALARY            EMPLOYEES.SALARY%TYPE;
+    V_COMM              EMPLOYEES.COMMISSION_PCT%TYPE;
+    V_ANNUAL_SALARY     EMPLOYEES.SALARY%TYPE;
+BEGIN
+    -- 직원의 급여와 커미션을 조회해서 각각 V_SALARY와 V_COMM에 대입한다.
+    SELECT SALARY, NVL(COMMISSION_PCT, 0)
+    INTO V_SALARY, V_COMM
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = I_EMP_ID;
+    -- 조회된 급여와 커미션을 이용해서 연봉을 계산한다.
+    V_ANNUAL_SALARY := V_SALARY*12 + TRUNC(V_SALARY*V_COMM)*12;
+    -- 계산된 연봉을 반환한다.
+    RETURN V_ANNUAL_SALARY;
+END;
+
+---------------------------------------------------------------------------------------------
+
+담주부터 웹 시작.
+자바스크립트랑 JSP에 집중하고 html + css는 찍먹하고 버리기.
+
+-----------------------------------------------------------------------------------------
