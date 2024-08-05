@@ -1,0 +1,315 @@
+아파치 소프트웨어 재단
+- 자바의 오픈소스 소프트웨어 프로젝트 관리하는 비영리 재단
+  + 오픈소스: 소스코드가 공개되어 있는 소프트웨어.
+  + 대부분은 무료로 사용 가능하다.
+  + 소스코드를 변경하거나 상업적 목적에 이용하는 것도 가능하다.
+- 대표적인 오픈소스 소프트웨어
+  + Apache HTTP 서버
+	웹서버 프로그램
+        php기반의 웹 애플리케이션 프로그램 실행
+  + Tomcat
+	웹 애플리케이션 서버 프로그램
+        자바 기반의 서블릿/JSP 웹 애플리케이션 실행
+        스프링 부트는 Tomcat이 내장되어 있다.
+  + 하둡
+	빅데이터 관련 분산 파일 시스템이다.
+	자바 기반의 프로그램이다.
+	빅데이터 분석, 기계학습 등 광범위하게 이용된다.
+  + 메이븐
+	자바 기반의 빌드 배포 도구
+	자바 기반의 프로젝트 라이프사이클을 관리하는 프로그램이다.
+  + 스파크
+	빅데이터 처리를 위한 플랫폼
+
+아파치 톰캣 - 톰캣 10 다운로드 - 버전 10.1.26의 64비트 윈도우 zip
+
+Tomcat 
++ 웹 애플리케이션 서버(WAS, Web Application Server)
++ 자바 기반의 서블릿/JSP 웹 애플리케이션을 실행하는 웹 애플리케이션 서버다.
++ Servlet/JSP 엔진, Servlet/JSP 컨테이너의 역할을 수행하는 서버다.
+
+* 설치하기
+	1. 톰캣 사이트(https://tomcat.apache.org/)에서 프로그램을 다운받는다.
+	2. 다운받은 파일의 압축을 풀고, apache-tomcat-10.1.26 폴더를 C:\app 폴더에 복사한다.
+	3. 윈도우의 시스템환경변수에 JAVA_HOME을 추가한다.
+		* JAVA_HOME 시스템 환경변수를 추가하고, 자바 설치경로를 설정한다.
+	4. 톰캣의 포트번호 변경하기
+		* apache-tomcat-10.xxx\conf\server.xml의 70번 라인의 포트번호를 수정한다.
+		[ 원래는 80과 443인데 Tomcat 자체에서 충돌을 피하기 위해 8080, 8443으로 초기 세팅한것 ]
+			port="8080" -> port="80"
+			redirectPort="8443" -> redirectPort="443"
+
+		*<Connect port="80" protocol="HTTP/1.1"
+			connectionTimeout="20000"
+			redirectPort="443"
+			maxParameterCount="1000"
+			/>
+	5. apache-tomcat-10.xxx\bin\startup\bat을 실행해서 톰캣을 실행시킨다.
+	6. 웹브라우저의 주소창에 http://localhost를 입력해서 톰캣 홈 화면이 출력되는지 확인한다.
+
+Tomcat과 이클립스 연동
+1. 이클립스 -> Preferences 메뉴를 선택한다.
+2. Preferences 팝업창의 좌측 메뉴에서 Server -> Runtime Environments를 선택한다.
+3. Server Runtime Environments의 [Add]버튼을 클릭해서 Tomcat 등록을 시작한다.
+4. New Server Runtime 등록 팝업창에서 Apache를 선택하고, 하위 목록에서 Apache tomcaat 10.1을 선택하고,
+   Create a new local server를 체크한 다음 [Next]버튼을 클릭한다.
+5. Tomcat Server 등록팝업에서 Tomcat install directory 항목의 [Browse..]버튼을 클릭해서 
+   위에서 설치한 톰캣의 설치 경로를 선택한다.
+   [C:app\apache-tomcat-10.1.26]
+6. [Finish]버튼을 클릭해서 설치된 톰캣을 등록한다.
+
+------------------------------------------------------------------------------------------------------
+웹 
+- HTTP 프로토콜을 기반으로 웹 브라우저(클라이언트)와 웹 서버(서버)간의 데이터를 교환하는 것
+- HTTP
+	+ 통신규약이다.
+	+ 웹 브라우저와 웹 서버간의 메세지 교환 방식을 규정하는 통신 규약이다.
+	+ 웹 브라우저가 웹서버로 보내는 요청 메세지의 형식을 규정한다.
+	  웹 서버가 웹 브라우저로 보내는 응답 메세지의 형식을 규정한다.
+	+ 따라서, 모든 웹 브라우저가 웹서버로 보내는 메세지 형식이 동일하다.
+		  모든 웹 서버가 웹 브라우저로 보내는 응답 메세지의 형식이 동일하다.
+- 웹 브라우저
+	+ 웹에서 클라이언트의 역할을 수행하는 프로그램이다.
+	+ 웹에서는 항상 웹브라우저가 웹서버로 요청 메세지를 보내는 것으로 통신이 시작된다.
+	+ 웹 브라우저는 웹서버로 요청 메세지를 보내고, 웹 서버가 응답으로 보낸 응답메세지를 받아서
+	  화면에 표시한다.
+	+ 사용자가 주소창에 URL을 입력하거나, 링크를 클릭하거나, 등록버튼을 클릭하면
+	  웹 브라우저는 적절한 요청 메세지를 만들어서 웹 서버로 요청 메세지를 보낸다.
+
+- 웹 애플리케이션 서버
+	+ 웹에서 서버의 역할을 수행하는 프로그램이다.
+	+ 웹 브라우저가 보낸 요청 메세지를 받아서 웹 애플리케이션을 실행하고,
+	  응답 컨텐츠를 응답메세지에 담아서 응답을 보낸다.
+	+ 웹 서버는 일반적으로 80 포트에서 프로그램을 실행한다. (웹 서버가 80번 port에 바인딩되었다.)
+	+ 웹 애플리케이션 서버는 웹 브라우저가 보낸 요청을 처리하기 위해서 
+	  웹 애플리케이션(자바의 경우, 서블릿/JSP 애플리케이션)을 실행하는 서버다.
+
+- 웹 애플리케이션 프로젝트
+	+ 웹 애플리케이션 서버에서 실행할 프로그램(서블릿/JSP로 개발한 프로그램)이 포함된 프로젝트다.
+	+ 웹 애플리케이션 프로젝트에서 작성한 프로그램은 웹 애플리케이션 서버가 실행한다.
+	  ( 따라서, 웹 애플리케이션 서버 없이 서블릿/JSP 프로그램을 실행할 수 없다. )
+	+ 웹 애플리케이션 프로젝트의 프로그램을 실행하기 위해서는 Tomcat과 같은 웹 애플리케이션 서버가
+	  필요하고, 웹 애플리케이션 서버에 프로젝트를 배포해야 한다.
+	  * Tomcat과 이클립스를 연동했기 때문에 웹 애플리케이션 프로젝트를 간단히 배포할 수 있다.
+	  * 일반적인 웹 애플리케이션의 배포 순서
+		1. 웹 애플리케이션 프로젝트를 war 파일로 패키징한다.
+		2. war 파일을 Tomcat의 webapps 폴더에 복사한다.
+		3. Tomcat을 실행시킨다.
+		4. Tomcat이 실행되면 war 파일의 압축을 풀고, 폴더를 생성해서 프로젝트 배포한다.
+	
+	+ 구조
+		app
+			- src
+				-main
+					-java : 자바 클래스를 정의하는 곳이다.
+					-webapp : 웹 애플리케이션(JSP)을 작성하는 곳이다.
+						  정적 웹 리소스(이미지, CSS, JS)를 작성하는 곳이다.	
+						
+						- META-INF: 웹 애플리케이션 관련 부가적인 설정정보가 위치한다. 
+						- WEB-INF: 웹 애플리케이션 설정정보가 위치한다.
+							- lib : 웹 애플리케이션에서 사용하는 라이브러리가 위치한다.
+	
+			- build : 
+
+[ JSP 안에 적는 코드가 Tomcat에 의해서 자바로 변환되게 된다. ]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+JSP
+- 자바의 웹 애플리케이션 기술이다.
+- HTML 코드안에서 자바 코드를 작성할 수 있는 기술이다.
+- 동적 웹 컨텐츠를 응답으로 제공하는 웹 애플리케이션을 개발할 때 사용하는 기술이다.
+- JSP안에서도 자바코딩이 가능하기 때문에 객체를 생성, 데이터베이스 엑세스 등의
+  다양한 작업을 수행할 수 있고, 작업의 수행결과로 획득한 데이터를 활용해서 웹 컨텐츠를 생성할 수 있다.
+- JSP의 실행 순서
+	1. 웹브라우저의 주소창에 http://localhost/app/hello.jsp 주소를 입력하고 Enter키를 클릭한다.
+	2. 웹브라우저가 주소창에 입력한 URL이 포함된 요청 메세지를 생성하고, 메세지를 서버로 보낸다.
+	3. Tomcat이 요청메세지를 받는다.
+	4. Tomcat은 요청메세지의 URL을 분석해서 hello.jsp를 찾는다.
+	5. Tomcat은 hello.jsp로 hello_jsp.java를 생성한다.
+	6. Tomcat은 hello_jsp.java를 컴파일해서 hello_jsp.class를 생성한다.
+	7. Tomcat은 hello_jsp.class 설계도를 메모리에 로딩하고 설계도로 hello_jsp 객체를 생성한다.
+	8. Tomcat은 hello_jsp 객체의 _jspService() 메소드를 호출한다.
+	9. _jspService() 메소드내의 코드가 실행되고, html 컨텐츠가 응답으로 보내진다.
+	
+	* 웹 브라우저가 같은 요청메세지를 다시 보내면...
+	  Tomcat은 3 -> 8 -> 9만 실행함.
+
+- JSP의 구성 요소
+
+디렉티브(지시어)
+	
+	+ JSP 페이지에 대한 설정 정보를 정의한다.
+	+ page 지시어
+	+ <%@ page 속성="속성값" %>
+		contentType 속성 : 이 JSP가 응답으로 보내는 컨텐츠의 타입을 지정한다.
+		contentType="text/html; charset=UTF-8"
+		* 응답 컨텐츠 타입은 html 컨텐츠다.
+		* 응답 컨텐츠의 문자 인코딩 방식은 utf-8이다.
+		* utf-8로 지정하지 않으면 웹브라우저에서 내용을 내려받아서 화면에 출력할 때 한글이 전부 깨져서 표시된다.
+		
+		pageEncoding 속성 : 이 JSP파일의 문자 인코딩 방식을 지정한다.
+		pageEncoding="utf-8"
+		* 이 JSP 파일은 utf-8 문자 인코딩 방식으로 컴퓨터 저장한다.
+		* utf-8로 지정하지 않으면 한글이 포함된 JSP파일은 저장되지 않는다.
+	
+	+ JSP 페이지에 포함시킬 다른 JSP 페이지를 지정한다.
+	+ include 지시어
+	+ <%@ include %>
+	
+	+ JSP 페이지에서 사용할 태그 라이브러리를 지정한다.
+	+ taglib 지시어
+	+ <%@ taglib %>
+
+스크립틀릿
+	+ JSP 페이지에서 자바코드 작성 영역을 정의한다.
+	+ <%		%>
+
+표현식
+	+ JSP 페이지에서 자바코드의 변수값 혹은 메소드 반환값을 응답컨텐츠에 포함시켜 응답으로 보낸다.
+        보낼 수 있게 한다.
+	+ <%=		%>
+
+주석
+	+ JSP가 자바코드로 변환될 때 제외시킨다.
+	+ <%--		--%>
+
+선언식
+	+ JSP 페이지에서 필드나 메소드 작성 영역을 정의한다.
+	+ <%!		%>
+	+ 실제 프로젝트 환경에서 잘 사용하지 않는다.
+
+MIME(Multipurpose Internet Mail Extensions) 타입
+- 미디어 타입이다.
+- 미디어 타입은 문서, 파일, 바이트 형식의 데이터의 성격과 형식을 나타내는 것이다.
+- 구조
+	type/subtype
+
+	* type은 일반 카테고리를 나타낸다.
+	(text, video, image, audio, application 등)
+	* subtype은 지정된 타입의 더 구체적인 데이터의 종류를 나타낸다.
+	text/plain
+	text/html
+	text/xml
+	image/jpg
+	image/png
+	audio/mp3
+
+	type/subtype;parameter=value
+	* 추가적인 세부정보를 제공하기 위해서 매개변수를 추가할 수 있다.
+	* text 타입의 경우 charset 매개변수를 추가하여 데이터의 문자 인코딩 방식을 지정할 수 있다.
+	text/html; charset="uft-8"
+
+-웹 개발자가 자주 사용하는 MIME 타입
+
++ text 타입 : 텍스트 파일에 대한 기본값이다.
+  * text/plain
+  * text/css
+  * text/javascript
+  * text/html
+  * text/json
+
++ application 타입 : 바이너리 데이터다. 이 데이터를 해석하기 위해서는 특별한 어플리케이션이 필요하다.
+  * application/x-www-form-urlencoded
+  * application/octet-stream
+  * application/json
+
++ multipart 타입 : 데이터가 서로 다른 MIME 타입으로 구성된 데이터다.
+  * multipart/form-data
+
+서블릿(Servlet)
+- 서버에서 실행되는 애플리케이션을 개발하는 기술이다. 
+ * 다양한 서버환경에서 실행되는 애플리케이션을 개발할 수 있지만, 대부분은 웹 애플리케이션을 개발할 때 사용한다.
+- JSP가 등장하기 전에 웹 애플리케이션 개발에 사용되던 기술이다.
+- 자바 클래스를 이용해서 동적 웹 컨텐츠(대부분 HTML 컨텐츠)를 응답으로 제공하는 웹 애플리케이션을 제작하는 데 사용된다.
+  * JSP에 비해서 사용하기 매우 불편하다.
+
+예시)
+
+간단한 HTML 컨텐츠를 응답으로 보내는 웹 애플리케이션
+
+JSP - 응답으로 보낼 html 컨텐츠를 바로 적을 수 있다.
+    - 필요한 경우에 내부에 자바코드를 적을 수 있다.
+    - 톰캣이 자동으로 java 소스코드(서블릿코드)로 변환한다.
+    - JSP는 서블릿을 완전히 대체할 수 있다.
+-----------------------------------------------------------
+<%@ contentType="text/html;charset=utf-8"
+    pageEncoding="utf-8" %>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>연습</title>
+</head>
+<body>
+  <h1>안녕하세요</h1>
+</body>
+</html>
+-------------------------------------------------------------
+
+Servlet - 응답으로 보낼 html 컨텐츠를 자바 코드 안에 적는다.
+        - 복잡한 구조의 html 코드를 작성하기가 어렵다.
+
+--------------------------------------------------------------
+public class HelloServlet extends HttpServlet {
+  public void service(HttpServletRequest req, HttpServletRespons resp)
+    throws IOException, ServletException {
+     PrintWriter out = resp.getWriter();
+     out.write("!<doctype html>");
+     out.write("<html>");
+     out.write("<head>");
+     out.write("<meta charset=\"utf-8\">");
+     out.write("<title>연습</title>");
+     ...
+    
+  }
+}
+-----------------------------------------------------------------
+
+sample.jsp
+에서 
+<% private int c = 30;> 
+<%=b %>는 둘 다 오류가 난다.
+
+왜냐하면 둘 다 Servlet 코드 내에서 메소드 영역에 속하기 때문이다.
+[ 메소드 영역 내부 지역변수에는 private을 붙일 수 없고, 지역변수는 초기화하지 않고 사용할 수 없다. ]
+
+즉, 스크립틀릿과 표현식은 메소드 내로 들어간다.
+
+sample.jsp
+에서
+<%! %>라는 선언식 내부에 작성한 코드는 메소드 영역이 아닌 클래스 영역에 생성된다.
+
+정리하면, 선언식만 메소드 안이 아닌 클래스 안으로 들어간다.
+--------------------------------------------------------------------------
+에러 페이지용 JSP
+error.jsp
+
+<%@ contentType="text/html;charset=utf-8"
+    pageEncoding="utf-8"
+    isErrorPage="true" %>
+<!doctype html>
+<html>
+  코드 생략
+  <body>
+	<h1>오류 페이지</h1>
+	<p>요청처리 중 오류가 발생했습니다.</p>
+	<p>고객센터에 문의하세요</p>
+  </body>
+</html>
+
+일반 페이지용 JSP
+login.jsp
+
+<%@ contentType="text/html;charset=utf-8"
+    pageEncoding="utf-8"
+    errorPage="error.jsp" %>
+
+order.jsp
+<%@ contentType="text/html;charset=uft-8"
+    pageEncoding="utf-8"
+    errorPage="error.jsp" %>
+
+register.jsp
+<%@ contentType="text/html;charset=utf-8"
+    pageEncoding="utf-8"
+    errorPage="error.jsp" %>
