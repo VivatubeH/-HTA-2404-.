@@ -1,0 +1,183 @@
+HTTP 메세지는 클라이언트와 서버가 주고 받는 메세지이다.
+
+HTTP에서의 요청 메세지의 형태
+
+헤더부
+
+-------------------
+요청라인: 요청방식 요청URL HTTP버전
+요청 헤더정보 
+Host:www.sample.com
+User-Agent: Mozilla/4.0
+Accept-Language: ko,en-US
+처럼 key-value 쌍으로 서버에 필요한 정보를 전달해줌.
+
+-------빈 줄---------
+
+바디부
+웹서버로 보내는 데이터
+(입력폼에서 입력한 정보,
+ 업로드되는 첨부파일 정보 등)
+
+
+HTTP에서의 응답 메세지의 형태
+
+헤더부
+
+----------------
+응답라인: HTTP 버전 HTTP 상태 코드 HTTP 상태 메세지
+응답 헤더정보
+Content-Type: text/html
+Content-Length: 2000
+Server: Apache/Tomcat10.1.25
+
+-------빈 줄---------
+
+바디부
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>연습</title>
+</head>
+<body>
+<h1>연습</h1>
+<p>요청/응답 처리 연습입니다</p>
+</body>
+</html>
+
+웹 브라우저가 웹서버로 요청을 보내는 방식(요청방식)
++ GET 방식 요청
+* 사용 목적 
+	- 서버에게 컨텐츠를 요청하는 것이 사용 목적이다.
+	- 데이터 흐름
+		클라이언트 <---- 서버
+	- 예시)
+		* 최신 메일목록을 요청한다.	
+		* 도서 목록을 요청한다.
+		* 베스트셀러 도서 목록을 요청한다.
+		* 도서 상세정보를 요청한다.
+		* 내 주문정보를 요청한다.
+	- 특징
+		* GET방식의 요청은 요청 메세지의 바디부를 사용하지 않는다.
+		* GET방식의 요청은 요청라인의 요청 URL 뒤에 값을 붙여서 서버로 보낸다.
+		[GET /search.jsp?keyword=자바&page=1 HTTP/1.1]
+		* GET방식의 요청은 서버로 전달되는 데이터의 크기에 제한이 있다.
+		* GET방식의 요청은 첨부파일을 업로드할 수 없다.
+		* GET방식의 요청은 서버로 전달되는 모든 값이 웹 브라우저의 주소창에 노출된다.
+		( 로그인 폼에서 입력한 id/password는 GET방식으로 보내지 않는다. )
++ 요청하기
+	- 주소창에 주소를 입력해서 요청한다.
+	- 링크를 클릭해서 요청한다.
+	- 검색창에 검색어를 입력하고 검색버튼을 클릭해서 요청한다.
++ GET 방식의 요청 예시
+	- 주소창에 주소를 입력하고 요청한다.
+		* 웹브라우저는 요청방식을 GET으로 지정하고, 주소창의 주소값을 요청 URL로 지정한 요청메세지를 만들어서 서버로 보낸다.
+	- 링크를 클릭해서 요청한다.
+		* <a href="board/list.jsp">목록</a>
+		* 웹브라우저는 요청방식을 GET으로 지정하고, href의 속성의 주소값을 요청URL로 지정한 요청메세지를 만들어서 서버로 보낸다.
+	- 검색창에 검색어를 입력하고 검색버튼을 클릭해서 요청한다.
+		* 입력폼을 사용해서 검색창을 작성하지만, 서버에서 데이터를 가져오는 것이 목적이므로 GET 방식의 요청이 서버로 전달되도록
+		해야한다.
+		* <form method="get" action="search.jsp">
+			<input type="text" name="keyword">
+			<button type="submit">검색</button>
+		  </form>
+		  (form 태그에서 method 속성을 지정하지 않으면 GET 방식의 요청을 보낸다.
+		   form 태그에서 method 속성을 "get"으로 지정하면 GET 방식의 요청을 보낸다.)
++ POST 방식 요청
+* 사용 목적
+	- 클라이언트가 서버에게 데이터를 보낼 때 사용한다.
+	- 데이터 흐름
+		클라이언트 ----> 서버
+	- 예시)
+		* 새 게시글 등록을 요청한다.
+		* 회원가입을 요청한다.
+		* SNS에 새 사진과 글 등록을 요청한다.
+		* 주문상품, 배송지 정보를 입력하고 주문정보 등록을 요청한다.
+	- 특징
+		* POST 방식일 때 데이터의 크기에 제한이 없다.
+		* POST 방식일 때 첨부파일 업로드가 가능하다.
+		* POST 방식일 때 요청메세제의 바디부에 데이터가 포함되어 서버로 전달된다.
++ 요청하기
+	- 입력폼에 값을 입력하고 등록버튼을 클릭해서 요청한다.	
+	- 수정폼에서 값을 입력하고 수정버튼을 클릭해서 요청한다.
+	- 게시판에서 게시글과 첨부파일을 추가하고 등록버튼을 클릭해서 요청한다.
++ POST 방식의 요청 예시
+	- 입력폼에서 입력필드에 값을 입려갛고 등록버튼을 클릭해서 요청한다.
+	 <form method="post" action="register.jsp">
+	 	<input type="text" name="id">
+	 	<input type="password" name="pwd">
+	 	<input type="text" name="name">
+	 	<input type="text" name="email">
+	 	<input type="text" name ="tel">
+	 	<button type="submit">가입</button>
+	 </form>
+	 * form 태그의 method 속성값을 post로 지정한 form의 입력값을 서버로 제출할 때만 POST 방식의 요청이 서버로 전달된다.
+
+META_INF, WEB_INF 밑에 만든 파일은 보호받기 때문에 외부에서 접근 불가.
+
+------------------------------------------------------------------------
+
+인사관리 홈
+http://localhost/hr/home.jsp
+
+기준 URL : http://localhost/hr/
+
+부서관리 홈 링크
+dest -> http://localhost/hr/dept/home.jsp
+링크 -> <a href="dept/home.jsp">부서관리 홈</a>
+	  <a href="/hr/dept/home.jsp">부서관리 홈</a>
+직종관리 홈 링크
+dest -> http://localhost/hr/job/home.jsp
+링크 -> <a href="job/home.jsp">부서관리 홈</a>
+	  <a href="/hr/job/home.jsp">직종관리 홈</a>
+직원관리 홈 링크
+dest -> http://localhost/hr/emp/home.jsp
+링크 -> <a href="emp/home.jsp">부서관리 홈</a>
+	  <a href="/hr/emp/home.jsp">직원관리 홈</a>
+
+부서관리 홈
+http://localhost/hr/dept/home.jsp
+
+기준 URL : http://localhost/hr/dept/
+
+부서목록 페이지 링크
+dest -> http://localhost/hr/dept/list.jsp
+링크 -> <a href="list/jsp">부서 목록</a>
+	  <a href="/hr/dept/list.jsp">부서 목록</a>
+신규 부서입력폼 페이지 링크
+dest -> http://localhost/hr/dept/form.jsp
+링크 -> <a href="form.jsp">신규 부서입력폼</a>
+	  <a href="/hr/dept/form.jsp">신규 부서폼</a>
+홈 링크
+dest -> http://localhost/hr/home.jsp
+링크 -> <a href="../home.jsp">홈</a>
+	  <a href="/hr/home.jsp">홈</a>
+	  
+-----------------------------------------------------------------------------
+
+JSP 내장 객체(Built-in Object)
+- jsp를 java 코드로 변환했을 때, _jspService() 메소드의 수행문으로 전부 포함되게 된다.
+- _jspService() 메소드에서 사용 가능한 객체를 JSP 내장 객체라고 한다.
+- 즉시 사용가능한 객체임. 
+
+---------------------------------------------------------------|
+HttpServletResponse response : 응답 메세지를 표현하는 객체	   |
+HttpServletRequest request : 요청 메세지를 표현하는 객체         |
+HttpSession session : 세션 정보를 저장하는 객체                  |
+---------------------------------------------------------------|
+
+- HttpServletRequest와 HttpServletResponse는 각각 요청메세지와 응답메세지를 표현하는 객체다.
+- 브라우저의 요청메세지가 접수되면, 요청객체와 응답객체는 톰캣이 생성하는 객체다.
+- 요청객체와 응답객체는 응답이 완료되면 즉시 사라진다. 
+- 브라우저는 요청메세지가 접수되면, 즉시 요청객체와 응답객체를 생성하고,
+  요청메세지의 모든 정보를 분석한 다음 요청객체에 저장한다.
+- 톰캣은 요청을 처리할 JSP 객체의 _jspService() 메소드를 호출하고, 메소드의 매개변수에
+  요청객체와 응답객체를 전달한다. 모든 JSP는 클라이언트의 요청메세지가 저장된 요청객체를 전달받는다.
+
+PageContext pageContext
+ServletContext application : 웹 애플리케이션을 나타내는 객체
+ServletConfig config 
+JspWriter out : 응답컨텐츠를 클라이언트로 출력하는 스트림
+Object page
