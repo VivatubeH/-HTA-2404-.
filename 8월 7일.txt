@@ -1,0 +1,169 @@
+쿼리스트링 : 정보를 전달하는 문자열.
+
+header가 get일 때와 post일 때
+
+get 방식일 때 - url?쿼리스트링
+post 방식일 때 - body부에 쿼리스트링
+
+요청 파라미터는 항상 name=value의 형태로 전달됨. 저장될 때도 name, value로 나눠서 저장됨.
+
+getParameter는 요청 객체가 제공해주는 요청 파라미터를 꺼낼 수 있는 메소드다.
+[ request.getParameter() ]
+[ 매개변수 - String, 반환타입 - String ]
+
+------ HttpServletRequest -------
+getParameter 메서드 - 지정된 이름의 요청파라미터값을 반환, 없으면 null 반환
+getParameterValues 메서드 - 지정된 이름의 모든 요청파라미터 값을 배열로 반환, 없으면 null 반환
+
+------ HttpServletResponse ------
+
+요청 URL
+http://localhost/hr/dept/detail.jsp?id=xxx
+		
+요청 URI
+/hr/dept/detail.jsp
+		
+쿼리 스트링
+id=xxx
+		
+요청 파라미터 정보
+------------------
+name       value
+------------------
+id          xxx
+
+메소드 이름 잘 짓는 방법
+동사 + 목적어 + by + 조건
+
+동사 
+	조회: getXXX, findXXX, searchXXX
+	추가: insertXXX, saveXXX, addXXX
+	삭제: deleteXXX, removeXXX
+	수정: updateXXX, modifyXXX
+
+예) 전체 직원정보를 조회하는 메소드
+List<Emp> getAllEmployees()
+
+부서아이디를 전달받아서 해당 부서에 소속된 직원정보를 조회하는 메소드
+List<Emp> getEmployeesByDeptId(int deptId)
+
+이메일을 전달받아서 직원정보를 조회하는 메소드
+Emp getEmployeeByEmail(String email)
+
+직원 아이디로 직원 정보 삭제하는 메소드
+void deleteEmployeeById(int empId)
+
+조회작업
+public List<VO> getXXX() {
+	List<VO> list = new ArrayList<VO>();
+	
+	while(rs.next()) {
+		// 조회된 행의 갯수가 여러 개이기 때문에
+		// 행의 갯수만큼 매번 VO객체를 새로 생성하고,
+		// 현재 커서가 위치한 행의 각 컬럼값을 하나씩 조회해서 
+		// VO객체에 저장한다.
+		VO vo = new VO();
+		vo.setXXX(rs.getXXX("컬럼명"));
+		...
+		
+		// VO객체를 콜렉션에 저장한다.
+		list.add(vo);
+	}
+	return list;
+}
+
+// 조회결과가 1건 혹은 0건이 조회되는 경우
+// 1건이 조회되면 VO객체가 반환된다.
+// 0건이 조회되면 null이 반환된다.
+public VO getXXX() {
+	VO vo = null;
+	
+	while(rs.next()) {
+		// 조회되는 행의 갯수가 없거나 1행만 있기 때문에
+		// rs.next()의 실행결과가 true로 판정될 때만
+		// 행이 존재하는 경우다. 그 경우에만 행의 값을 저장할
+		// VO객체를 생성하고, 각 컬럼의 값을 저장한다.
+		vo = new VO();
+		vo.setXXX(rs.getXXX("컬럼명"));
+		...
+	}
+	
+	return vo;
+}
+
+VO vo = dao.getXXX();
+if (vo != null) {
+	<td><%=vo.getId() %></td>
+	<td><%=vo.getTitle() %></td>
+	<td><%=vo.getPrice() %></td>
+} else {
+	... 조회된 데이터가 없습니다.
+}
+
+// 조회결과가 1건 혹은 0건이 조회되는 경우
+// 1건이 조회되면 Optional 객체가 반환된다.
+// 0건이 조회되면 Optional 객체가 반환된다.
+public Optional(VO) getXXX() {
+	Optional<VO> optional = Optional.empty(); // 저장된 객체가 없는 Optional을 생성한다.
+	
+	while(rs.next()) {
+		// 조회되는 행의 개수가 없거나 1행만 있기 때문에
+		// rs.next()의 실행결과가 true로 판정될 때만
+		// 행이 존재하는 경우다. 그 경우에만 행의 값을 저장할
+		// VO 객체를 생성하고, 각 컬럼의 값을 저장한다.
+		VO vo = new VO();
+		vo.setXXX(rs.getXXX("컬럼명"))...
+		...
+		
+		optional = Optional.ofNullable(vo); // vo가 null이면 empty Optional 객체가 반환된다.
+								   // vo가 null이 아니면 VO 객체가 담긴 Option 객체가 반환된다.
+	}
+}
+
+Optional<VO> optional = dao.getXXX();
+if (optional.isPresent()) {
+	...
+	VO vo = optional.get();
+	<td><%=vo.getId()></td>
+	<td><%=vo.getTitle()></td>
+	<td><%=vo.getPrice()></td>
+} else {
+	... 조회된 데이터가 없습니다.
+}
+	
+	Optional<T>
+	- NullPointerException 발생을 회피하기 위해 도입된 객체다.
+	- 다른 객체를 저장하는 컨테이너 객체다.
+	- 사용목적
+		+ 메소드의 반환값이 객체거나 null이 나올 수 있는 메소드에서 null값이 반환되었을 때
+		이 메소드를 사용하는 측에서 null 체크를 수행하지 않으면 NullPointerException이 발생한다.
+		+ 메소드가 null 값을 반환하는 경우를 회피하기 위해서 사용된다.
+		+ 메소드에서는 언제나 Optional 객체를 반환한다.
+			Optional 객체는 객체가 저장된 Optional 객체가 반환될 수 있고,
+				          객체가 없는 Optional 객체가 반환될 수 있다.
+		  즉, 메소드가 null을 반환하는 경우가 없어진다.
+		  
+	- 주요 API
+		Optional<T>	 Optional.empty()
+						+ static 메소드다.
+						+ empty Optional 객체를 생성한다.
+	 	Optional<T>	 Optional.of(T value)
+	 					+ static 메소드다
+	 					+ 전달받은 객체가 저장된 Optional 객체를 생성한다.
+	 					+ value는 null이 아니다.
+	 	Optional<T>	 OPtional.ofNullable(T value)
+	 					+ static 메소드다.
+	 					+ 전달받는 객체가 저장된 Optional 객체를 생성한다.
+	 					+ value는 null이 가능하다.
+	 	boolean 		 isEmpty()
+ 						+ empty Optional객체라면 true를 반환한다.
+ 		boolean 		 isPresent()
+ 						+ Optional 객체에 null이 아닌 객체가 저장되어 있으면 true를 반환한다.
+ 		T		 	 get()
+ 						+ Optinal 객체에 저장된 객체를 반환한다.	
+ 		T			 orElse(T other)
+						+ Optional 객체에 저장된 객체가 있으면 그 객체를 반환하고,
+						  그렇지 않으면 전달받는 other 객체를 반환한다.
+		T			 orElseThrow()
+						+ Optional 객체에 저장된 객체가 있으면 그 객체를 반환하고,
+						  그렇지 않으면 NoSuchElementException 예외를 반환한다.
