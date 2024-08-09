@@ -1,0 +1,60 @@
+http://localhost/hr/dept/form.jsp 
+-> form.jsp에서 요청메세지를 register.jsp로 보낸다. 
+-> register.jsp에서 요청 파라미터를 조회해서 Dept객체를 생성해서 요청 파라미터를 담는다.
+-> DeptDao 객체를 생성하고 DeptDao 객체의 insertDao(Dept dept) 메소드를 실행해서 등록한다.
+-> [ # 응답객체의 sendRedirect() 메소드를 실행해서 재요청 URL을 응답으로 보내면 ★ 다른 jsp 페이지를 응답으로 전송 가능 ★ ]
+-> 이렇게 되면 form.jsp에서 다시 list.jsp를 요청하는 요청 메세지를 새로 만들어서 보내게 된다.
+-> 이 때, 요청 객체와 응답 객체는 새로 만들어지고 list.jsp가 실행된다. [ 새로운 요청이 오는 순간 이전 요청 객체와 응답 객체는 폐기됨 ]
+
+Redirect()를 보낼 때 : INSERT, UPDATE, DELETE를 한 jsp에서 보낸다.
+
+클라이언트의 요청을 다른 JSP로 이동시키는 2가지 방식
+
+- Redirect 방식
+	+ 브라우저에게 재요청할 URL(다른 JSP의 실행을 요청하는 URL)을 응답으로 보낸다.
+	+ 사용하는 경우
+		* 클라이언트의 요청을 처리하는 JSP에서 데이터베이스에 대한 추가/변경/삭제 작업을 수행했을 때
+		 (추가/변경/삭제 작업은 데이터를 조회하는 작업이 아니다.
+		  따라서 조회한 데이터가 없기 때문에 응답컨텐츠를 제공할 수가 없다.
+		  그래서 새로 요청할 URL을 응답으로 보내게 된다.)
+		* 로그인/로그아웃 요청을 처리하는 작업을 수행했을 때
+		 (HttpSession객체에 인증된 사용자정보를 추가하거나, 삭제하는 작업을 수행하는 것이
+                  로그인/로그아웃 작업이다.
+                  따라서, 데이터베이스를 대상으로 추가/변경/삭제 작업을 수행한 것과 같은 작업으로 간주한다.)
+	+ 특징
+		* 클라이언트 측
+			브라우저 주소창의 주소가 재요청하는 URL로 변경된다.
+		* 서버 측
+			* 요청객체와 응답객체가 새로 생성된다.
+			(첫번째 요청할 때 서버로 전달된 요청메세지를 저장하고 있던 요청객체와 응답객체는
+			재요청 URL을 응답으로 보내는 순간 폐기된다.)
+			* 첫번째 요청을 처리하는 JSP와 재요청을 처리하는 JSP가 서로 다른 요청객체와 응답객체를
+			사용한다. 
+	+ API
+		+ HttpServletResponse 객체
+			void sendRedirect(String url)
+				* 지정된 url을 재요청하라는 응답을 클라이언트로 보낸다.
+- Forward 방식
+	+ 서버내부에서 다른 JSP로 클라이언트의 요청을 이동시킨다.
+	+ 사용하는 경우
+		* Model2방식(MVC 패턴의 웹 애플리케이션 개발 방식)의 조회작업에서 사용한다.
+	+ 특징
+		* 클라이언트 측
+			브라우저 주소창의 주소가 첫번째 요청할 때 URL로 계속 유지된다.
+		* 서버 측
+			* 두 번째 JSP가 실행할 때 요청객체와 응답객체를 새로 생성하지 않는다.
+			(톰캣이 새 요청을 접수한 것이 아니기 때문에 요청객체와 응답객체를 서로 생성하지 않는다.)
+			* 첫번째 요청을 처리하는 JSP와 두번째 요청을 처리하는 JSP가 요청객체와 응답객체를
+			  공유한다.
+			  
+	+ API
+		+ HttpServletRequest 객체
+			RequestDispatcher getRequestDispatcher(String url)
+				* 지정된 url로 클라이언트의 요청을 내부이동시켜주는 RequestDispatcher를 반환한다.
+		+ RequestDispatcher 객체
+			void forward(HttpServletRequest request, HttpServletResponse response)
+				* 요청객체와 응답객체를 전달받아서 내부이동하는 JSP에 보내준다.
+				
+readonly - 수정은 안 되지만, 제출은 가능
+disabled - 수정도 안 되고, 제출도 불가능.
+			

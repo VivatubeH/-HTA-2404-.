@@ -1,0 +1,307 @@
+/*
+    상품 카테고리 테이블
+        카테고리번호
+        카테고리명
+    상품 제조사 테이블
+        제조사번호
+        제조사명
+        전화번호
+    상품 상태 테이블
+        상태번호
+        상태
+    상품 혜택 테이블
+        혜택번호
+        혜택명
+    상품 테이블
+        상품번호
+        상품명
+        카테고리번호
+        제조사번호
+        가격
+        할인가격
+        재고수량
+        상품상태
+        설명
+        등록일
+        수정일
+    상품 추가혜택 테이블
+	상품번호
+	혜택번호
+*/
+
+상품관련 테이블 및 시퀀스 만들기 sql문
+
+--------------------------------------------------------------------------------
+
+
+
+/* Create Tables */
+
+-- 혜택테이블
+CREATE TABLE STORE_BENEFITS
+(
+	-- 혜택번호
+	BENEFIT_NO number(2,0) NOT NULL,
+	-- 혜택이름
+	BENEFIT_NAME varchar2(255) NOT NULL,
+	CONSTRAINT STORE_BENEFITNO_PK PRIMARY KEY (BENEFIT_NO)
+);
+
+
+-- 상품테이블
+CREATE TABLE STORE_PRODUCTS
+(
+	-- 상품번호
+	PRODUCT_NO number(4,0) NOT NULL,
+	-- 상품명
+	PRODUCT_NAME varchar2(255) NOT NULL,
+	-- 가격
+	PRODUCT_PRICE number(10,0) NOT NULL,
+	-- 할인가격
+	PRODUCT_DISCOUNT_PRICE number(10,0) NOT NULL,
+	-- 재고수량
+	PRODUCT_STOCK number(5,0) NOT NULL,
+	-- 설명
+	PRODUCT_DESCRIPTION varchar2(2000) NOT NULL,
+	-- 등록일
+	PRODUCT_CREATED_DATE date DEFAULT SYSDATE,
+	-- 수정일
+	PRODUCT_UPDATED_DATE date,
+	-- 상품카테고리번호
+	PRODUCT_CATEGORY_NO number(4,0) NOT NULL,
+	-- 상품제조회사번호
+	PRODUCT_COMPANY_NO number(4,0) NOT NULL,
+	-- 상품상태번호
+	PRODUCT_STATUS_NO number(2,0) NOT NULL,
+	CONSTRAINT STORE_PRODUCTNO_PK PRIMARY KEY (PRODUCT_NO)
+);
+
+
+-- 상품추가혜택테이블
+CREATE TABLE STORE_PRODUCT_BENEFITS
+(
+	-- 상품번호
+	PRODUCT_NO number(4,0) NOT NULL,
+	-- 혜택번호
+	BENEFIT_NO number(2,0) NOT NULL,
+	UNIQUE (PRODUCT_NO, BENEFIT_NO)
+);
+
+
+-- 상품카테고리
+CREATE TABLE STORE_PRODUCT_CATEGORIES
+(
+	-- 상품카테고리번호
+	PRODUCT_CATEGORY_NO number(4,0) NOT NULL,
+	-- 상품카테고리이름
+	PRODUCT_CATEGORY_NAME varchar2(255) NOT NULL,
+	CONSTRAINT STORE_PRODUCT_CATNO_PK PRIMARY KEY (PRODUCT_CATEGORY_NO)
+);
+
+
+-- 상품제조회사
+CREATE TABLE STORE_PRODUCT_COMPANIES
+(
+	-- 상품제조회사번호
+	PRODUCT_COMPANY_NO number(4,0) NOT NULL,
+	-- 상품제조회사이름
+	PRODUCT_COMPANY_NAME varchar2(255) NOT NULL,
+	-- 상품제조회사연락처
+	PRODUCT_COMPANY_TEL varchar2(20) NOT NULL,
+	CONSTRAINT STORE_PRODUCT_COMPANYNO_PK PRIMARY KEY (PRODUCT_COMPANY_NO)
+);
+
+
+-- 상품상태테이블
+CREATE TABLE STORE_PRODUCT_STATUS
+(
+	-- 상품상태번호
+	PRODUCT_STATUS_NO number(2,0) NOT NULL,
+	-- 상품상태이름
+	PRODUCT_STATUS_NAME varchar2(255) NOT NULL,
+	CONSTRAINT STORE_PRODUCT_STATUSNO_PK PRIMARY KEY (PRODUCT_STATUS_NO)
+);
+
+
+
+/* Create Foreign Keys */
+
+ALTER TABLE STORE_PRODUCT_BENEFITS
+	ADD FOREIGN KEY (BENEFIT_NO)
+	REFERENCES STORE_BENEFITS (BENEFIT_NO)
+;
+
+
+ALTER TABLE STORE_PRODUCT_BENEFITS
+	ADD FOREIGN KEY (PRODUCT_NO)
+	REFERENCES STORE_PRODUCTS (PRODUCT_NO)
+;
+
+
+ALTER TABLE STORE_PRODUCTS
+	ADD CONSTRAINT STORE_PRODUCT_CATNO_FK FOREIGN KEY (PRODUCT_CATEGORY_NO)
+	REFERENCES STORE_PRODUCT_CATEGORIES (PRODUCT_CATEGORY_NO)
+;
+
+
+ALTER TABLE STORE_PRODUCTS
+	ADD CONSTRAINT STORE_PRODUCT_COMNO_FK FOREIGN KEY (PRODUCT_COMPANY_NO)
+	REFERENCES STORE_PRODUCT_COMPANIES (PRODUCT_COMPANY_NO)
+;
+
+
+ALTER TABLE STORE_PRODUCTS
+	ADD CONSTRAINT STORE_PRODUCT_STATUSNO_FK FOREIGN KEY (PRODUCT_STATUS_NO)
+	REFERENCES STORE_PRODUCT_STATUS (PRODUCT_STATUS_NO)
+;
+
+
+
+/* Comments */
+
+COMMENT ON TABLE STORE_BENEFITS IS '혜택테이블';
+COMMENT ON COLUMN STORE_BENEFITS.BENEFIT_NO IS '혜택번호';
+COMMENT ON COLUMN STORE_BENEFITS.BENEFIT_NAME IS '혜택이름';
+COMMENT ON TABLE STORE_PRODUCTS IS '상품테이블';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_NO IS '상품번호';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_NAME IS '상품명';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_PRICE IS '가격';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_DISCOUNT_PRICE IS '할인가격';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_STOCK IS '재고수량';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_DESCRIPTION IS '설명';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_CREATED_DATE IS '등록일';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_UPDATED_DATE IS '수정일';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_CATEGORY_NO IS '상품카테고리번호';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_COMPANY_NO IS '상품제조회사번호';
+COMMENT ON COLUMN STORE_PRODUCTS.PRODUCT_STATUS_NO IS '상품상태번호';
+COMMENT ON TABLE STORE_PRODUCT_BENEFITS IS '상품추가혜택테이블';
+COMMENT ON COLUMN STORE_PRODUCT_BENEFITS.PRODUCT_NO IS '상품번호';
+COMMENT ON COLUMN STORE_PRODUCT_BENEFITS.BENEFIT_NO IS '혜택번호';
+COMMENT ON TABLE STORE_PRODUCT_CATEGORIES IS '상품카테고리';
+COMMENT ON COLUMN STORE_PRODUCT_CATEGORIES.PRODUCT_CATEGORY_NO IS '상품카테고리번호';
+COMMENT ON COLUMN STORE_PRODUCT_CATEGORIES.PRODUCT_CATEGORY_NAME IS '상품카테고리이름';
+COMMENT ON TABLE STORE_PRODUCT_COMPANIES IS '상품제조회사';
+COMMENT ON COLUMN STORE_PRODUCT_COMPANIES.PRODUCT_COMPANY_NO IS '상품제조회사번호';
+COMMENT ON COLUMN STORE_PRODUCT_COMPANIES.PRODUCT_COMPANY_NAME IS '상품제조회사이름';
+COMMENT ON COLUMN STORE_PRODUCT_COMPANIES.PRODUCT_COMPANY_TEL IS '상품제조회사연락처';
+COMMENT ON TABLE STORE_PRODUCT_STATUS IS '상품상태테이블';
+COMMENT ON COLUMN STORE_PRODUCT_STATUS.PRODUCT_STATUS_NO IS '상품상태번호';
+COMMENT ON COLUMN STORE_PRODUCT_STATUS.PRODUCT_STATUS_NAME IS '상품상태이름';
+
+
+CREATE SEQUENCE STORE_CATEGORIES_SEQ START WITH 1000 NOCACHE;
+CREATE SEQUENCE STORE_COMPANIES_SEQ START WITH 1000 NOCACHE;
+CREATE SEQUENCE STORE_STATUS_SEQ START WITH 10 NOCACHE;
+CREATE SEQUENCE STORE_BENEFITS_SEQ START WITH 10 NOCACHE;
+
+---------------------------------------------------------------------------------------------------------------------
+
+부트스트랩의 주요 클래스
+.container 
+	- 부트스트랩에서 모든 컨텐츠 요소를 감싸는 최상위 태그에 붙인다.
+	- 웹브라우저의 너비에 따라서 유동적으로 크기가 변경된다.
+	- 웹브라우저의 중앙에 컨텐츠를 위치시킨다.
+
+.mt1 ~ mt5
+	- 엘리먼트의 위쪽 여백을 조절한다.
+	- ms1 ~ ms5 : 왼쪽 여백
+	  me1 ~ me5 : 오른쪽 여백
+	  mt1 ~ mt5 : 위쪽 여백
+   	  mb1 ~ mb5 : 아래쪽 여백
+	  mx1 ~ mx5 : 왼쪽/오른쪽 여백
+	  my1 ~ my5 : 위쪽/아래쪽 여백
+	  m1 ~ m5 : 네방향 여백
+
+.pt1 ~ pt5
+	- 엘리먼트의 안쪽 여백(테두리와 컨텐츠 간격)을 조절한다.	
+
+.table
+	- 테이블에 기본 스타일이 적용된다.
+	- 테이블의 너비는 100%다.
+	- 셀의 텍스트는 왼쪽 정렬된다.
+	- 가로방향 테두리만 표시된다.
+
+.table-bordered
+	- 
+.text-end
+	- 텍스트 혹은 엘리먼트를 오른쪽 정렬시킨다.
+	- text-start : 왼쪽 정렬
+	  text-center : 가운데 정렬
+ 	  text-end : 오른쪽 정렬
+
+.btn
+	- <a>, <button>, <input>에 적용해서 버튼 스타일을 적용한다.
+	- 버튼 스타일
+		.btn-primary  : 파란버튼, 중요한 버튼에 적용하자
+		.btn-secondary : 회색버튼, 덜 중요한 버튼에 적용하자
+		.btn-success : 녹색버튼, 성공을 나타내는 버튼에 적용하자
+		.btn-info : 하늘색버튼, 추가정보를 제공하는 버튼에 적용하자.
+		.btn-warning : 오렌지버튼, 경고를 나타내는 버튼에 적용하자.
+		.btn-danger : 빨간버튼, 위험을 나타내는 버튼에 적용하자.
+		.btn-dark : 까만버튼
+		.btn-light : 하양버튼
+	- 버튼 사이즈
+		.btn-sm : 작은 버튼
+		.btn-lg : 큰 버튼
+
+.form-label
+	- 입력폼의 라벨에 적용한다.
+.form-control
+	- 입력폼의 입력필드에 적용한다.
+	- 엘리먼트의 너비가 100%가 된다.
+	- 입력필드 엘리먼트를 블록엘리먼트로 변경한다.
+	- 테두리의 모양이 변경된다.
+.form-select
+	- 입력폼의 select에 적용한다.
+.form-check
+	- 입력폼의 checkbox와 radio버튼에 적용한다.
+.form-check-inline
+	- 입력폼의 checkbox와 radio 버튼을 inline 엘리먼트로 변경한다.
+.form-check-label
+	- 입력폼의 checkbox와 radio 버튼의 라벨에 적용한다.
+
+----------------------------------------------------------------------------------------------------
+
+- 신규 상품 등록하기
+	1. 신규 상품 입력폼에서 표시되는 정보 확인하기
+		+ 카테고리정보, 제조사정보, 상태정보, 추가혜택정보가 표시된다.
+	2. 입력폼에 표시되는 정보 조회하기
+		+ 테이블을 확인한다.
+		+ 테이블의 데이터를 담는 VO 클래스를 정의한다.
+		+ 테이블의 데이터를 조회하고 반환하는 메소드를 DAO클래스를 이용해서 정의한다.
+	3. 입력폼에 정보 표시하기
+		+ form.jsp에서 정보 조회에 필요한 DAO 객체를 생성한다.
+		+ 생성된 DAO 객체의 조회메소드를 실행해서 정보를 획득한다.
+		+ 획득한 각각의 정보로 컨텐츠를 생성한다.
+
+-----------------------------------------------------------------
+폼 데이터 - 바디부로 전달되는 post 방식
+쿼리 스트링 - 헤더부로 전달되는 get 방식
+
+그 두 개를 해석해서 요청객체에 저장하는 게 요청 파라미터 정보이다.
+
+String[] benefitNoArr = request.getParameterValues(""); [ 반환타입이 String[] ]
+같은 이름의 파라미터값이 2개 오는 경우에는
+getParameterValues로 값을 얻어오고, 배열에 저장하고
+이후 하나씩 꺼내서 원하는 타입으로 바꿔야 한다.
+------------------------------------------------------------------
+
+insert.jsp에서
+
+Product product = new Product();
+// 새 상품일련번호를 조회해서 Product에 담기
+int productNo = productDao.getSequence();
+product.setNo(productNo);
+product.setName(...);
+product.setPrice(...);
+....
+
+productDao.insertProduct(product);
+이렇게 작성해야 한다.
+
+ProductBenefit productBenefit = new ProductBenefit();
+productBenefit.setProductNo(productNo);
+productBenefit.setBenefitNo(benefitNo);
+
+productDao.insertProductBenefit(productBenefit);
+---------------------------------------------------------------------
