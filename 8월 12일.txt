@@ -1,0 +1,136 @@
+페이징 처리
+- 한 화면에 표시되는 데이터의 갯수를 제한해서 표현하는 방식이다.
+- 화면의 구성
+	+ 데이터 행
+		* 페이지 번호에 맞는 정해진 갯수만큼의 데이터가 표현되는 곳	
+	+ 페이지 네비게이션
+		* 나머지 데이터를 조회할 수 있도록 페이지번호가 표현되는 곳
+
+- 데이터 행
+	+ 필요한 정보
+		* 한 화면에 표시할 데이터의 갯수
+		* 현재 요청한 페이지 번호
+	+ 예시
+		* 데이터갯수: 10개, 페이지번호: 1
+			날짜 순으로 정렬하고 일련번호를 부여했을 때 : 1~10번 데이터
+		* 데이터갯수: 10개, 페이지번호: 2
+			날짜 순으로 정렬하고 일련번호를 부여했을 때 : 11~20번 데이터
+		* 데이터갯수: 5개, 페이지번호: 1
+			날짜 순으로 정렬하고 일련번호를 부여했을 때 : 1~5번 데이터
+		* 데이터갯수: 5개, 페이지번호: 2
+			날짜 순으로 정렬하고 일련번호를 부여했을 때 : 6~10번 데이터
+	
+	final int rows = 10;
+	int pages = 1;
+	int begin = (pages - 1) * rows + 1;
+	int end = pages * rows;
+		
+-페이지 네비게이션
+	+ 필요한 정보
+		* 한 화면에 표시할 데이터의 갯수
+		* 총 데이터의 갯수
+		* 현재 요청한 페이지 번호
+<!-- 
+	페이징 처리
+ -->
+	<div>
+		<ul class="pagination justify-content-center">
+			<li class="page-item"><a class="page-link" href="">이전</a></li>
+			<li class="page-item"><a class="page-link" href="">1</a></li>
+			<li class="page-item"><a class="page-link" href="">2</a></li>
+			<li class="page-item"><a class="page-link" href="">3</a></li>
+			<li class="page-item"><a class="page-link" href="">4</a></li>
+			<li class="page-item"><a class="page-link" href="">5</a></li>
+			<li class="page-item"><a class="page-link" href="">다음</a></li>
+		</ul>
+	</div>
+
+justify-content-cetner - 가운데 정렬
+active - 진하게 표시하기
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+행 개수 구하기
+	public int getTotalRows() throws SQLException {
+		String sql = """
+				select count(*)
+				from store_products
+				""";
+		
+		int totalRows = 0;
+		
+		Connection con = ConnectionUtils.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		ResultSet rs = pstmt.executeQuery();
+		rs.next();
+		totalRows = rs.getInt(1);
+		
+		rs.close();
+		pstmt.close();
+		con.close();
+		
+		return totalRows;
+	}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+페이징 처리
+- 한 화면에 표시되는 데이터의 갯수를 제한해서 표현하는 방식이다.
+- 페이징 처리에 필요한 정보
+	* 한 화면에 표시할 데이터 갯수	
+		int rowsPerPage = 10;
+	* 한 화면에 표시할 페이지번호 개수
+		int pagesPerpage = 5; [이전][1][2][3][4][5]
+	* 요청한 페이지 번호 
+		int pageNo = Integer.parseInt(request.getParameter("page"));
+	* 전체 데이터 갯수
+		int totalRows = productDao.getTotalRows();
+
+- 페이징 처리하기
+	+ 데이터행 처리
+		* 조회할 데이터 범위 계산하기
+			int begin = (pageNo - 1)*rowsPerPage + 1;
+			int end = pageNo*rowsPerPage;
+		* 데이터 조회하기
+			List<Product> products = productDao.getProducts(begin, end);
+	+ 페이지 내비게이션 처리	
+		* 전체 페이지 갯수 계산하기	
+			int totalPages = Math.ceilDiv(totalRows, rowsPerPage);
+		* 전체 페이지블록 갯수 계산하기
+			int totalBlocks = Math.ceilDiv(totalPages, pagesPerPage);
+		* 현재 요청한 페이지가 속한 페이지블록 계산하기
+			int currentBlock = Math.ceilDiv(pageNo, pagesPerPage);
+		* 페이지 내비게이션에 표시할 페이지번호 구간 계산하기
+			int beginPage = (currentBlock - 1)*pagesPerPage + 1;
+			int endPage = currentBlock*pagesPerPage;
+		* 페이지 표현하기
+			for (int num = beginPage; num <= endPage; num++) {
+				<li class="page-item <%=pageNo == num ? "active" : "" %>">
+					<a href="list.jsp?page=<%=num %>"><%=num %></a>
+				</li>
+			}
+
+- Pagination 클래스를 이용한 페이징 처리
+	+ pagination 객체는 페이징 처리에 필요한 정보를 제공하는 객체다.
+	+ pagination 객체는 요청한 페이지번호, 총 데이터 갯수를 전달해서 초기화한다.
+		int pageNo = Integer.parseInt(request.getParatmeter("page"));
+		int totalRows = productDao.getTotalRows();
+
+		Pagination pagination = new Pagination(pageNo, totalRows);
+	+ Pagination 객체가 제공하는 정보
+		* 데이터행 조회에 사용되는 정보
+			int begin = pagination.getBegin();
+			int end = pagination.getEnd();
+			List<Product> products = productDao.getProducts(begin, end);
+
+		* 페이지 내비게이션 생성에 사용되는 정보
+			int beginPage = pagination,getBeginPage();
+			int endPage = pagination.getEndPage();
+
+ 			for (int num = beginPage; num <= endPage; num++) {
+				<li class="<%=num == pageNo ? "active" : "" %>">
+					<a href="home.jsp?page=<%=num %>"><%=num %></a>	
+				</li>
+			}
+
+블록 단위 옮기기 - shift + tab : 왼쪽이동, tab: 오른쪽 이동
