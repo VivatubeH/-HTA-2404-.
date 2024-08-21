@@ -1,0 +1,337 @@
+댓글형 게시판 - 게시글 1 : 답변 N
+답변형 게시판 - 게시글 1 : 답변 1
+
+---------------------------------------------------------------------------------------
+요청파라미터에서 값 수집하기
+문자열 --> 정수 : 형변환이 아니다.
+int catNo = (Integer) request.getParameter("catNo"); [ x, 오류임 ]
+
+세션에 저장된 값을 수집하기
+ - Object로 형변환되어 저장된 값을 꺼내기.
+ int는 Integer로 변환되고, 세션에는 Object로 저장된다.
+ 
+ int x = (Integer)session.getAttribute("USERNO");
+ int x = Integer.parseInt(session.getAttribute("USERNO")); // 문자열이 아니다. 오류
+
+등록하기
+1. 정보가 저장되는 테이블을 확인하기
+	* 입력폼의 입력필드와 테이블의 필수 컬럼을 확인한다.
+	* 입력폼 조사
+		카테고리, 제목, 질문
+	* 테이블의 필수 입력컬럼 조사
+		qna_no : 시퀀스 일련번호 
+		+ cat_no : 입력폼의 카테고리번호 
+		+ qna_title : 입력폼의 제목
+		+ qna_question : 입력폼의 질문내용
+		+ user_no : 로그인한 사용자번호 ---> 로그인해야지만 가능.
+2. 실행할 SQL 작성
+		insert into store_qna_boards
+		(qna_no, cat_no, qna_title, qna_question, user_no)
+		values
+		(store_qna_seq.nextval, ?, ?, ?, ?)
+3. CRUD 메소드 정의하기		
+	* QnaDao의 메소드구조 정의
+		public void insertQna(Qna qna)
+	* QnaDao의 메소드 구현
+		public void inserQna(Qna qna) throws SQLException {
+			String sql = """
+				insert into store_qna_boards
+				(qna_no, cat_no, qna_title, qna_question, user_no)
+				values
+				(store_qna_seq.nextval, ?, ?, ?, ?)
+			""";
+		}
+4. 입력폼 체크하기
+	* 입력폼의 입력필드에 적절한 이름을 부여한다.
+	* select 박스, checkbox, radio 버튼의 dummy 값을 실제 데이터베이스의 값으로 반영시킨다.
+		디자인된 태그에 적절한 name, value값을 직접 하나씩 설정한다.
+		<input type="checkbox" name="skill" value="java"> 자바
+		<input type="checkbox" name="skill" value="c"> C
+		<input type="checkbox" name="skill" value="python"> 파이썬
+		<input type="checkbox" name="skill" value="db"> 데이터베이스
+		
+	+ 데이터베이스에 조회한 정보로 태그를 생성한다.
+	List<Skill> skillList = skillDao.getAllSkillCategories();
+	<%
+		for (Skill skill : skillList) {
+	%>
+		<input type="checkbox" name="skill" value="<%=skill.getCode()%>"><%=skill.getTitle() %>
+	<%
+		}
+	%>
+	
+5. 등록작업 구현하기
+	* 등록작업에 필요한 값을 수집하기
+		+ 입력폼에서 사용자가 입력하고, insert.jsp로 제출하는 값 수집하기
+		+ 로그인한 사용자의 정보가 필요한 경우, HttpSession에서 사용자번호 혹은 사용자 아이디 수집하기
+		+ 수집결과
+			int -> 사용자번호
+			int -> 카테고리번호
+			String -> 제목
+			String -> 질문
+	* 수집된 값을 DAO에 전달하기 위해서 적절한 객체에 저장하기
+		+ 객체 선정하기
+			Qna.java
+		+ 객체의 멤버변수 확인하기
+			Qna
+			카테고리 : 	QnaCategory category
+			제목 : 	String title
+			질문 : 	String question
+			사용자 : 	User user
+		+ 수집된 값을 멤버변수와 맞추기
+			항목		수집된값		멤버변수			조치
+			-----------------------------------------------------------------------
+			카테고리	int			QnaCategory	new QnaCategory(카테고리번호)
+			제목		String		String
+			질문		String		String
+			작성자	int			User			new User(사용자 번호)
+		+ 구현코드
+			int catNo = Utils.toInt(request.getParameter("catNo"));
+			int userNo = (Integer) session.getAttribute("USERNO"));
+			String title = request.getParameter("title");
+			String question = request.getParameter("question");
+			
+			Qna qna = new Qna();
+			qna.setTitle(title);
+			qna.setQuestion(question);
+			
+			// Qna의 멤버변수 타입과 맞추기
+			QnaCategory cat = new QnaCategory();
+			cat.setNo(catNo);
+			// Qna의 멤버변수 타입과 맞추기
+			User user = new User();
+			user.setNo(userNo);
+			
+			qna.setCategory(cat);
+			qna.setUser(user);
+			
+	* DAO 객체의 CRUD 메소드를 실행해서 테이블에 저장하기
+	 	+ 구현코드
+	 		QnaDao qnaDao = new QnaDao();
+	 		qnaDao.insertQna(qna);
+-----------------------------------------------------------------------------------------------------
+목록 조회하기
+1. 데이터 조회하기
+	* 내 질문내역 화면에서 표시되는 정보 확인하기
+	 	+ 표시정보
+	 		번호, 제목, 상태, 등록일자, 답변일자
+	 		qna_no, qna_title, qna_status, qna_created_date, qna_answered_date
+	 	+ 테이블 확인
+	 		항목		테이블명			컬럼명
+	 		-----------------------------------------------
+	 		질문번호   	store_qna_boards		qna_no
+	 		질문제목	store_qna_boards		qna_title
+	 		질문상태	store_qna_boards		qna_status
+	 		등록일자	store_qna_boards		qna_created_date
+	 		답변일자	store_qna_boards		qna_answered_date
+	 		
+	 		* store_qna_boards 테이블에서 데이터 조회하자
+	 * 조회 조건 확인하기
+	 	+ 업무내용을 중심으로 조회조건을 파악한다.
+	 		* 내 질문내역을 조회한다. : 특정 사용자의 질문내역만 조회한다.
+	 		* 페이징처리를 한다.	   : 요청한 페이지 번호에 맞는 범위의 데이터만 조회한다.
+	 	+ 조회조건
+	 		* 질문의 작성한 사용자 번호
+	 		* 페이지 번호에 맞는 조회 범위
+	 * 조회 조건에 반영된 SQL 작성하기
+	 	+ 내 문의내역 갯수를 조회하는 SQL
+	 	select count(*) cnt
+	 	from store_qna_boards
+	 	where user_no = ?
+	 	and qna_deleted = 'N';
+	 
+	 	+ 내 문의내역을 조회하는 SQL
+	 	select *
+	 	from (select qna_no, qna_title, qna_status, qna_created_date, qna_answered_date,
+	 			row_number() over (order by qna_no desc) rn
+	 		from store_qna_boards
+	 		where user_no = ?		<-- 사용자번호
+	 		and qna_deleted = 'N') 
+	 		where rn between ? and ?	<-- 페이지번호에 맞는 조회범위
+	 * DAO에 CRUD 메소드 정의하기
+	 	+ 메소드 형식 정의
+	 		문의내역 갯수 조회
+	 			public int getTotalRowsByUserNo(int userNo)
+	 		문의내역 조회
+	 			public List<Qna> getQnaListByUserNo(int userNo, int begin, int end)
+	 	+ 메소드 구현하기
+	 		문의내역 갯수 조회
+	 			public int getTotalRowsByUserNo(int userNo) throws SQLException {
+	 				구현코드 생략
+	 			}
+	 			public List<Qna> getQnaListByUserNo(int userNo, int begin, int end) throws SQLException {
+	 				구현코드 생략
+	 			}
+2. 데이터 표현하기 : list.jsp
+	* 데이터 조회에 필요한 값 수집하기
+		+ 1번에서 조사한 조회조건으로 사용되는 값을 수집하는 것이다.
+			* 조회조건 
+				- 사용자번호 : 로그인한 사용자의 사용자번호
+				- 조회범위   : 요청한 페이지번호에 맞는 범위
+		+ 값 수집하기
+			int userNo = (Integer) session.getAttribute("USERNO");   <-- 조회할 사용자 번호
+			int pageNo = Integer.parseInt(request.getParameter("page"), 1);
+			
+			QnaDao qnaDao = new QnaDao();
+			int totalRows = qnaDao.getTotalRowsByUserNo(사용자번호);
+			Pagination pagination = new Pagination(pageNo, totalRows);
+			
+			int begin = pagination.getBegin(); 	<--- 조회 범위 시작값
+			int end = pagination.getEnd();		<--- 조회 범위 끝값
+	* 내 문의내역 조회하기
+		+ Dao 객체의 CRUD 메소드를 호출해서 문의내역 조회하기
+			List<Qna> qnaList = qnaDao.getQnaListByUserNo(userNo, begin, end);
+	* 내 문의내역 표시하기
+		+ 표시 제한 사항 확인하기
+			* 질문상태가 답변대기, 답변완료에 따라서 다르게 표시된다.
+			* 답변날짜는 답변이 완료되었을 때만 표시된다.
+		+ 표시하기
+			<%
+				for (Qna qna : qnaList) {
+			%>
+				<tr>
+					<td><%=qna.getNo() %></td>
+					<td><a href="detail.jsp?no=<%=qna.getNo() %>"><%=qna.getTitle() %></a></td>
+					<td>
+			<%
+				if ("답변대기".equals(qna.getStatus())) {
+			%>
+					<span class="badge text-bg-secondary">답변대기</span>
+			<%
+				} else if ("답변완료".equals(qna.getStatus())) {
+			%>
+					<span class="badge text-bg-primary">답변완료</span>
+			<%	
+				}
+			%>
+					</td>
+					<td><%=qna.getCreatedDate() %></td>
+					<td><%=qna.getAnsweredDate() != null ? qna.getAnsweredDate() : ""%></td>
+				</tr>
+			<%
+				}
+			%>
+---------------------------------------------------------------------------------------------------
+질문/답변 게시판
+
+사용자
+1. 내 문의내역 조회하기
+	* nav.jsp에 내 문의내역 링크
+		/user/qna/list.jsp를 요청하는 링크 추가
+	* 내 문의내역 조회 페이지 작성하기
+		/user/qna/list.jsp
+	* 요청 정보 분석하기
+		요청 URL
+			http://localhost/store/qna/list.jsp
+			http://localhost/store/qna/list.jsp?page=1
+		쿼리스트링	
+			page=1
+		요청파라미터 정보
+			name		value
+			-----------------
+			"page"	  1
+			-----------------
+		* QnaDao에 getQnasByUserNo(int userNo, int begin, int end) throws SQLException {
+				String sql = """
+					select *
+					from (select row_number() over (order by qna_no desc) row_num
+							, qna_no
+							, qna_title
+							, qna_status
+							, qna_created_date
+							, qna_answered_date
+						from store_qna_board
+						where user_no = ?
+						and
+						qna_deleted = 'N')
+					where row_num between ? and ?
+				""";
+		public int getTotalRowsByUserNo(int userNo) throws SQLException {
+				String sql = """
+					select count(*) cnt
+					from store_qna_boards
+					where user_no = ?
+					and qna_deleted = 'N'
+				""";
+		}		
+		* 처리절차
+			1. 로그인여부를 체크한다.
+				* 로그인 되어 있지 않으면 ../user/login-form.jsp?deny를 재요청으로 보낸다.
+			2. 요청파라미터 값 조회한다.
+				* page
+				* page가 없으면 기본값 1로 지정한다.
+			3. 내 문의 내역 갯수 조회하기
+			4. 요청한 페이지번호, 내 문의 내역갯수로 Pagination 객체 생성하기
+			5. 요청한 페이지번호 범위에 맞는 문의 목록 조회하기
+			6. 조회된 문의목록을 화면에 표시하기
+			7. Pagination 객체의 정보를 활용해서 페이지 내비게이션 정보 표시하기
+				* 단, 내 문의내역갯수가 0보다 클때만 표시한다.
+2. 새 질문등록하기
+	1:1 문의 입력폼 구현
+	* qna/form.jsp 파일 생성하기
+	* 입력폼 구성하기
+		1. store_qna_categories 테이블의 모든 카테고리 정보를 조회한다.
+		2. 조회된 카테고리 정보로 질문 종류를 표시하는 <option> 태그를 생성한다.
+		3. submit 버튼을 클릭하면 POST 방식으로 입력폼의 모든 입력값이 insert.jsp로 제출시킨다.
+	* VO 클래스 정의하기
+		- QnaCategory.java 클래스를 정의한다.
+	* DAO 클래스 정의하기
+		- QnaDao.java 클래스를 정의한다.
+	* 모든 카테고리 조회기능을 DAO 클래스의 구현하기
+		List<QnaCategory> getAllQnaCategories() throws SQLException { ... }
+	
+	1:1 문의 등록 구현
+	* qna/insert.jsp 파일 생성하기
+	* 요청 정보 분석하기
+		요청 URL
+			http://localhost/store/qna/insert.jsp
+		요청 URI
+			/store/qna/insert.jsp
+		쿼리 스트링
+			없음
+		폼 데이터
+			catNo=100&title=배송이 안와요&question=배송이 너무 늦어요. 왜 안보는 거죠
+		요청파라미터 정보
+			name		value
+			-----------------
+			catNo		101
+			title		배송이 안와요
+			question 	배송이 너무 늦어요. 왜 안보내는 거죠
+	 	처리절차
+	 		1. 로그인 여부를 체크한다.
+	 			* 로그인되어 있지 않으면 ../user/login-form.jsp?deny를 재요청 URL로 보낸다.
+	 		2. 요청파라미터 값을 읽어온다.
+	 			catNo, title. question
+	 		3. Qna 객체를 생성해서 요청 파라미터값을 저장한다.
+	 			class Qna {
+	 				int 		 	no;
+	 				QnaCategory 	category; <---- QnaCategory 객체를 생성하고,
+	 										요청파라미터값 catNo를 저장한 다음
+	 										Qna객체의 category에 저장
+	 				String		title;	<--- 요청파라미터값 title를 Qna객체의 title에 저장
+	 				String 		question;  <--- 요청파라미터값 question을 Qna 객체의 question에 저장
+	 				String 		answer;
+	 				...
+	 				User 			user;		<--- 세션에서 로그인한 사용자의 사용자번호를 조회하고,
+	 										User 객체를 생성해서 사용자번호를 담고
+	 										Qna객체의 user에 저장
+	 			}
+	 		4. Qna 객체를 QnaDao의 insertQna() 메소드의 매개변수로 전달해서 저장시킨다.
+	 		5. list.jsp를 재요청 URL응답으로 보낸다.
+	 		
+	 		QnaDao에 insertQna(Qna qna) 메소드 구현하기
+	 			sql = """
+	 				insert into store_qna_boards
+	 				(qna_no, cat_no, qna_title, qna_question, user_no)
+	 				values
+	 				(store_qna_seq.nextval, ?, ?, ?, ?)
+	 			""";
+	 			
+3. 내 문의 상세 내용 조회하기
+	
+관리자
+1. 문의내역 조회하기
+
+2. 문의 상세 내용 조회하기
+
+3. 답변달기
