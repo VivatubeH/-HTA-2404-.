@@ -1,0 +1,69 @@
+webapp/admin/product/home.jsp		
+			     form.jsp
+			     insert.jsp
+			     detail.jsp
+			     
+webapp/product/list.jsp	-- 상품 리스트 페이지
+						* 상품목록을 표시한다.
+						* 페이징 처리를 지원한다.
+		   /detail.jsp  -- 상품 상세 페이지
+		   				* 상품 상세정보를 표시한다.
+		   				* 장바구니 추가 버튼을 제공한다.
+		   
+webapp/cart/list.jsp		-- 장바구니 리스트 페이지
+						* 로그인한 사용자의 장바구니 목록을 표시한다.
+						* 삭제/수정 기능을 제공한다.
+		/add.jsp		-- 장바구니 아이템 추가 페이지
+						* 상품상세에서 장바구니 추가를 했을 때 실행되는 JSP다.
+						* 동일한 상품이 장바구니에 이미 있으면 수량을 증가시킨다.
+		/delete.jsp	-- 장바구니 아이템 삭제 페이지
+						* 장바구니 목록에서 선택한 제품을 삭제한다.
+						
+장바구니 테이블에 입력해야 되는 값
+	ITEM_NO - 시퀀스
+	USER_NO - add.jsp에서 로그인한 사용자 이름
+	PRODUCT_NO - detail.jsp의 입력폼에서 hidden으로 전달하는 값을 add.jsp에 수집
+	ITEM_AMOUNT - detail.jsp의 입력폼에서 전달하는 값을 add.jsp에서 수집
+	ITEM_PRICE - add.jsp에서
+	
+장바구니 아이템 테이블
+item_no
+user_no
+product_no
+item_amount
+item_price
+item_created_date
+item_updated_date
+
+쿼리
+insert into store_cart_items
+(item_no, user_no, product_no, item_amount, item_price)
+values
+(store_carts_seq.nextval, ?, ?, ?, select product_discount_price
+						   from store_products
+						   where product_no = ?))
+						   
+product/detail.jsp
+입력폼
+	<form method="post" action="../cart/add.jsp">
+	<input type="hidden" name="no" value="5210">
+	수량 <input type="number" name="amount" value="1">
+	</form>
+
+cart/add.jsp
+요청처리에 필요한 값 수집
+- 사용자번호  <-- 세션에서 수집
+- 상품번호	  <-- 요청파라미터
+- 수량	  <-- 요청파라미터
+
+현재 URL
+	http://localhost/store/product/detail.jsp?no=5210
+목표 URL
+	http://localhost/store/cart/add.jsp
+기준 URL
+	http://localhost/store/product/ [ 가장 마지막 /까지가 기준 URL ]
+	
+장바구니 목록 화면
+<input type="checkbox" name="no" value="<%=item.getNo() %>">
+
+<a href="delete.jsp?no=<%=item.getNo() %>" class="btn btn-outline-danger">삭제</a>
