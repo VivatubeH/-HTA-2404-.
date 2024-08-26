@@ -1,0 +1,204 @@
+8월 26일 월요일 
+
+POST 방식의 요청
+
+파일 업로드
+* <form> 태그의 enctype 속성
+enctype="application/x-www-form-urlencoded"
+
+enctype="multipart/form-data"
+[ 첨부파일 업로드가 있는 경우 사용한다. ]
+
+예) 
+<form method="post" action="add.jsp" enctype="application/x-www-form-urlencoded">
+</form>
+
+<form method="post" action="add.jsp" enctype="multipart/form-data"
+</form>
+
+*enctype은 폼 입력요소의 값을 요청메세지의 바디부에 어떤 형식으로 담아서 서버로 
+제출할 것인지를 결정하는 속성값이다.
+
+* 기본값은 enctype="applicaton/x-www-form-urlencoded"이다.
+ + 폼입력요소의 값을 쿼리스트링의 형태로 만들어서 요청 메세지의 바디부에 포함시킨다.
+ + 첨부파일 업로드가 없는 경우 기본값으로 설정한다. [ 기본값으로 하면 첨부파일 업로드가 안됨 ]
+ 
+* enctype="multipart/form-data"
+ + 첨부파일 업로드가 있는 경우 사용한다. [ 첨부파일 업로드가 없는 경우 사용 안함 ]
+ + 첨부파일 업로드가 없는 경우도 사용가능하지만, 실무에서는 절대로 사용하지 않는다.
+ * multipart/form-data로 설정하면 요청파라미터값과 첨부파일을 처리하기 위해서 
+   특별한 API를 사용해야 된다.
+   
+<form method="post" action="add.jsp"
+ enctype="application/x-www-form-urlencoded">
+ 	<input type="text" name="title">
+ 	<textarea name"content"></textarea>
+ 	
+ 	<button type="submit">등록</button>
+ </form>
+ 
+ <form method="post" action="add.jsp"
+ enctype="multipart/form-data">
+ 	<input type="text" name="title">
+ 	<textarea name"content"></textarea>
+ 	<input type="file" name="upfile">
+ 	
+ 	<button type="submit">등록</button>
+ </form>
+
+멀티파트 요청이 아닌 경우 : 첨부파일 업로드가 지원되지 않는 요청
+* 첨부파일 업로드가 지원되지 않는 요청이다.
+* 폼 입력값이 쿼리스트링의 형태로 변환되어 요청메세지의 바디부에 포함된다.
+* <form> 태그에서 enctype을 지정하지 않은 기본값이 enctype="application/x-www-form-urlencoded"이다.
+POST add.jsp HTTP/1.1
+Host: xxxx
+Accept : xxxx
+Content-Type : application/x-www-form-urlencoded
+
+title=연습&content=연습입니다. [ 각각의 값을 &로 구분한다. ]
+
+
+멀티파트 요청 : 첨부파일 업로드가 포함된 요청 
+POST add.jsp HTTP/1.1
+Host : xxx
+Accept : xxx
+Content-Type : multipart/form-data
+		    boundary=----WebkitFormBoundaryNEsLHNz4NvHFzAA
+		    
+----WebkitFormBoundaryNEsLHNz4NvHFzAA
+Content-Disposition: form-data; name="title"
+연습
+
+----WebkitFormBoundaryNEsLHNz4NvHFzAA
+Content-Disposition: form-data; name="content"
+연습입니다.
+
+----WebkitFormBoundaryNEsLHNz4NvHFzAA
+Content-Disposition: form-data; name="upfile" filename="샘플.jpg"
+Content-Type: image/jpg
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+----WebkitFormBoundaryNEsLHNz4NvHFzAA--
+
+tomcat servlet spec 3.0 이상부터는 servlet 안에 파일 업로드를 지원하는 api가 있어서 그거 쓰면 됨
+
+[ 각각의 값을 ----WebkitFormBoundaryNEsLHNz4NvHFzAA로 구분한다. ]
+[ enctype="multipart/form-data"로 설정한 요청이다. ]
+[ 멀티파트 요청일 때 폼 입력값은 위와 같은 형식으로 만들어져서 요청메세지의 바디부에 포함되어 서버로 전달됨. ]
+
+tomcat에는 temp라는 임시 폴더가 있음. 업로드한 첨부파일은 temp 폴더에 tmp라는 형식으로 저장되고
+Tomcat의 part라는 객체에는 파일의 정보가 저장되서 알아올 수 있고 읽어올 수 있음. 
+웹에서 파일 업로드는 temp에 저장되어 있는 tmp라는 파일을 읽어서 업로드함.
+응답이 가면 tmp라는 파일이 사라지기 때문에 빨리 저장해둬야 함. [ 임시 폴더 temp, 임시파일 tmp로 저장되므로 ]
+
+enctype이 multipart/form=data이면 request.getParameter()에서 수집조차 불가능하다.
+보통 max값으로 -1을 설정하면 무제한임을 뜻한다.
+
+ @WebServlet
+ - 이 클래스가 HTTP 요청을 처리하는 서블릿 클래스임을 나타내는 어노테이션
+ - urlPatterns 
++ 이 서블릿 클래스와 매핑되는 URL 패턴을 지정한다.
++ 이 서블릿 클래스는 http://localhost/store/qna/insert 요청과 매핑된다.
+  즉, 위의 URL 요청이 서버로 보내지면 실행되는 서블릿 클래스다.
+   
+ @MultipartConfig
+ - 이 클래스가 multipart/form-data 요청을 처리할 수 있는 
+   서블릿 클래스임을 나타내는 어노테이션이다.
+ - 멀티파트 요청처리와 관련된 설정정보를 지정할 수 있는 어노테이션이다.
+ - @MultipartConfig(filesizeThreshold=xxx,
+ 				  maxFileSize=xxx,
+ 				  maxRequestSize=xxx,
+ 				  location=xxx) 
+ 
+ + fileSizeThreshold : 파일을 임시 디렉토리에 저장할 기준 크기
+ + maxFileSize : 한번에 업로드 할 수 있는 파일 크기
+ + maxRequestSize : 전체 요청메세지의 크기
+ + location : 임시파일을 저장할 경로
+ 
+ inputstream : 서블릿 <--- temp
+ outputstream : 서블릿 ---> resources
+ 
+ db에는 파일 데이터가 아닌 파일 이름을 저장한다. ( 어차피 이름만 알면 가져올 수 있음 )
+ 
+ 브라우저			톰캣
+ --------------------->Reader 텍스트전용
+ --------------------->InputStream 이진데이터 전용
+ 
+ <---------------------Wrtier 텍스트 전용
+ <---------------------OutputStream 이진데이터 전용
+ 
+ 응답객체의 스트림
+ * 응답객체의 스트림은 서버에서 브라우저로 데이터를 보낼 때 사용되는 스트림(파이프)다.
+ * Writer는 텍스트 출력 전용스트림이다. 이 스트림을 이용해서 HTML 컨텐츠를 브라우저로 보낸다.
+ * OutputStream은 이진데이터 전용스트림이다. 이 스트림을 이용해서 바이너리 데이터를 브라우저로 보낸다.
+ 주로, 파일 데이터를 브라우저로 내려보낼 때 사용한다.
+ 
+ webapp의 resources 폴더에는 17xxxxsample.zip 파일이 있다고 하자.
+ 톰캣에서 InputStream을 생성해서 연결 후, IOUtils.copy(in, out)을 이용해서 복사한 다음
+ OutputStream으로 브라우저로 내려보낸다.
+ 
+ 일반적으로 파일을 다운로드 할 때는 
+ response.setContentType("application/octet-stream"); 설정을 추가한다.
+ [ 잘 알려지지 않은 이진 파일을 위한 기본값 ]
+ 
+ 첨부파일 업로드 폼
+ - 업로드되는 첨부파일의 종류가 서로 다를 때
+ 	입사지원 입력폼
+ 		<input type="text" name="이름">
+ 		<input type="text" name="전화번호">
+ 		<input type="text" name="이메일">
+ 		<input type="file" name="증명사진">
+ 		<input type="file" name="이력서">
+ 		<input type="file" name="경력증빙자료">
+ 		
+ 	* 입사지원 입력폼에서 업로드되는 첨부파일은
+ 	  각각 증명사진, 이력서, 경력증빙자료다.
+ 	  첨부파일로 업로드되는 파일이 서로 다른 성질의 파일이기 때문에
+ 	  입력필드의 이름을 다르게 설정하는 것이 맞다.
+ 	  
+ 	  Part part1 = request.getPart("증명사진");
+ 	  Part part2 = request.getPart("이력서");
+ 	  Part part3 = request.getPart("경력증빙자료");
+ 	  
+ - 업로드되는 첨부파일의 종류가 같을 때
+ 	상품정보 입력폼
+ 		<input type="text" name="상품이름">
+ 		<input type="number" name="가격">
+ 		<input type="number" name="할인가격">
+ 		<input type="file" name="대표이미지">
+ 		<input type="file" name="썸네일이미지">
+ 		<input type="file" name="썸네일이미지">
+		<input type="file" name="썸네일이미지">
+	
+	* 상품정보 입력폼에서 업로드되는 첨부파일은
+	  대표이미지 하나와 여러 개의 썸네일이미지 파일이다.
+	  썸네일이미지는 모두 같은 성질의 파일이기 때문에 입력필드의 이름을 같은 이름으로 
+	  설정하는 것이 맞다.	
+	
+	Collection<Part> parts = request.getParts();
+
+관리자의 상품상세페이지 경로
+http://localhost/store/admin/product/detail.jsp
+
+	기준 URL : http://localhost/store/admin/product/
+	
+	상대경로
+	<img src="../../resources/photo/sample.png">
+
+	절대경로
+	<img src="/store/resources/photo/sample.png">
+
+이미지 경로
+http://localhost/store/resources/photo/sample.png
+
+apache-commons-fileupload와 apache-commons-io를 이용한 첨부파일 업로드 처리하기
+
+<%
+	// DiskFileItemFactory 객체를 획득한다.
+	// DiskItemFactory 객체는 첨부파일 업로드관련 설정정보를 설정해서 생성한다.
+	DiskFileItemFactory factory = new DiskFileItemFactory.builder()
+		.setSizeThreshold(4096)
+		.get();
+		
+%>
