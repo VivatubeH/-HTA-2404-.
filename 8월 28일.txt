@@ -1,0 +1,547 @@
+// && 연산에서 좌항의 값이 true면 최종 연산 결과는 우항의 값이다.
+// || 연산에서 좌항의 값이 false면 최종 연산결과는 우항의 값이다.
+
+웹 페이지 콘솔창에서 자바스크립트 함수 구현부 작성하기
+- 괄호 사이에서 shitf + enter 입력하고 구현부 적으면 됨.
+
+자바스크립트 함수에서 매개변수의 개수는 의미가 없음. 
+
+function list(page=1){ // default 값을 1로 지정.
+    console.log(page);
+}
+
+자바의 while문 : 아래의 객체를 대상으로 반복작업을 수행할 때 주로 사용한다.
+			자바의 while문은 반복작업 수행에 필요한 메소드를 제공하는 객체를 대상으로 사용한다.
+-----------------------------------------------------------------------
+객체			다음 반복을 수행여부		값 추출
+------------------------------------------------------------------------
+StringTokenizer	boolean hasMoreTokens()	String nextToken()
+------------------------------------------------------------------------
+Iterator<E>	boolean hasNext()		E next()
+------------------------------------------------------------------------
+Enumeration<E>	boolean hasMoreElements()	E nextElement()
+-------------------------------------------------------------------------
+ResultSet		boolean next()			xxx	getXXX(String columname)
+--------------------------------------------------------------------------
+
+// 논리연산자
+// && || ! 
+// && 연산에서 좌항의 값이 true면 최종 연산 결과는 우항의 값이다.
+// || 연산에서 좌항의 값이 false면 최종 연산결과는 우항의 값이다.
+
+let distance = 10000;
+let year = 2;
+
+// 자바스크립트는 논리연산자의 좌항과 우항에 true/false로
+// 판정되는 연산식이 위치할 수도 있다.
+// 	let isPay = (distance >= 15000) || (year >= 3);
+//  이 경우 isPay에 대입되는 최종결과는 true/false 값 중 하나다.
+// 좌항과 우항에 값이 바로 위치할 수도 있다.
+// 	let page = page || 1
+// 위의 경우 값을 판정기준에 따라서 true/false로 판정한다.
+// 이 경우 page에 대입되는 최종결과는 true/false 값이 아니다.
+	
+자바와 자바스크립트
+
+자바는 행동을 전달할 수 없다.
+
+자바스크립트는 행동을 전달할 수 있다.
+function fn1() {
+	수행문;
+	수행문;
+}
+
+// 콜백함수(Callback function)
+/*
+콜백함수
++ 함수의 매개변수 인자값으로 전달되는 함수를 말한다.
++ 호출하는 함수에게 값(데이터)를 전달하는 대신에
+함수(행동)을 전달하는 것이다.
+  
++ 콜백함수 전달하기
++ 콜백함수를 전달받는 함수
+function check(kor, eng, math, fn) {
+	let average = (kor + eng + math)/3;
+	if (average >= 60) {
+		fn();	// 콜백함수 실행하기
+	}
+}
+
+이름있는 함수 전달하기
+	// 이름있는 함수
+	function success() {
+		console.log("합격입니다.");
+	}
+	
+	// 이름 있는 함수를 콜백함수로 전달하기
+	check(100, 100, 100, success);	
+	
+익명함수 전달하기
+	// 익명함수를 콜백함수로 전달하기 
+	check(100, 100, 100, function() {
+		console.log("합격입니다.");
+	})
+
+화살표함수 전달하기
+	check(100, 100, 100, () => console.log("합격입니다."))
+	
+화살표 함수
+ + 자바스크립트에서 함수를 정의하는 새로운 방식이다.
+ + 함수 표현식 대신 화살표 함수 작성방식을 사용하면 더 간결하게 함수를 정의할 수 있다.
+ 
+ + 화살표 함수의 형식
+ 	let 변수 = (매개변수, 매개변수, 매개변수, ...) => 수행문;
+ 	
+ 	// 함수표현식으로 정의된 함수
+ 	let fn1 = function(a, b) {
+ 		return a + b;
+ 	}
+ 	
+ 	// 화살표 함수로 정의된 함수 [ 반드시 변수에 대입해야지만 실행이 가능하다. ]
+ 	[ 이름이 없는 함수는 다 변수에 대입해야 한다. ]
+ 	let fn2 = (a, b) => a + b;
+ 	
+ 자바의 람다식
+ - 함수형 인터페이스를 즉석으로 구현하는 표현식 [ 객체 ]
+ [ 인터페이스 안에 추상 메서드가 1개일 때만 가능하다. ]
+ 
+ Interface Pen {
+ 	void draw();
+ }
+ 
+ claas Painter {
+ 	public void paint(Pen pen)
+ 	{ 
+ 	
+ 	}
+ }
+ 
+ Painter p = new Painter();
+ 
+ p.paint(new Pen() {
+ 	public void draw() {
+ 		s.o.p("푸르게 그린다.");
+ 	}
+ });
+ 
+ p.paint(() -> s.o.p("누렇게 그린다."));
+ 
+ 자바 5, 6
+ ArrayList<String> x = new ArrayList<String>();
+ 
+ 자바 7
+ ArrayList<String> x = new ArrayList<>();
+ 
+// 제어문
+// if(조건식) {
+//		수행문;
+//	}
+// * 조건식을 판정해서 true로 판정되면 블록내의 수행문을 실행한다.
+// * 조건식에는 비교연산자/논리연산자를 이용한 연산식이 위치할 수 있고,
+// 	 단순한 값이 위치할 수 있다.
+// * 조건식의 수행결과가 true/false로 아닌 경우
+// 	 0, '', undefined, null, NaN은 false로 판정하고 그 외는 전부 true로 판정한다. 
+
+function checkField() {
+// 입력필드의 입력값 조회하기
+let keyword = document.querySelector('input[name=keyword]').value;
+
+if (keyword.trim()) {
+	alert(`\${keyword}로 데이터를 검색합니다.`);
+} else {
+	alert("검색어를 입력하세요");
+}
+/*
+if (keyword == "") {
+	alert("검색어를 입력하세요");
+} else {
+	alert(`\${keyword}로 데이터를 검색합니다.`);
+}
+*/
+
+// 반복문
+//	for(초기식; 조건식; 증감식) {
+//			수행문;
+//			수행문;
+//	}
+//	* 자바스크립트의 for문은 java의 for문과 사용방법이 동일하다.
+// 1 ~ 10까지 출력하기
+for (let num = 1; num <= 10; num++) {
+	console.log(num);
+}
+// 1 ~ 100까지 합계 구하기
+let total = 0;
+for (let num = 1; num <= 100; num++) {
+	total += num;
+}
+console.log("합계", total);
+
+function gugudan(dan) {
+	for(let num = 1; num <= 9; num++) {
+		console.log(`\${dan} * \${num} = \${dan*num}`);
+	}
+}
+
+gugudan(26);
+gugudan(2);
+//  break와 continue
+// 	break : 반복문을 빠져나온다.
+//  continue : 다음 번 반복으로 넘어간다.
+
+// 반복문 빠져나오기
+// 1 ~ 100까지 합계를 계산했을 때 그 합계가 지정된 목표에 도달하면
+// 반복하기
+let total1 = 0;
+let limit = 1000;
+for (let num = 1; num = 100; num++) {
+	total1 += num;
+	if (total1 >= limit) {
+		break; // total1의 값이 limit보다 크거나 같으면 
+		// 반복문을 빠져나간다.
+	}
+}
+console.log(total1);
+
+// 다음번 반복으로 넘어가기
+// 1 ~ 100까지 숫자를 출력했을 때, 짝수만 출력하기
+for(let num = 1; num <= 100; num++) {
+	if(num%2 != 0) {
+		continue;
+	}
+	console.log(num);
+}
+
+// while 문
+// 반복의 횟수를 지정하지 않고 반복작업을 수행할 때 사용된다.
+// 무한반복을 구현할 때 사용한다.
+while (1) {
+	let value = prompt("숫자를 입력하세요" , "")
+	if (!value) { // 숫자가 입력되지 않으면 반복을 종료한다.
+		break;
+	}
+		console.log('입력값', value);
+}
+
+/*	
+*  함수
++ 프로그램 내에서 반복적으로(여러 군데에서) 실행되는 수행문을
+  모아놓은 이름있는 코드블록이다.
++ 다른 프로그래밍 언어의 메소드와 유사하다.
++ 사용자가 화면의 요소와 상호작용할 때마다 실행할 작업을 
+  함수로 구현할 수 있다.
+함수의 정의
+	함수선언
+		function 함수명(매개변수명, 매개변수명, 매개변수명) {
+		수행문;
+		수행문;
+		수행문;
+	}
+		* function 키워드는 함수임을 나타낸다.
+		* 함수명은 다른 함수와 구별되는 함수의 고유한 이름이다.
+		* 매개변수는 함수를 호출할 때 전달된 값을 저장한다.
+		* 자바와 차이점
+			- 접근제한자가 없다.
+			- 반환타입이 없다.
+			- 매개변수의 타입이 없다.
+		
+	함수표현식
+		* 자바스크립트에서는 함수도 값이다.
+		* 자바스크립트에서 함수는 조금 특별한 값으로 취급한다.
+		* 함수가 값으로 취급되기 때문에 변수에 대입할 수 있고,
+		  매개변수로 전달할 수 있고, 반환값으로 사용할 수 있다.
+		  
+		  let 변수 = function() {
+		 수행문;
+		 수행문;
+		};
+		* 이름없는 함수를 생성하고 변수에 대입하는 것이 함수표현식으로
+		  함수를 정의하는 방법이다.
+		  
+	* 함수선언으로 함수 정의
+	function x(value1, value2) {
+	console.log('연습', value1, value2);
+	}
+		
+	* 함수표현식으로 함수 정의
+	let y = function(value1, value2) {
+	console.log('연습', value1, value2);
+	}
+	
+	let z = x; // 이름이 x인 함수를 z에 대입.
+	* 함수 실행
+	x(10, 20); // 함수명이 x인 함수를 실행한다.
+	y(10, 20); // 변수 y에 대입된 함수를 실행한다. 
+	z(10, 20); // 변수 z에 대입된 함수를 실행한다.
+	
+	* 함수선언과 함수표현식의 차이
+- 함수선언방식으로 함수를 생성하면
+	+ 함수가 독립된 구문 형태로 존재한다.
+	+ 함수선언방식으로 정의된 함수는
+	  자바스크립트 실행엔진이 준비단계에서
+	  함수 선언문을 찾고, 해당함수를 미리 생성한다.
+	+ 함수선언방식으로 정의된 함수는
+- 함수표현식방식으로 함수를 생성하면,
+ 	+ 함수가 표현식의 일부로 존재하게 된다.
+ 	+ 함수표현식방식으로 정의 함수는 실제 실행흐름이 
+ 	  해당 위치에 도달했을 때 함수가 생성된다.
+ 	+ 따라서 함수표현식 방식으로 선언된 함수는
+ 	  함수표현식 이전 코드에서 실행할 수 없다.
+*/		
+
+test1(10, 20);
+//	test2(10, 20); 오류발생
+	
+// "함수선언" 방식으로 함수 정의하기
+function test1(x, y) {
+	console.log("함수선언", x, y);
+	}
+
+	// "함수표현식" 방식으로 함수 정의하기
+	let test2 = function(x,y) {
+	console.log('함수표현식', x, y);
+	}
+	
+	test1(100, 200);
+	test2(200, 400);
+	
+// 전역변수, 지역변수, 매개변수
+	/*
+		전역변수(글로벌변수, 외부변수)
+			+ 함수의 바깥에서 정의된 변수다.
+			+ 모든 함수에서 접근할 수 있다.
+			+ 일반적으로 프로젝트에서 전역변수는 아예 사용하지 않거나 
+			  최소한으로 사용한다.
+			  단, 프로젝트 전체에서 광범위하게 사용되는 값은 전역변수로
+			  관리할 수 있고, 주로 상수로 정의한다.
+			  
+		지역변수 
+			+ 함수 내부에서 정의된 변수다.
+			+ 해당 함수내에서만 사용할 수 있다.
+			+ 함수 내에서 변수를 정의할 때 let 키워드를 생략하고
+			  함수를 정의하면 해당 변수는 무조건 전역변수가 된다.
+		
+			  function x() {
+				let a = 10;
+				b = 20;
+			  }
+	
+			  function y() {
+				console.log(a);	// 오류
+				console.log(b); // 20이 출력된다.
+			  }
+		매개변수	
+			+ 함수 호출 시 인자로 전달된 값을 저장하는 변수다.
+			+ 매개변수도 해당 함수내에서만 사용할 수 있다.
+			+ 매개변수 선언 시 기본값을 지정할 수 있다.
+				function fn(page, rows, sort) {
+					수행문;
+				}	
+				함수호출					매개변수
+				-------------------------------------------------
+											page	rows	sort
+				-------------------------------------------------
+				fn();					undefined undefined undefined
+				fn(1);					1		  undefined	undefined	
+				fn(1, 10);				1		  10 		undefined
+				fn(1, 10, 'date');		1		  10		'date'
+				-------------------------------------------------
+				* 함수 호출 시 인자값은 영향을 주지 않는다.
+				  매개변수가 정의되어 있어도 인자값을 전달하지 않아도 된다.
+				* 함수 호출 시 인자값을 전달받지 못한 매개변수는
+				  undefined 값을 가진다.
+				  
+				 function fn(page = 1, rows = 10, sort = 'date') {
+					수행문;
+				}
+				함수호출					매개변수
+				-------------------------------------------------
+											page	rows	sort
+				-------------------------------------------------
+				fn();						1 		10		'date'
+				fn(2);						2		10		'date'	
+				fn(3, 4);					3		4 		'date'
+				fn(4, 25, 'review');		4	    25		'review'
+				-------------------------------------------------
+				* 인자값을 전달받은 매개변수는 인자값이 매개변수에 대입되고,
+				  인자값을 전달받지 못한 매개변수는 기본값이 매개변수에 대입된다.
+				  
+				
+		
+	*/
+	
+	// 전역변수 정의하기
+	
+	function showImage(filename) {
+		path = "/resources/images/";
+		console.log(path + filename);
+	}
+	
+	function showThumbmail(filename) {
+		console.log(path + filename);
+	}
+	
+	showImage('a.png');
+	showThumbmail('a-small.png');
+	
+	// 매개변수
+	function list1(page, rows, sort) {
+		console.log("list1", page, rows, sort);	
+	}
+	
+	function list2(page = 1, rows = 10 , sort = 'date') {
+		console.log("list2", page, rows, sort);	
+	}
+	
+	// 기본값 설정이 지원되지 않는 브라우저에서 매개변수가
+	// 인자값을 전달받지 못할 때 기본값을 지정하는 방법
+	function list3(page, rows, sort) {
+		page = page || 1; // false || true
+		rows = rows || 10; // false || true
+		sort = sort || 'date'; // false || true 
+		
+		console.log("list3", page, rows, sort);
+	}
+	
+	list1();
+	list2();
+	list3();
+	
+	list1(2, 5);
+	list2(2, 5);
+	
+	// 반환값
+	/*
+		반환값
+			* 함수를 호출한 측에게 반환하는 값을 말한다.
+			* 함수가 값을 반환하지 않으면 undefined 값을 반환한다.
+			* 자바는 값 반환 또는 예외 반환이 필수지만,
+			  자바스크립트는 아님. 
+			* 함수를 작성할 때 함수 내부에서 값을 반환하는 경우,
+			  값을 반환하지 않는 경우가 같이 존재하더라도 상관없다.
+			  
+			function fn(num) {
+				if (num >= 10) {
+					return num*2;
+				}
+			};
+			위의 함수는 num이 10이상일 때는 반환값이 있지만
+			10 미만일 때는 반환값이 정의되어 있지 않다.
+			
+			* 함수의 반환값이 경우에 따라서 서로 다른 종류의
+			  값이어도 상관없다.
+				
+	*/
+	
+	// 값을 반환하지 않는 함수
+	function fn1() {
+		console.log("fn1 함수가 실행됨");
+	}
+	
+	// 값을 반환하는 함수
+	function fn2() {
+		console.log("fn2 함수가 실행됨");
+		return 10;
+	}
+	
+	let value1 = fn1();
+	let value2 = fn2();
+	
+	console.log('value1', value1); // value1의 값은 undefined
+	console.log('value2', value2); // value2의 값은 10이다.
+	
+	// 경우에 따라서 서로 다른 종류의 값을 반환하는 함수
+	// num이 짝수일 때 정수값이 반환된다.
+	// num이 홀수일 때 함수가 반환된다.
+	function fn3(num) {
+		if (num%2 == 0) {
+			return num*2;
+		} else {
+			return (function(x) {
+				console.log(x*x);
+			});
+		}
+	}
+	
+	let value3 = fn3(2);
+	let fn4 = fn3(5);
+	fn4(4);
+
+	// 콜백함수(Callback function)
+	/*
+	콜백함수
+		+ 함수의 매개변수 인자값으로 전달되는 함수를 말한다.
+		+ 호출하는 함수에게 값(데이터)를 전달하는 대신에
+		  함수(행동)을 전달하는 것이다.
+			  
+		+ 콜백함수 전달하기
+			+ 콜백함수를 전달받는 함수
+			function check(kor, eng, math, fn) {
+				let average = (kor + eng + math)/3;
+				if (average >= 60) {
+					fn();	// 콜백함수 실행하기
+				}
+			}
+			
+			이름있는 함수 전달하기
+				// 이름있는 함수
+				function success() {
+					console.log("합격입니다.");
+				}
+				
+				// 이름 있는 함수를 콜백함수로 전달하기
+				check(100, 100, 100, success);	
+				
+			익명함수 전달하기
+				// 익명함수를 콜백함수로 전달하기 
+				check(100, 100, 100, function() {
+					console.log("합격입니다.");
+				})
+			
+			화살표함수 전달하기
+				check(100, 100, 100, )
+	*/
+	
+	// 합격일 때 수행할 작업이 정의된 함수
+	function success(score) {
+		console.log(score, "합격입니다.");
+	}
+	
+	// 불합격일 때 수행할 작업이 정의된 함수
+	function fail() {
+		console.log("불합격입니다.");
+	}
+	
+	// fn1과 fn2 매개변수로 전달받은 함수가 콜백함수다.
+	function check(kor, eng, math, fn1, fn2) {
+		let total = kor + eng + math;
+		let average = total / 3;
+		
+		if (average >= 60) {
+			fn1(average);
+		} else {
+			fn2();
+		}
+	}
+	
+	// 이름 있는 함수를 콜백함수로 전달한 경우
+	// check(60, 60, 61, success, fail);
+	
+	// 익명함수를 콜백함수로 전달하는 경우
+	/*
+	check(60, 60, 61, 
+		function(score) {
+			console.log(score, "합격입니다.");
+		}, function() {
+			console.log("불합격입니다.");	
+		});
+	*/
+	
+	// 화살표함수를 콜백함수로 전달하는 경우
+	check(100, 100, 100, 
+			(score) => console.log(score, "합격입니다."),
+			() => console.log("불합격입니다."));
+	
+	check(10, 20, 50, 
+			(score) => console.log(score, "합격입니다."),
+			() => console.log("불합격입니다."));
+
