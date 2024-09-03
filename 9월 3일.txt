@@ -1,0 +1,136 @@
+Element 객체의 주요 메소드 中
+
+* value [ 값을 바꿀 때는 다 value를 씀 ]
+: input, select, textarea 3개만 가지고 있다.
+  폼 입력요소의 값을 반환한다. ( 입력값 반환 )
+
+엘리먼트 검색 메소드에는 추가로 얘네가 있긴한데, 사실 쓸 일이 없음.
+
+HTMLCollection documnet.getElementsByClassName(클래스속성값)
+== 	       document.querySelectorAll(".클래스속성값")
+
+HTMLCollection document.getElementsByTagName(태그명)
+==	       document.querySelectorAll("태그명")
+
+HTMLCollection document.getElementsByName(name속성값)
+==	       document.querySelectorAll("[name=값]")
+
+HTMLCollection이나 NodeList는 둘 다 배열 유사 객체임 ( 따로 구분할 필요 x ) 
+
+querySelector는 첫 번째 값만 조회함 ( 이후는 무시 )
+
+getElement와 querySelector는 Element를 반환하지만, 
+querySelectorAll은 NodeList를 반환함. [ 하나 있어도 NodeList를 반환함 ]
+
+checkbox, radio, select 등은 value를 바꾸는 게 아니라, 그 값을 선택되게 해야함.
+
+querySelector로는 같은 name이 하나밖에 선택이 안 되니깐 id를 달자.
+[ 입력필드는 입력한 값을 읽어오고 바꿀 수 있지만, checkbox/radio/select는 값을 바꾸는 게 아니라
+  특정하게 check되게 하는 게 목적임 ]
+
+이벤트 
+  - 사용자와 웹페이지의 상호작용으로 발생되는 것
+  - 이벤트는 Window객체, Document객체, Element 객체가 발생시킨다.
+
+이벤트의 종류
+  - 마우스이벤트
+      *	click
+		엘리먼트를 클릭했을 때 발생하는 이벤트다.
+	mouseenter, mouseleave 
+		엘리먼트에 마우스 포인트가 진입하거나 빠져나갈 때 발생하는 이벤트다. 
+	mousemove
+		엘리먼트안에서 마우스 포인트가 움직일 때 발생하는 이벤트다.
+  - 키보드이벤트
+  	keydown
+		엘리먼트에서 키보드의 키를 누를 때 발생하는 이벤트다.
+	keypressed : [ 한글 입력시에는 동작 안함.. ]
+		엘리먼트에서 키보드의 키가 완전히 눌러졌을 때 발생하는 이벤트다.
+      *	keyup
+		엘리먼트에서 키보드의 키가 위로 올라올 때 발생하는 이벤트다. [ 표시될 때..? ]
+  - 폼요소이벤트
+      *	submit
+		폼에서 submit버튼을 클릭했을 때 발생하는 이벤트다.
+		폼 입력값을 서버로 제출(submit)할 때 발생하는 이벤트다.
+		이 이벤트를 발생시키는 엘리먼트는 <form>이다.  
+      *	change
+		체크박스, 라디오버튼의 체크상태가 변경될 때 발생하는 이벤트다.
+		select박스의 선택된 옵션이 변경될 때 발생하는 이벤트다.
+		입력필드에서는 다른 폼요소로 이동했을 때 원래 입력필드의 값과 
+		입력값이 달라져있을 때 발생하는 이벤트다.
+	focus
+		폼입력요소가 포커스를 획득했을 때 발생하는 이벤트다.
+	blur
+		폼입력요소가 포커스를 잃었을 때 발생하는 이벤트다.
+  - 윈도우이벤트
+      *	scroll
+		화면이 스크롤될 때 발생하는 이벤트다.
+	resize
+		브라우저의 화면 크기가 변경될 때 발생하는 이벤트다.
+	error
+		웹페이지에서 오류가 생겼을 때 발생하는 이벤트다.
+	load
+		웹페이지가 전부 로딩되었을 때 발생하는 이벤트다.
+
+이벤트 객체
+	 - 웹페이지에서 이벤트가 발생할 때 생성되는 객체다.
+	 - property
+		target	: 이벤트가 발생한 엘리먼트 객체를 반환한다.
+		type	: 이벤트의 종류를 반환한다.
+		key 	: 키보드 이벤트 한정, 지금 입력한 키를 반환한다.
+		pageX, pageY : 마우스 이벤트 한정, 현재 마우스의 포인트의 좌표를 반환한다.
+		button	: 마우스 이벤트 한정, 마우스의 어떤 버튼을 클릭했는지 반환한다. 
+			  왼쪽:0, 가운데:1, 오른쪽:2
+	 - method
+		preventDefault()
+			이벤트에 대한 기본 동작이 실행을 방해한다.
+		stopPropagation()
+			이벤트 버블링을 중지시킨다.
+		stopImmediatePropagation()
+			이벤트 버블링을 중지시킨다.
+		* 이벤트 버블링 : 발생한 이벤트가 부모 방향으로 전파되는 것.
+
+이벤트 처리
+	- 이벤트 발생시 실행될 이벤트 핸들러 함수를 등록하는 것이다.
+	- 이벤트 처리방법	
+	 + 인라인 이벤트 처리 [ 권장 ]
+		<button onclick="fn1();">버튼</button>
+
+		function fn1() {
+		  수행문;
+		  수행문;
+		}
+	
+	 + 프로퍼티를 이용한 이벤트 처리
+		<button id="btn-1">버튼</button>
+
+		let btn = document.getElementbyId("btn-1");
+		btn.onclick = function() {
+		  수행문;
+		  수행문;
+		}
+
+	 + addEventListener()를 이용한 이벤트 처리
+		<button id="btn-1">버튼</button>
+	
+		let btn = document.getElementById("btn-1");
+		btn.addEventListener('click', function() {
+		  수행문;
+		  수행문;
+		})
+
+         * 괄호 안에 event를 적으면 전달받을 수 있음. [ 안 적어도 상관 없음 ]
+
+// 이름있는 함수를 이벤트핸들러 함수로 사용하는 경우
+function handler() {
+	...
+}
+document.getElementById('btn-1').onclick = handler; --- O
+document.getElementById('btn-1').onclick = handler(); --- X
+[ 이름을 알려주는 것이지, 결과를 등록하는 게 아님 ] 
+
+
+1. 이벤트 소스와 이벤트 종류 선정.
+2. 구체적인 변화 [ 화면에 변화를 주는 것. html 문서의 엘리먼트를 조작하는 것 ]
+파이널 프로젝트 할 때, react나 view를 알려주시면 그거를 이용해보기.
+
+유지보수를 생각하면 코딩 스타일을 똑같이 유지하는 게 중요함.
