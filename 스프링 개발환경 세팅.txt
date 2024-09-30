@@ -1,0 +1,68 @@
+1. spring.io 사이트 접속하기
+2. projects - spring tools 4 - spring tools 4 for eclipse에서 4.25.0 windows x86_64 다운로드 [ 스프링 실전 압축팩 ]
+   or
+   전자정부 프레임워크 - 다운로드 - 개발환경 - 4.x 다운로드 - 개발자용 개발환경 64bit ver 4.2.0 다운로드 [ 위의 것보다 더 확장적 ]
+3. 다운로드 완료되면 압축 풀고, spring boot 4 실행하기
+4. window - preferences - encoding 2개 다 UTF-8로
+5. window - preferences - java - installed JREs - jdk-21.0.3으로 선택
+6. eclipse marketplace에서 eclipse enterprise java and web developer tools 3.35 다운로드
+[ popular 선택 후 ]
+# [ 일반 이클립스에서 spring tool 4 다운로드 받으면 지금거 쌉가능 ]
+7. create a maven project - simple project - 
+group Id : kr.co.jhta
+Artifact Id : spring-di
+하고 finish 
+8. pom.xml 열기
+9. <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kr.co.jhta</groupId>
+  <artifactId>spring-di</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+  	<maven.compiler.source>21</maven.compiler.source>
+	<maven.compiler.target>21</maven.compiler.target>
+  </properties>
+</project>
+10. window - preferences - language server - 전체 체크해제
+11. 프로젝트 우클릭 - maven - update project [ JavaSE-21로 변경 ]
+12.
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kr.co.jhta</groupId>
+  <artifactId>spring-di</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+  	<maven.compiler.source>21</maven.compiler.source>
+	<maven.compiler.target>21</maven.compiler.target>
+  </properties>
+  
+  <dependencies>
+  
+  </dependencies>
+</project> 
+[ dependency 추가 ]
+13. maven에 spring-context 검색 후 6.1.13 복붙
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kr.co.jhta</groupId>
+  <artifactId>spring-di</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+  	<maven.compiler.source>21</maven.compiler.source>
+	<maven.compiler.target>21</maven.compiler.target>
+  </properties>
+  
+  <dependencies>
+  	<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+	<dependency>
+	    <groupId>org.springframework</groupId>
+	    <artifactId>spring-context</artifactId>
+	    <version>6.1.13</version>
+	</dependency>
+
+  </dependencies>
+</project>
+14. maven-update project [ 라이브러리들 다운로드 ]
